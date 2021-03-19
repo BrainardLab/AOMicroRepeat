@@ -38,7 +38,7 @@ twoSpotParams = struct(...
     'imagingFWHM', 20, ...                          % imaging beam full width at half max: in nm
     'imagingBgPowerUW', 0, ...                      % imaging beam power entering eye: in uW
     'fovDegs', fieldSizeDegs, ...                   % spatial: scene field of view, in degrees
-    'pixelsNum', 256, ...                           % spatial: desired size of stimulus in pixels
+    'pixelsNum', 128, ...                           % spatial: desired size of stimulus in pixels
     'temporalModulation', 'flashed', ...            % temporal modulation mode: choose between {'flashed'}
     'temporalModulationParams', struct(...          % temporal: modulation params struct
     'stimOnFrameIndices', [2 3 4], ...              %   params relevant to the temporalModulationMode
@@ -127,7 +127,7 @@ for ii = 1:nDirs
     
     visualizationContrast = 1.0;
     [theSceneSequence{ii}] = twoSpotScene.compute(visualizationContrast);
-    %twoSpotScene.visualizeStaticFrame(theSceneSequence);
+    twoSpotScene.visualizeStaticFrame(theSceneSequence);
     
     % Plot data and psychometric curve 
     % with a marker size of 2.5
