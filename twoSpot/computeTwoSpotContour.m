@@ -12,6 +12,18 @@
 %% Clear and close
 clear; close all; ieInit;
 
+%% Testing or running out full computations?
+TESTING = true;
+if (TESTING)
+    nPixels = 64;
+    nTrialsTest = 64;
+    angleList = [0 90 180 270];
+else
+    nPixels = 256;
+    nTrialsTest = 256;
+	angleList = [0 22.5 45 67.5 90 112.5 135 157.5 180 202.5 225 247.5 270 292.5 315 337.5];
+end
+
 % Ancillary stimulus parameters
 %
 % Define basic parameters of the AO stimulus
@@ -19,6 +31,8 @@ clear; close all; ieInit;
 % Measured power was 76 nW for 1.5 by 1 degree field.
 % Need to adjust for what it would have been for same
 % radiance with a different size field.
+wls = 400:10:750;
+spotWavelengthNm = 550;
 fieldSizeDegs = 0.25;
 pupilDiameterMm = 6;
 twoSpotParams = struct(...
@@ -26,7 +40,7 @@ twoSpotParams = struct(...
     'viewingDistanceMeters', 2, ...                 % viewing distance: in meters
     'wls', 400:10:750, ...                          % wavelength support of the primary SPDs: in nanometers
     'stimAngle', 0, ...                             % stimulus angle in incr/decr plane
-    'spotWl', 550, ...                              % spot wavelength: in nm
+    'spotWl', spotWavelengthNm, ...                 % spot wavelength: in nm
     'spotFWHM', 20, ...                             % spot full width at half max: in nm
     'spotWidthDegs', 1.3/60, ...                    % spot width: in degrees
     'spotHeightDegs', 1/60, ...                     % spot height: in degrees
@@ -38,7 +52,7 @@ twoSpotParams = struct(...
     'imagingFWHM', 20, ...                          % imaging beam full width at half max: in nm
     'imagingBgPowerUW', 0, ...                      % imaging beam power entering eye: in uW
     'fovDegs', fieldSizeDegs, ...                   % spatial: scene field of view, in degrees
-    'pixelsNum', 128, ...                           % spatial: desired size of stimulus in pixels
+    'pixelsNum', nPixels, ...                           % spatial: desired size of stimulus in pixels
     'temporalModulation', 'flashed', ...            % temporal modulation mode: choose between {'flashed'}
     'temporalModulationParams', struct(...          % temporal: modulation params struct
     'stimOnFrameIndices', [2 3 4], ...              %   params relevant to the temporalModulationMode
@@ -47,18 +61,26 @@ twoSpotParams = struct(...
     'pupilDiameterMm', pupilDiameterMm ...          % pupil diameter mm
     );
 
-% Set up a set of incr-decr directions in the contrast plane. Specify
-% as a list of angles.
-angleList = [0 22.5 45 67.5 90 112.5 135 157.5 180 202.5 225 247.5 270 292.5 315 337.5];
+
 
 %% Create neural response engine
 %
 % This calculations isomerizations in a patch of cone mosaic with Poisson
 % noise, and includes optical blur.
-neuralParams = nrePhotopigmentExcitationsWithNoEyeMovements;
+neuralParams = nreAOPhotopigmentExcitationsWithNoEyeMovements;
+
+% Set optics params
+neuralParams.opticsParams.wls = wls;
 neuralParams.opticsParams.pupilDiameterMM = pupilDiameterMm;
+neuralParams.opticsParams.defocusAmount = 0.1;
+neuralParams.opticsParams.accommodatedWl = 550;
+neuralParams.opticsParams.zCoeffs = zeros(66,1);
+neuralParams.opticsParams.defeatLCA = false;
+
+% Cone params
 neuralParams.coneMosaicParams.fovDegs = fieldSizeDegs;
-theNeuralEngine = neuralResponseEngine(@nrePhotopigmentExcitationsWithNoEyeMovements, neuralParams);
+neuralParams.coneMosaicParams.pixelsNum = nPixels;
+theNeuralEngine = neuralResponseEngine(@nreAOPhotopigmentExcitationsWithNoEyeMovements, neuralParams);
 
 %% Instantiate the PoissonTAFC responseClassifierEngine
 %
@@ -67,7 +89,7 @@ theNeuralEngine = neuralResponseEngine(@nrePhotopigmentExcitationsWithNoEyeMovem
 classifierEngine = responseClassifierEngine(@rcePoissonTAFC);
 classifierPara = struct('trainFlag', 'none', ...
                         'testFlag', 'random', ...
-                        'nTrain', 1, 'nTest', 128);
+                        'nTrain', 1, 'nTest', nTrialsTest);
 
 %% Parameters for threshold estimation/quest engine
 % The actual threshold varies enough with the different engines that we
