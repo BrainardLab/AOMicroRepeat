@@ -12,15 +12,19 @@
 %% Clear and close
 clear; close all; ieInit;
 
+%% Directory stuff
+baseProject = 'AOCompObserver';
+analysisBaseDir = getpref(baseProject,'analysisDir');
+
 %% Testing or running out full computations?
-TESTING = true;
+TESTING = false;
 if (TESTING)
-    nPixels = 64;
+    nPixels = 128;
     nTrialsTest = 64;
     angleList = [0 90 180 270];
 else
     nPixels = 256;
-    nTrialsTest = 256;
+    nTrialsTest = 128;
 	angleList = [0 22.5 45 67.5 90 112.5 135 157.5 180 202.5 225 247.5 270 292.5 315 337.5];
 end
 
@@ -35,6 +39,13 @@ wls = 400:10:750;
 spotWavelengthNm = 550;
 fieldSizeDegs = 0.25;
 pupilDiameterMm = 6;
+defocusDiopters = 0.1;
+analysisOutDir = fullfile(analysisBaseDir,sprintf('IncrDecr1_%s',num2str(round(1000*defocusDiopters))));
+if (~exist(analysisOutDir,'dir'))
+    mkdir(analysisOutDir);
+end
+
+% Set up two spot params
 twoSpotParams = struct(...
     'type', 'basic', ...                            % type
     'viewingDistanceMeters', 2, ...                 % viewing distance: in meters
@@ -52,16 +63,14 @@ twoSpotParams = struct(...
     'imagingFWHM', 20, ...                          % imaging beam full width at half max: in nm
     'imagingBgPowerUW', 0, ...                      % imaging beam power entering eye: in uW
     'fovDegs', fieldSizeDegs, ...                   % spatial: scene field of view, in degrees
-    'pixelsNum', nPixels, ...                           % spatial: desired size of stimulus in pixels
+    'pixelsNum', nPixels, ...                       % spatial: desired size of stimulus in pixels
     'temporalModulation', 'flashed', ...            % temporal modulation mode: choose between {'flashed'}
     'temporalModulationParams', struct(...          % temporal: modulation params struct
-    'stimOnFrameIndices', [2 3 4], ...              %   params relevant to the temporalModulationMode
-    'stimDurationFramesNum', 5), ...                %   params relevant to the temporalModulationMode
-    'frameDurationSeconds', 1/16, ...               % temporal: frame duration, in seconds
+    'stimOnFrameIndices', [1], ...                  %   params relevant to the temporalModulationMode
+    'stimDurationFramesNum', 1), ...                %   params relevant to the temporalModulationMode
+    'frameDurationSeconds', 3/16, ...               % temporal: frame duration, in seconds
     'pupilDiameterMm', pupilDiameterMm ...          % pupil diameter mm
     );
-
-
 
 %% Create neural response engine
 %
@@ -72,7 +81,7 @@ neuralParams = nreAOPhotopigmentExcitationsWithNoEyeMovements;
 % Set optics params
 neuralParams.opticsParams.wls = wls;
 neuralParams.opticsParams.pupilDiameterMM = pupilDiameterMm;
-neuralParams.opticsParams.defocusAmount = 0.1;
+neuralParams.opticsParams.defocusAmount = defocusDiopters;
 neuralParams.opticsParams.accommodatedWl = 550;
 neuralParams.opticsParams.zCoeffs = zeros(66,1);
 neuralParams.opticsParams.defeatLCA = false;
@@ -96,8 +105,8 @@ classifierPara = struct('trainFlag', 'none', ...
 % need to adjust the contrast range that Quest+ searches over, as well as
 % the range of psychometric function slopes.  Threshold limits are computed
 % as 10^-logThreshLimitVal.
-thresholdPara = struct('logThreshLimitLow', 4, ...
-                       'logThreshLimitHigh', 2, ...
+thresholdPara = struct('logThreshLimitLow', 3, ...
+                       'logThreshLimitHigh', 1, ...
                        'logThreshLimitDelta', 0.02, ...
                        'slopeRangeLow', 1, ...
                        'slopeRangeHigh', 50, ...
@@ -128,6 +137,7 @@ sceneComputeFunction = @sceTwoSpot;
 nDirs = length(angleList);
 dataFig = figure();
 logThreshold = zeros(1, nDirs);
+whichFrameToVisualize = 3;
 for ii = 1:nDirs
 
     % Instantiate a sceneEngine with the above sceneComputeFunctionHandle
@@ -155,8 +165,10 @@ for ii = 1:nDirs
     % with a marker size of 2.5
     subplot(ceil(nDirs/2), 4, ii * 2);
     questObj.plotMLE(2.5);
+    drawnow;
 end
 set(dataFig, 'Position',  [0, 0, 800, 800]);
+print(dataFig,fullfile(analysisOutDir,sprintf('CompObsPsychoFig.tiff')), '-dtiff');
 
 % Convert returned log threshold to linear threshold
 threshold = 10 .^ logThreshold;
@@ -173,21 +185,30 @@ thresholdContrasts = [threshold.*cosd(angleList) ; threshold.*sind(angleList)];
 % We constrain the ellipse to line up with the x and y axes.  Change flag
 % below to relax this.  Doesn't make very much difference inthis case.
 scaleFactor = 1/(max(abs(thresholdContrasts(:))));
-[fitEllParams,fitA,fitAinv,fitQ] = FitEllipseQ(scaleFactor*thresholdContrasts(1:2,:),'lockAngleAt0',false);
+[compEllParams,compFitA,compFitAinv,compFitQ] = FitEllipseQ(scaleFactor*thresholdContrasts(1:2,:),'lockAngleAt0',false, ...
+    'initialParams',[0.9 1.1 45]);
 nThetaEllipse = 200;
 circleIn2D = UnitCircleGenerate(nThetaEllipse);
-fitEllipse = PointsOnEllipseQ(fitQ,circleIn2D)/scaleFactor;
+fitEllipse = PointsOnEllipseQ(compFitQ,circleIn2D)/scaleFactor;
 
 %% Plot
-contrastLim = 0.003;
+contrastLim = 0.05;
 theContourFig = figure; clf; hold on
-plot(thresholdContrasts(1,:), thresholdContrasts(2,:), 'ok', 'MarkerFaceColor','k', 'MarkerSize',12);
 plot(fitEllipse(1,:),fitEllipse(2,:),'r','LineWidth',3);
 plot([-contrastLim contrastLim],[0 0],'k:','LineWidth',1);
 plot([0 0],[-contrastLim contrastLim],'k:','LineWidth',1);
-xlabel('L Cone Contrast');
-ylabel('M Cone Contrsast');
+xlabel('Contrast 1');
+ylabel('Contrsast 2');
 set(theContourFig, 'Position',  [800, 0, 600, 800]);
 xlim([-contrastLim contrastLim]); ylim([-contrastLim contrastLim]);
 axis('square');
+print(theContourFig, fullfile(analysisOutDir,sprintf('CompObsEllipse.tiff')), '-dtiff');
 
+% Add comp data to plot
+plot(thresholdContrasts(1,:), thresholdContrasts(2,:), 'ok', 'MarkerFaceColor','k', 'MarkerSize',12);
+print(theContourFig, fullfile(analysisOutDir,sprintf('CompObsEllipseWithData.tiff')), '-dtiff');
+
+%% Save
+close(dataFig);
+close(theContourFig);
+save(fullfile(analysisOutDir,'CompObserver'));

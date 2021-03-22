@@ -179,8 +179,8 @@ if (isempty(neuralEngineOBJ.neuralPipeline))
         'fovDegs', neuralResponseParamsStruct.coneMosaicParams.fovDegs, ...,
         'integrationTime', neuralResponseParamsStruct.coneMosaicParams.timeIntegrationSeconds ...
         );
-    theConeMosaic.rows = neuralResponseParamsStruct.coneMosaicParams.pixelsNum;
-    theConeMosaic.cols = neuralResponseParamsStruct.coneMosaicParams.pixelsNum;
+    %theConeMosaic.rows = neuralResponseParamsStruct.coneMosaicParams.pixelsNum;
+    %theConeMosaic.cols = neuralResponseParamsStruct.coneMosaicParams.pixelsNum;
   
     % Set flag
     returnTheNeuralPipeline = true;
