@@ -76,7 +76,10 @@ twoSpotParams = struct(...
 %
 % This calculations isomerizations in a patch of cone mosaic with Poisson
 % noise, and includes optical blur.
-neuralParams = nreAOPhotopigmentExcitationsWithNoEyeMovements;
+
+%neuralParams = nreAOPhotopigmentExcitationsWithNoEyeMovements;
+neuralParams = nreAOPhotopigmentExcitationsWithNoEyeMovementsCMosaic;
+
 
 % Set optics params
 neuralParams.opticsParams.wls = wls;
@@ -89,7 +92,7 @@ neuralParams.opticsParams.defeatLCA = false;
 % Cone params
 neuralParams.coneMosaicParams.fovDegs = fieldSizeDegs;
 neuralParams.coneMosaicParams.pixelsNum = nPixels;
-theNeuralEngine = neuralResponseEngine(@nreAOPhotopigmentExcitationsWithNoEyeMovements, neuralParams);
+theNeuralEngine = neuralResponseEngine(@nreAOPhotopigmentExcitationsWithNoEyeMovementsCMosaic, neuralParams);
 
 %% Instantiate the PoissonTAFC responseClassifierEngine
 %
