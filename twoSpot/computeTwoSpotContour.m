@@ -39,7 +39,7 @@ wls = 400:10:750;
 spotWavelengthNm = 550;
 fieldSizeDegs = 0.25;
 pupilDiameterMm = 6;
-defocusDiopters = 0.1;
+defocusDiopters = 0;
 analysisOutDir = fullfile(analysisBaseDir,sprintf('IncrDecr1_%s',num2str(round(1000*defocusDiopters))));
 if (~exist(analysisOutDir,'dir'))
     mkdir(analysisOutDir);
