@@ -162,7 +162,7 @@ for ii = 1:nDirs
     
     visualizationContrast = 1.0;
     [theSceneSequence{ii}] = twoSpotScene.compute(visualizationContrast);
-    twoSpotScene.visualizeStaticFrame(theSceneSequence{ii});
+    twoSpotScene.visualizeStaticFrame(theSceneSequence{ii}, 'skipOutOfGamutCheck', true);
     
     % Plot data and psychometric curve 
     % with a marker size of 2.5
