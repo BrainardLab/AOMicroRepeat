@@ -17,7 +17,7 @@ baseProject = 'AOCompObserver';
 analysisBaseDir = getpref(baseProject,'analysisDir');
 
 %% Testing or running out full computations?
-TESTING = false;
+TESTING = true;
 if (TESTING)
     nPixels = 128;
     nTrialsTest = 64;
@@ -40,7 +40,7 @@ spotWavelengthNm = 550;
 fieldSizeDegs = 0.25;
 pupilDiameterMm = 6;
 defocusDiopters = 0;
-analysisOutDir = fullfile(analysisBaseDir,sprintf('IncrDecr1_%s',num2str(round(1000*defocusDiopters))));
+analysisOutDir = fullfile(analysisBaseDir,sprintf('IncrDecr1_%s_%s',num2str(round(1000*defocusDiopters)),pupilDiameterMm));
 if (~exist(analysisOutDir,'dir'))
     mkdir(analysisOutDir);
 end
