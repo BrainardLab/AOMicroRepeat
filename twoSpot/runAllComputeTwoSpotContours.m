@@ -13,4 +13,4 @@ for dd = 1:length(defocusDioptersList)
     for pp = 1:length(pupilDiameterMmList)
         computeTwoSpotContour('defocusDiopters',defocusDioptersList(dd),'pupilDiameterMm',pupilDiameterMmList(pp));
     end
-end
+    endpro
