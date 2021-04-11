@@ -1,3 +1,4 @@
+function computeTwoSpotContour(options)
 % Compute isothreshold contour for mixtures of incremental and decremental spots.
 %
 % Description:
@@ -9,15 +10,21 @@
 % History:
 %   03/16/21  dhb   Wrote it from color threshold example in ISETBioCSFGenerator.
 
+%% Pick up optional arguments
+arguments
+    options.defocusDiopters (1,1) double = 0.05;
+    options.pupilDiameterMm (1,1) double = 6;
+end
+
 %% Clear and close
-clear; close all; ieInit;
+close all; ieInit;
 
 %% Directory stuff
 baseProject = 'AOCompObserver';
 analysisBaseDir = getpref(baseProject,'analysisDir');
 
 %% Testing or running out full computations?
-TESTING = true;
+TESTING = false;
 if (TESTING)
     nPixels = 128;
     nTrialsTest = 64;
@@ -38,9 +45,9 @@ end
 wls = 400:10:750;
 spotWavelengthNm = 550;
 fieldSizeDegs = 0.25;
-pupilDiameterMm = 6;
-defocusDiopters = 0;
-analysisOutDir = fullfile(analysisBaseDir,sprintf('IncrDecr1_%s_%s',num2str(round(1000*defocusDiopters)),pupilDiameterMm));
+pupilDiameterMm = options.pupilDiameterMm;
+defocusDiopters = options.defocusDiopters;
+analysisOutDir = fullfile(analysisBaseDir,sprintf('IncrDecr1_%s_%d',num2str(round(1000*defocusDiopters)),pupilDiameterMm));
 if (~exist(analysisOutDir,'dir'))
     mkdir(analysisOutDir);
 end
@@ -76,10 +83,8 @@ twoSpotParams = struct(...
 %
 % This calculations isomerizations in a patch of cone mosaic with Poisson
 % noise, and includes optical blur.
-
 %neuralParams = nreAOPhotopigmentExcitationsWithNoEyeMovements;
 neuralParams = nreAOPhotopigmentExcitationsWithNoEyeMovementsCMosaic;
-
 
 % Set optics params
 neuralParams.opticsParams.wls = wls;
@@ -158,8 +163,14 @@ for ii = 1:nDirs
     
     % Plot stimulus
     figure(dataFig);
-    subplot(ceil(nDirs/2), 4, ii * 2 - 1);
+    subplot(nDirs, 3, ii * 3 - 2);
+    visualizationContrast = 1.0;
+    [theSceneSequence{ii}] = twoSpotScene.compute(visualizationContrast);
+    twoSpotScene.visualizeStaticFrame(theSceneSequence{ii}, ...
+        'skipOutOfGamutCheck', true);
     
+    % Plot optical image
+    subplot(nDirs, 3, ii * 3 - 1);
     visualizationContrast = 1.0;
     [theSceneSequence{ii}] = twoSpotScene.compute(visualizationContrast);
     twoSpotScene.visualizeStaticFrame(theSceneSequence{ii}, ...
@@ -168,7 +179,7 @@ for ii = 1:nDirs
     
     % Plot data and psychometric curve 
     % with a marker size of 2.5
-    subplot(ceil(nDirs/2), 4, ii * 2);
+    subplot(nDirs, 3, ii * 3 );
     questObj.plotMLE(2.5);
     drawnow;
 end
