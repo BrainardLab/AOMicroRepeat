@@ -24,11 +24,11 @@ baseProject = 'AOCompObserver';
 analysisBaseDir = getpref(baseProject,'analysisDir');
 
 %% Testing or running out full computations?
-TESTING = false;
+TESTING = true;
 if (TESTING)
     nPixels = 128;
     nTrialsTest = 64;
-    angleList = [0 90 180 270];
+    angleList = [0 45 135 180 225];
 else
     nPixels = 256;
     nTrialsTest = 128;
@@ -90,7 +90,7 @@ neuralParams = nreAOPhotopigmentExcitationsWithNoEyeMovementsCMosaic;
 neuralParams.opticsParams.wls = wls;
 neuralParams.opticsParams.pupilDiameterMM = pupilDiameterMm;
 neuralParams.opticsParams.defocusAmount = defocusDiopters;
-neuralParams.opticsParams.accommodatedWl = 550;
+neuralParams.opticsParams.accommodatedWl = spotWavelengthNm;
 neuralParams.opticsParams.zCoeffs = zeros(66,1);
 neuralParams.opticsParams.defeatLCA = false;
 
@@ -130,7 +130,7 @@ questEnginePara = struct('minTrial', 1280, 'maxTrial', 1280, ...
 visualizationPara.visualizeStimulus = ~true;
 visualizationPara.visualizeAllComponents = ~true;
 
-% Data saving params
+% Data saving parameters
 datasavePara.destDir = '~/Desktop/tmpDir';
 datasavePara.saveMRGCResponses = ~true;
 
