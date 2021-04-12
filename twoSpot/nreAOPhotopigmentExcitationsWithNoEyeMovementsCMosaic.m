@@ -174,6 +174,10 @@ if (isempty(neuralEngineOBJ.neuralPipeline))
     % Generate optical image object from the wavefront object
     theOptics = wvf2oi(wvfP);
     
+    % Set the fNumber to correspond to the pupil size
+    focalLengthMM = oiGet(theOptics,'focal length')*1000;
+    theOptics = oiSet(theOptics, 'optics fnumber', focalLengthMM/neuralResponseParamsStruct.opticsParams.pupilDiameterMM);
+    
     % Generate the cone mosaic
     theConeMosaic = cMosaic('sizeDegs', neuralResponseParamsStruct.coneMosaicParams.fovDegs*[1 1], ...
         'integrationTime', neuralResponseParamsStruct.coneMosaicParams.timeIntegrationSeconds);
