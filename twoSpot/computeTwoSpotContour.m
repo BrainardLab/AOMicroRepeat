@@ -15,6 +15,7 @@ arguments
     options.defocusDiopters (1,1) double = 0.05;
     options.pupilDiameterMm (1,1) double = 6;
     options.visualizeMosaicResponses (1,1) logical = false;
+    options.testing (1,1) logical = false;
 end
 
 %% Clear and close
@@ -25,11 +26,10 @@ baseProject = 'AOCompObserver';
 analysisBaseDir = getpref(baseProject,'analysisDir');
 
 %% Testing or running out full computations?
-TESTING = false;
-if (TESTING)
+if (options.testing)
     nPixels = 128;
     nTrialsTest = 64;
-    angleList = [0 90 180 270];
+    angleList = [0 45 135 180 225];
 else
     nPixels = 256;
     nTrialsTest = 128;
@@ -91,7 +91,7 @@ neuralParams = nreAOPhotopigmentExcitationsWithNoEyeMovementsCMosaic;
 neuralParams.opticsParams.wls = wls;
 neuralParams.opticsParams.pupilDiameterMM = pupilDiameterMm;
 neuralParams.opticsParams.defocusAmount = defocusDiopters;
-neuralParams.opticsParams.accommodatedWl = 550;
+neuralParams.opticsParams.accommodatedWl = spotWavelengthNm;
 neuralParams.opticsParams.zCoeffs = zeros(66,1);
 neuralParams.opticsParams.defeatLCA = false;
 
@@ -125,7 +125,7 @@ thresholdPara = struct('logThreshLimitLow', 3, ...
 % operation (fixed numer of trials vs. adaptive)
 questEnginePara = struct('minTrial', 1280, 'maxTrial', 1280, ...
                          'numEstimator', 1, 'stopCriterion', 0.05);
-
+                     
 % Create a static two-spot AO scene with a particular incr-decr direction,
 % and other relevant parameters
 % Compute function handle for two-spot AO stimuli
