@@ -14,6 +14,7 @@ function computeTwoSpotContour(options)
 arguments
     options.defocusDiopters (1,1) double = 0.05;
     options.pupilDiameterMm (1,1) double = 6;
+    options.visualizeMosaicResponses (1,1) logical = false;
 end
 
 %% Clear and close
@@ -24,11 +25,11 @@ baseProject = 'AOCompObserver';
 analysisBaseDir = getpref(baseProject,'analysisDir');
 
 %% Testing or running out full computations?
-TESTING = true;
+TESTING = false;
 if (TESTING)
     nPixels = 128;
     nTrialsTest = 64;
-    angleList = [0 45 135 180 225];
+    angleList = [0 90 180 270];
 else
     nPixels = 256;
     nTrialsTest = 128;
@@ -90,13 +91,12 @@ neuralParams = nreAOPhotopigmentExcitationsWithNoEyeMovementsCMosaic;
 neuralParams.opticsParams.wls = wls;
 neuralParams.opticsParams.pupilDiameterMM = pupilDiameterMm;
 neuralParams.opticsParams.defocusAmount = defocusDiopters;
-neuralParams.opticsParams.accommodatedWl = spotWavelengthNm;
+neuralParams.opticsParams.accommodatedWl = 550;
 neuralParams.opticsParams.zCoeffs = zeros(66,1);
 neuralParams.opticsParams.defeatLCA = false;
 
 % Cone params
 neuralParams.coneMosaicParams.fovDegs = fieldSizeDegs;
-neuralParams.coneMosaicParams.pixelsNum = nPixels;
 theNeuralEngine = neuralResponseEngine(@nreAOPhotopigmentExcitationsWithNoEyeMovementsCMosaic, neuralParams);
 
 %% Instantiate the PoissonTAFC responseClassifierEngine
@@ -125,14 +125,6 @@ thresholdPara = struct('logThreshLimitLow', 3, ...
 % operation (fixed numer of trials vs. adaptive)
 questEnginePara = struct('minTrial', 1280, 'maxTrial', 1280, ...
                          'numEstimator', 1, 'stopCriterion', 0.05);
-                     
-% Visualization params
-visualizationPara.visualizeStimulus = ~true;
-visualizationPara.visualizeAllComponents = ~true;
-
-% Data saving parameters
-datasavePara.destDir = '~/Desktop/tmpDir';
-datasavePara.saveMRGCResponses = ~true;
 
 % Create a static two-spot AO scene with a particular incr-decr direction,
 % and other relevant parameters
@@ -159,7 +151,7 @@ for ii = 1:nDirs
     % function computePerformanceTAFC.
     [logThreshold(ii), questObj] = ...
         computeThresholdTAFC(twoSpotScene, theNeuralEngine, classifierEngine, classifierPara, ...
-        thresholdPara, questEnginePara, visualizationPara, datasavePara);
+        thresholdPara, questEnginePara, 'visualizeAllComponents', options.visualizeMosaicResponses);
     
     % Plot stimulus
     figure(dataFig);
