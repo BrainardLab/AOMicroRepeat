@@ -17,6 +17,7 @@ arguments
     options.visualizeMosaicResponses (1,1) logical = false;
     options.testing (1,1) logical = false;
     options.write (1,1) logical = true;
+    options.verbose (1,1) logical = false;
 end
 
 %% Clear and close
@@ -95,6 +96,7 @@ neuralParams.opticsParams.defocusAmount = defocusDiopters;
 neuralParams.opticsParams.accommodatedWl = spotWavelengthNm;
 neuralParams.opticsParams.zCoeffs = zeros(66,1);
 neuralParams.opticsParams.defeatLCA = false;
+neuralParams.verbose = options.verbose;
 
 % Cone params
 neuralParams.coneMosaicParams.fovDegs = fieldSizeDegs;
@@ -152,7 +154,8 @@ for ii = 1:nDirs
     % function computePerformanceTAFC.
     [logThreshold(ii), questObj] = ...
         computeThresholdTAFC(twoSpotScene, theNeuralEngine, classifierEngine, classifierPara, ...
-        thresholdPara, questEnginePara, 'visualizeAllComponents', options.visualizeMosaicResponses);
+        thresholdPara, questEnginePara, 'visualizeAllComponents', options.visualizeMosaicResponses, ...
+        'extraVerbose',options.verbose);
     
     % Plot stimulus
     figure(dataFig);
