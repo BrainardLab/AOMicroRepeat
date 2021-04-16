@@ -4,21 +4,26 @@
 %   Run out the computational observer for the two spot experiment with a
 %   variety of defocus and pupil sizes.
 
-% Paramters
-% defocusDioptersList = [0 0.05 0.10 0.15];
-% pupilDiameterMmList = [2 3 4 5 6 7];
-% testing = false;
-% write = true;
-
-defocusDioptersList = [0];
-pupilDiameterMmList = [7];
-testing = true;
-write = false;
+% Set parameters depending on mode
+testMode = true;
+if (testMode)
+    defocusDioptersList = [0];
+    pupilDiameterMmList = [7];
+    testing = true;
+    write = false;
+    verbose = true;
+else
+    defocusDioptersList = [0 0.05 0.10 0.15];
+    pupilDiameterMmList = [2 3 4 5 6 7];
+    testing = false;
+    write = true;
+    verbose = false;
+end
 
 % Do them
 for dd = 1:length(defocusDioptersList)
     for pp = 1:length(pupilDiameterMmList)
         computeTwoSpotContour('defocusDiopters',defocusDioptersList(dd),'pupilDiameterMm',pupilDiameterMmList(pp), ...
-            'testing',testing,'write', write);
+            'testing',testing,'write', write,'verbose',verbose);
     end
 end
