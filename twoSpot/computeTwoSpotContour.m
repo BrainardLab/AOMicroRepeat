@@ -16,6 +16,7 @@ arguments
     options.pupilDiameterMm (1,1) double = 6;
     options.visualizeMosaicResponses (1,1) logical = false;
     options.testing (1,1) logical = false;
+    options.write (1,1) logical = true;
 end
 
 %% Clear and close
@@ -176,7 +177,9 @@ for ii = 1:nDirs
     drawnow;
 end
 set(dataFig, 'Position',  [0, 0, 800, 800]);
-print(dataFig,fullfile(analysisOutDir,sprintf('CompObsPsychoFig.tiff')), '-dtiff');
+if (options.write)
+    print(dataFig,fullfile(analysisOutDir,sprintf('CompObsPsychoFig.tiff')), '-dtiff');
+end
 
 % Convert returned log threshold to linear threshold
 threshold = 10 .^ logThreshold;
@@ -210,13 +213,19 @@ ylabel('Contrsast 2');
 set(theContourFig, 'Position',  [800, 0, 600, 800]);
 xlim([-contrastLim contrastLim]); ylim([-contrastLim contrastLim]);
 axis('square');
-print(theContourFig, fullfile(analysisOutDir,sprintf('CompObsEllipse.tiff')), '-dtiff');
+if (options.write)
+    print(theContourFig, fullfile(analysisOutDir,sprintf('CompObsEllipse.tiff')), '-dtiff');
+end
 
 % Add comp data to plot
 plot(thresholdContrasts(1,:), thresholdContrasts(2,:), 'ok', 'MarkerFaceColor','k', 'MarkerSize',12);
-print(theContourFig, fullfile(analysisOutDir,sprintf('CompObsEllipseWithData.tiff')), '-dtiff');
+if (options.write)
+    print(theContourFig, fullfile(analysisOutDir,sprintf('CompObsEllipseWithData.tiff')), '-dtiff');
+end
 
 %% Save
 close(dataFig);
 close(theContourFig);
-save(fullfile(analysisOutDir,'CompObserver'));
+if (options.write)
+    save(fullfile(analysisOutDir,'CompObserver'));
+end
