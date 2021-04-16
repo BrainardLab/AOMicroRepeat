@@ -47,6 +47,8 @@ function dataOut = nreAOPhotopigmentExcitationsWithNoEyeMovementsCMosaic(...
 %                                     Default is {'random'}.
 %   'rngSeed'                       - Integer.  Set rng seed. Empty (default) means don't touch the
 %                                     seed.
+%   'verbose'                       - Boolean. Print out diagnostic stuff?
+%                                     Default false.
 %
 % Outputs:
 %    dataOut  - A struct that depends on the input arguments.
@@ -83,13 +85,13 @@ function dataOut = nreAOPhotopigmentExcitationsWithNoEyeMovementsCMosaic(...
 % Examples:
 %{
     % Usage case #1. Just return the default neural response params
-    defaultParams = nreAOPhotopigmentExcitationsWithNoEyeMovements()
+    defaultParams = nreAOPhotopigmentExcitationsWithNoEyeMovementsCMosaic()
 
     % Usage case #2. Compute noise free, noisy, and repeatable (seed: 346) noisy response instances
     % using a parent @neuralResponseEngine object and the default neural response params
 
     % Instantiate the parent @neuralResponseEngine object
-    theNeuralEngineOBJ = neuralResponseEngine(@nreAOPhotopigmentExcitationsWithNoEyeMovements);
+    theNeuralEngineOBJ = neuralResponseEngine(@nreAOPhotopigmentExcitationsWithNoEyeMovementsCMosaic);
 
     % Instantiate a @sceneEngine object and generate a test scene
     theSceneEngineOBJ = sceneEngine(@sceUniformFieldTemporalModulation);
@@ -122,6 +124,7 @@ end
 p = inputParser;
 p.addParameter('noiseFlags', {'random'});
 p.addParameter('rngSeed',[],@(x) (isempty(x) | isnumeric(x)));
+p.addParameter('verbose',false,@islogical);
 varargin = ieParamFormat(varargin);
 p.parse(varargin{:});
 
@@ -158,8 +161,8 @@ if (isempty(neuralEngineOBJ.neuralPipeline))
     wvfP = wvfCreate('calc wavelengths', neuralResponseParamsStruct.opticsParams.wls, ...
         'zcoeffs', neuralResponseParamsStruct.opticsParams.zCoeffs, ...
         'name', sprintf('humanAO-%d', neuralResponseParamsStruct.opticsParams.pupilDiameterMM));
-    wvfP = wvfSet(wvfP, 'measured pupil size', neuralResponseParamsStruct.opticsParams.pupilDiameterMM);
     wvfP = wvfSet(wvfP, 'measured wavelength', neuralResponseParamsStruct.opticsParams.accommodatedWl);
+    wvfP = wvfSet(wvfP, 'measured pupil size', neuralResponseParamsStruct.opticsParams.pupilDiameterMM);
     wvfP = wvfSet(wvfP, 'calc pupil size', neuralResponseParamsStruct.opticsParams.pupilDiameterMM);
     wvfP = wvfSet(wvfP,'zcoeffs', neuralResponseParamsStruct.opticsParams.defocusAmount, 'defocus');
     
@@ -204,6 +207,21 @@ end
 
 % Generate an @oiSequence object containing the list of computed optical images
 theOIsequence = oiArbitrarySequence(theListOfOpticalImages, sceneSequenceTemporalSupport);
+
+% Some diagnosis
+if (p.Results.verbose)
+    fprintf('Optical image aperuture diameter = %g mm\n',opticsGet(oiGet(theListOfOpticalImages{1},'optics'),'aperture diameter')*1000);
+    fprintf('Optical image focal length = %g mm\n',opticsGet(oiGet(theListOfOpticalImages{1},'optics'),'focal length')*1000);
+    theWl = 400;
+    theFrame = 1;
+    index = find(theListOfOpticalImages{theFrame}.spectrum.wave == theWl);
+    temp = theListOfOpticalImages{theFrame}.data.photons(:,:,index);
+    fprintf('At %d nm, frame %d, oi mean, min, max: %g, %g, %g\n',theWl,theFrame,mean(temp(:)),min(temp(:)),max(temp(:)));
+    theWl = 550;
+    index = find(theListOfOpticalImages{theFrame}.spectrum.wave == theWl);
+    temp = theListOfOpticalImages{theFrame}.data.photons(:,:,index);
+    fprintf('At %d nm, frame %d, oi mean, min, max: %g, %g, %g\n',theWl,theFrame,mean(temp(:)),min(temp(:)),max(temp(:)));
+end
 
 % Set rng seed if one was passed. Not clear we need to do this because
 % all the randomness is in the @coneMosaic compute object, but it
