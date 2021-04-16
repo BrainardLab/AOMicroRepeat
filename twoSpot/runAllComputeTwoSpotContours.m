@@ -5,14 +5,20 @@
 %   variety of defocus and pupil sizes.
 
 % Paramters
-defocusDioptersList = [0 0.05 0.10 0.15];
-pupilDiameterMmList = [2 3 4 5 6 7];
-testing = false;
+% defocusDioptersList = [0 0.05 0.10 0.15];
+% pupilDiameterMmList = [2 3 4 5 6 7];
+% testing = false;
+% write = true;
+
+defocusDioptersList = [0];
+pupilDiameterMmList = [7];
+testing = true;
+write = false;
 
 % Do them
 for dd = 1:length(defocusDioptersList)
     for pp = 1:length(pupilDiameterMmList)
         computeTwoSpotContour('defocusDiopters',defocusDioptersList(dd),'pupilDiameterMm',pupilDiameterMmList(pp), ...
-            'testing',testing);
+            'testing',testing,'write', write);
     end
 end
