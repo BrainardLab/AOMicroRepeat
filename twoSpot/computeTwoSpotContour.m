@@ -34,7 +34,7 @@ if (options.testing)
     angleList = [0 45 135 180 225];
 else
     nPixels = 256;
-    nTrialsTest = 128;
+    nTrialsTest = 512;
 	angleList = [0 22.5 45 67.5 90 112.5 135 157.5 180 202.5 225 247.5 270 292.5 315 337.5];
 end
 
