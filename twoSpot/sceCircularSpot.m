@@ -1,8 +1,8 @@
-function dataOut = sceTwoSpot(sceneEngineOBJ, testContrast, twoSpotParams)
+function dataOut = sceCircularSpot(sceneEngineOBJ, testContrast, circularSpotParams)
 % Compute function for generating a sequence of scenes for two AO spots
 %
 % Syntax:
-%   dataOut = sceTwoSpot(obj, testContrast, twoSpotParams)
+%   dataOut = sceCircularSpot(obj, testContrast, circularSpotParams)
 %
 % Description:
 %    Compute function to be used as a computeFunctionHandle for a @sceneEngine
@@ -28,7 +28,7 @@ function dataOut = sceTwoSpot(sceneEngineOBJ, testContrast, twoSpotParams)
 %                                  this toolbox.
 %    testContrast                - Scalar providing the contrast for the
 %                                  scene to be generated.
-%    twoSpotParams               - Struct containing properties of the
+%    circularSpotParams          - Struct containing properties of the
 %                                  scene understood by this function.
 %                                  As noted above, execute sceGrating at
 %                                  the command line to see the structure's
@@ -84,10 +84,10 @@ if (nargin == 0)
 end
 
 % Validate the passed grating params
-validateParams(twoSpotParams);
+validateParams(circularSpotParams);
 
 % Generate ths scene sequence depicting frames of the modulated grating
-[theSceneSequence, temporalSupportSeconds] = generateTwoSpotSequence(twoSpotParams, testContrast);
+[theSceneSequence, temporalSupportSeconds] = generateCircularSpotSequence(circularSpotParams, testContrast);
 
 % Assemble dataOut struct - required fields
 dataOut.sceneSequence = theSceneSequence;
@@ -98,22 +98,22 @@ dataOut.statusReport = struct();
 
 end
 
-function [theSceneSequence, temporalSupportSeconds] = generateTwoSpotSequence(twoSpotParams, testContrast)
+function [theSceneSequence, temporalSupportSeconds] = generateCircularSpotSequence(circularSpotParams, testContrast)
 
-switch (twoSpotParams.temporalModulation)
+switch (circularSpotParams.temporalModulation)
     case 'flashed'
-        for frameIndex = 1:twoSpotParams.temporalModulationParams.stimDurationFramesNum
+        for frameIndex = 1:circularSpotParams.temporalModulationParams.stimDurationFramesNum
             % Can set frame specific values here
             %
             % Contrast is modulated during the flash frames
             frameContrastSequence(frameIndex) = testContrast;
-            if (~ismember(frameIndex, twoSpotParams.temporalModulationParams.stimOnFrameIndices))
+            if (~ismember(frameIndex, circularSpotParams.temporalModulationParams.stimOnFrameIndices))
                 frameContrastSequence(frameIndex) = 0;
             end
         end
         
     otherwise
-        error('Unknown temporal modulation: ''%s''.\n', twoSpotParams.temporalModulation);
+        error('Unknown temporal modulation: ''%s''.\n', circularSpotParams.temporalModulation);
 end
 
 % Visualize scene
@@ -127,27 +127,27 @@ temporalSupportSeconds = zeros(1, numel(frameContrastSequence));
 % Generate each frame
 for frameIndex = 1:numel(frameContrastSequence)
     % Generate the scene frame
-    theSceneFrame = generateTwoSpotSequenceFrame(twoSpotParams,frameContrastSequence(frameIndex));
+    theSceneFrame = generateCircularSpotSequenceFrame(circularSpotParams,frameContrastSequence(frameIndex));
     
     % Store the scene frame
     theSceneSequence{frameIndex} = theSceneFrame;
     
     % Store the timestamp of the scene frame
-    temporalSupportSeconds(frameIndex) = (frameIndex-1)*twoSpotParams.frameDurationSeconds;
+    temporalSupportSeconds(frameIndex) = (frameIndex-1)*circularSpotParams.frameDurationSeconds;
 end
 
 end
 
-function theSceneFrame = generateTwoSpotSequenceFrame(twoSpotParams,frameContrast)
+function theSceneFrame = generateCircularSpotSequenceFrame(circularSpotParams,frameContrast)
 
 % Make relative spectral power distributions. Each is approximated by a
 % Gaussian with specified center wavlength and FWHM, and with total power
 % given by the corneal power specified above.  The call to trapz takes
 % wavelength spacing into account when normalizing the power.
-imagingRelSpd = normpdf(twoSpotParams.wls,twoSpotParams.imagingWl,FWHMToStd(twoSpotParams.imagingFWHM));
-imagingUnitSpd = imagingRelSpd/trapz(twoSpotParams.wls,imagingRelSpd);
-spotRelSpd = normpdf(twoSpotParams.wls,twoSpotParams.spotWl,FWHMToStd(twoSpotParams.spotFWHM));
-spotUnitSpd = spotRelSpd/trapz(twoSpotParams.wls,spotRelSpd);
+imagingRelSpd = normpdf(circularSpotParams.wls,circularSpotParams.imagingWl,FWHMToStd(circularSpotParams.imagingFWHM));
+imagingUnitSpd = imagingRelSpd/trapz(circularSpotParams.wls,imagingRelSpd);
+spotRelSpd = normpdf(circularSpotParams.wls,circularSpotParams.spotWl,FWHMToStd(circularSpotParams.spotFWHM));
+spotUnitSpd = spotRelSpd/trapz(circularSpotParams.wls,spotRelSpd);
 
 % Stimulus power
 %
@@ -167,8 +167,8 @@ spotUnitSpd = spotRelSpd/trapz(twoSpotParams.wls,spotRelSpd);
 % the background (its incremental power).  This is what you'll get if
 % background and test are in separate channels of the system and you
 % measure them separately.
-imagingBgCornealPowerUW = twoSpotParams.imagingBgPowerUW;
-spotBgCornealPowerUW = twoSpotParams.spotBgPowerUW;
+imagingBgCornealPowerUW = circularSpotParams.imagingBgPowerUW;
+spotBgCornealPowerUW = circularSpotParams.spotBgPowerUW;
 
 % Make spds that give desired full power.
 backgroundSpdCornealPowerUW = imagingBgCornealPowerUW*imagingUnitSpd;
@@ -185,22 +185,22 @@ spotSpdCornealPowerUW = spotBgCornealPowerUW*spotUnitSpd;
 % as its input, but returns power per nm as its output.  A little
 % confusing, but that is why the spd being passed in is multiplied by the
 % wavelength spacing.
-deltaWl = twoSpotParams.wls(2)-twoSpotParams.wls(1);
-backgroundSizeDegs = twoSpotParams.spotBgDegs;
-pupilDiameterMm = twoSpotParams.pupilDiameterMm;
+deltaWl = circularSpotParams.wls(2)-circularSpotParams.wls(1);
+backgroundSizeDegs = circularSpotParams.spotBgDegs;
+pupilDiameterMm = circularSpotParams.pupilDiameterMm;
 pupilAreaMm2 = pi*((pupilDiameterMm/2)^2);
-imagingBgSpdRadiance = AOMonochromaticCornealPowerToRadiance(twoSpotParams.wls,twoSpotParams.wls,backgroundSpdCornealPowerUW*deltaWl,pupilDiameterMm,backgroundSizeDegs^2);
-spotBgSpdRadiance = AOMonochromaticCornealPowerToRadiance(twoSpotParams.wls,twoSpotParams.wls,spotSpdCornealPowerUW*deltaWl,pupilDiameterMm,backgroundSizeDegs^2);
+imagingBgSpdRadiance = AOMonochromaticCornealPowerToRadiance(circularSpotParams.wls,circularSpotParams.wls,backgroundSpdCornealPowerUW*deltaWl,pupilDiameterMm,backgroundSizeDegs^2);
+spotBgSpdRadiance = AOMonochromaticCornealPowerToRadiance(circularSpotParams.wls,circularSpotParams.wls,spotSpdCornealPowerUW*deltaWl,pupilDiameterMm,backgroundSizeDegs^2);
 
 % Make sure our computed radiance yields the desired corneal
 % irradiance when we go in the other direction.
 imagingBgSpdCornealIrradianceUWMm2Check = RadianceAndDegrees2ToCornIrradiance(imagingBgSpdRadiance,backgroundSizeDegs^2)*(1e6)*((1e-3)^2);
-imagingCornealPowerUWCheck = trapz(twoSpotParams.wls,imagingBgSpdCornealIrradianceUWMm2Check)*pupilAreaMm2;
+imagingCornealPowerUWCheck = trapz(circularSpotParams.wls,imagingBgSpdCornealIrradianceUWMm2Check)*pupilAreaMm2;
 if (abs(imagingCornealPowerUWCheck-imagingBgCornealPowerUW)/imagingBgCornealPowerUW > 1e-4)
     error('Do not get right cornal power back from computed radiance');
 end
 spotSpdCornealIrradianceUWMm2Check = RadianceAndDegrees2ToCornIrradiance(spotBgSpdRadiance,backgroundSizeDegs^2)*(1e6)*((1e-3)^2);
-spotCornealPowerUWCheck = trapz(twoSpotParams.wls,spotSpdCornealIrradianceUWMm2Check)*pupilAreaMm2;
+spotCornealPowerUWCheck = trapz(circularSpotParams.wls,spotSpdCornealIrradianceUWMm2Check)*pupilAreaMm2;
 if (abs(spotCornealPowerUWCheck-spotBgCornealPowerUW)/spotBgCornealPowerUW > 1e-4)
     error('Do not get right cornal power back from computed radiance');
 end
@@ -210,44 +210,47 @@ end
 % Create an empty scene to use for the spot.  Put it far enough away so it
 % is basically in focus for an emmetropic eye accommodated to infinity.
 theScene = sceneCreate('empty');
-theScene = sceneSet(theScene,'wavelength',twoSpotParams.wls);
-theScene = sceneSet(theScene,'distance',twoSpotParams.viewingDistanceMeters);
+theScene = sceneSet(theScene,'wavelength',circularSpotParams.wls);
+theScene = sceneSet(theScene,'distance',circularSpotParams.viewingDistanceMeters);
 
 % Make an image with the background + two spots
-spotPattern = drawTwoSpot(twoSpotParams);
+spatialParams.type = 'Spatial';
+spatialParams.spatialType = 'spot';
+spatialParams.row = circularSpotParams.pixelsNum;
+spatialParams.col = circularSpotParams.pixelsNum;
+spatialParams.backgroundSizeDegs = circularSpotParams.fovDegs;
+spatialParams.fieldOfViewDegs = circularSpotParams.fovDegs;
+spatialParams.spotSizeDegs = circularSpotParams.stimDiameter;
+spotPattern = drawSpot(spatialParams);
 
-% Get stimulus 1 and 2 contrast
-spot1Contrast = frameContrast*cosd(twoSpotParams.stimAngle);
-spot2Contrast = frameContrast*sind(twoSpotParams.stimAngle);
-spot1SpdRadiance = spotBgSpdRadiance + spot1Contrast*spotBgSpdRadiance;
-spot2SpdRadiance = spotBgSpdRadiance + spot2Contrast*spotBgSpdRadiance;
+% Get stimulus contrast and spd
+spotContrast = frameContrast;
+spotSpdRadiance = spotBgSpdRadiance + spotContrast*spotBgSpdRadiance;
 
 % Then fill in appropriate radiance at each pixel
-nWls = length(twoSpotParams.wls);
-radianceEnergySpot = zeros(twoSpotParams.pixelsNum,twoSpotParams.pixelsNum,nWls);
-for i = 1:twoSpotParams.pixelsNum
-    for j = 1:twoSpotParams.pixelsNum
+nWls = length(circularSpotParams.wls);
+radianceEnergySpot = zeros(circularSpotParams.pixelsNum,circularSpotParams.pixelsNum,nWls);
+for i = 1:circularSpotParams.pixelsNum
+    for j = 1:circularSpotParams.pixelsNum
         % Background pixels are 1, spot1 pixels are 2, spot2pixels are 3
         if (spotPattern(i,j) == 0)
             radianceEnergySpot(i,j,:) = imagingBgSpdRadiance;
         elseif (spotPattern(i,j) == 1)
             radianceEnergySpot(i,j,:) = imagingBgSpdRadiance + spotBgSpdRadiance;
         elseif (spotPattern(i,j) == 2)
-            radianceEnergySpot(i,j,:) = imagingBgSpdRadiance + spot1SpdRadiance;
-        elseif (spotPattern(i,j) == 3)
-            radianceEnergySpot(i,j,:) = imagingBgSpdRadiance + spot2SpdRadiance;
+            radianceEnergySpot(i,j,:) = imagingBgSpdRadiance + spotSpdRadiance;
         end
     end
 end
 
 % Convert radiance to quantal units
-radiancePhotonsSpot = Energy2Quanta(twoSpotParams.wls,radianceEnergySpot);
+radiancePhotonsSpot = Energy2Quanta(circularSpotParams.wls,radianceEnergySpot);
 
 % Put in the image in quantal units (photons)
 theScene = sceneSet(theScene,'photons',radiancePhotonsSpot);
 
 % Set the desired FOV
-theSceneFrame = sceneSet(theScene, 'h fov', twoSpotParams.fovDegs);
+theSceneFrame = sceneSet(theScene, 'h fov', circularSpotParams.fovDegs);
 
 end
 
@@ -288,13 +291,9 @@ p = struct(...
     'type', 'basic', ...                            % type
     'viewingDistanceMeters', 2, ...                 % viewing distance: in meters
     'wls', 400:10:750, ...                          % wavelength support of the primary SPDs: in nanometers
-    'stimAngle', 0, ...                             % stimulus angle in incr/decr plane
+    'stimDiameter', 0, ...                          % stimulus diameter in degrees
     'spotWl', 550, ...                              % spot wavelength: in nm
     'spotFWHM', 20, ...                             % spot full width at half max: in nm
-    'spotWidthDegs', 1.3/60, ...                    % spot width: in degrees
-    'spotHeightDegs', 1/60, ...                     % spot height: in degrees
-    'spotVerticalSepDegs', 1/60, ...                % spot center to center vertical separation: in degrees
-    'spotHorizontalSepDegs', 0, ...                 % spot center to center horizontal separation: in degrees
     'spotBgDegs', 0.25, ...                         % spot background: in degrees
     'spotBgPowerUW', (1/16)*76/1000*(2/3), ...      % spot background power: in uW
     'imagingWl', 790, ...                           % imaging beam wavelength: in nm
