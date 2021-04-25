@@ -5,7 +5,7 @@
 %   variety of defocus and pupil sizes.
 
 % Set parameters depending on mode
-testMode = true;
+testMode = false;
 if (testMode)
     defocusDioptersList = [0];
     pupilDiameterMmList = [7];

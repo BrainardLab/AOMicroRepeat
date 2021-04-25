@@ -27,8 +27,6 @@ for dd = 1:length(defocusDioptersList)
     end
 end
 
-
-
 %% Plot as a function of pupil size
 %
 % Choose one defocus

@@ -17,6 +17,7 @@ arguments
     options.testing (1,1) logical = false;
     options.write (1,1) logical = true;
     options.verbose (1,1) logical = false;
+    options.fFactor (1,1) double = 1e5;
 end
 
 %% Clear and close
@@ -34,7 +35,7 @@ if (options.testing)
 else
     nPixels = 256;
     nTrialsTest = 512;
-	diameterList = [0.25 0.5 1 2]/60;
+	diameterList = linspace(0.15,2,20)/60;
 end
 
 % Ancillary stimulus parameters
@@ -185,19 +186,105 @@ threshold = 10 .^ logThreshold;
 % Threshold energy
 thresholdEnergy = pi*((diameterList/2).^2).*threshold;
 
+%% Smooth curve through the data
+criterionDPrime = 1;
+sigmaExternal = diameterList(end);
+
+sigmaInternal0 = thresholdEnergy(1);
+externalIntrusionFactor0 = sigmaInternal0/diameterList(2);
+signalExponent0 = 1;
+x0Out = [sigmaInternal0 externalIntrusionFactor0 signalExponent0];
+xFactor0 = 1 ./ x0Out;
+x0 = x0Out .* xFactor0;
+
+% Set reasonable bounds on parameters
+vlb0 = [1e-8 1e-8 1];
+vub0 = [1e6 1e6 1];
+
+vlb = vlb0 .* xFactor0;
+vub = vub0 .* xFactor0;
+minoptions = optimset('fmincon');
+minoptions = optimset(options,'Diagnostics','off','Display','iter','LargeScale','off','Algorithm','active-set');
+
+% Fit with exponent locked
+x1Temp = fmincon(@(x)FitTvNFunction(x,thresholdEnergy,diameterList,sigmaExternal,criterionDPrime,xFactor0,options.fFactor),x0,[],[],[],[],vlb,vub,[],minoptions);
+f1 = FitTvNFunction(x1Temp,thresholdEnergy,diameterList,sigmaExternal,criterionDPrime,xFactor0,options.fFactor);
+x1Out = x1Temp ./ xFactor0;
+xFactor1 = 1 ./ x1Out;
+x1 = x1Out .* xFactor1;
+f1Out = FitTvNFunction(x1,thresholdEnergy,diameterList,sigmaExternal,criterionDPrime,xFactor1,options.fFactor);
+
+% Exponent free
+vlb0(3) = 0.33;
+vub0(3) = 3;
+vlb = vlb0 .* xFactor1;
+vub = vub0 .* xFactor1;
+x2Temp = fmincon(@(x)FitTvNFunction(x,thresholdEnergy,diameterList,sigmaExternal,criterionDPrime,xFactor1,options.fFactor),x1,[],[],[],[],vlb,vub,[],minoptions);
+x2Out = x2Temp ./ xFactor1;
+x2Out(1) = thresholdEnergy(1);
+xFactor2 = 1 ./ x2Out;
+x2 = x2Out .* xFactor2;
+f2Out = FitTvNFunction(x2,thresholdEnergy,diameterList,sigmaExternal,criterionDPrime,xFactor2,options.fFactor);
+xOut = x2 ./ xFactor2;
+
+% Once more with exponent locked
+%vlb0(3) = x2(3) ./ xFactor2(3);
+%vub0(3) = x2(3) ./ xFactor2(3);
+vlb = vlb0 .* xFactor2;
+vub = vub0 .* xFactor2;
+x3Temp = fmincon(@(x)FitTvNFunction(x2,thresholdEnergy,diameterList,sigmaExternal,criterionDPrime,xFactor2,options.fFactor),x2,[],[],[],[],vlb,vub,[],minoptions);
+x3Out = x3Temp ./ xFactor2;
+xFactor3 = 1 ./ x3Out;
+x3 = x3Out .* xFactor3;
+f3Out = FitTvNFunction(x3,thresholdEnergy,diameterList,sigmaExternal,criterionDPrime,xFactor3,options.fFactor);
+xOut = x3 ./ xFactor3;
+
+% Get parameters back out again
+sigmaInternal = xOut(1);
+externalIntrusionFactor = xOut(2);
+signalExponent = xOut(3);
+
+% Predict
+diameterPlot = linspace(diameterList(1),diameterList(end),100);
+smoothThresholdEnergy = ComputeTvNThreshold(diameterPlot,criterionDPrime,sigmaInternal,externalIntrusionFactor,signalExponent);
+
 %% Plot
-theSummatoinFig = figure; clf; hold on
+theSummationFig = figure; clf; hold on
 plot(log10(60*diameterList),log10(thresholdEnergy),'ro','MarkerFaceColor','r','MarkerSize',12);
-xlabel('Spot Diameter (minutes)');
-ylabel('Threshold');
-set(theSummatoinFig, 'Position',  [800, 0, 600, 800]);
+plot(log10(60*diameterPlot),log10(smoothThresholdEnergy),'b','LineWidth',3);
+xlabel('Log Spot Diameter (minutes)');
+ylabel('Log Threshold Energy');
+set(theSummationFig, 'Position',  [800, 0, 600, 800]);
 if (options.write)
-    print(theSummatoinFig, fullfile(analysisOutDir,sprintf('CompObsEllipse.tiff')), '-dtiff');
+    print(theSummationFig, fullfile(analysisOutDir,sprintf('CompObsEllipse.tiff')), '-dtiff');
 end
 
 %% Save
 close(dataFig);
-close(theSummatoinFig);
+close(theSummationFig);
 if (options.write)
     save(fullfile(analysisOutDir,'CompObserver'));
+end
+
+end
+
+%% Error function for fit
+function f = FitTvNFunction(x,thresholds,sigmaExternals,sigmaExternal,criterionDPrime,xFactor,fFactor)
+
+    x = x ./ xFactor;
+    sigmaInternal = x(1);
+    externalIntrusionFactor = x(2);
+    signalExponent = x(3);
+    
+    predictedThresholds = ComputeTvNThreshold(sigmaExternals,criterionDPrime,sigmaInternal,externalIntrusionFactor,signalExponent);
+    f = sqrt(mean(log10(thresholds)-log10(predictedThresholds)).^2);
+    f = f*fFactor;
+
+end
+
+% Simple parametric form for TvN
+function thresholds = ComputeTvNThreshold(sigmaExternals,criterionDPrime,sigmaInternal,externalIntrusionFactor,signalExponent)
+    sigma = sqrt(sigmaInternal^2 + sigmaExternals.^2*externalIntrusionFactor);
+    exponentiatedThreshold = criterionDPrime*sigma;
+    thresholds = exponentiatedThreshold.^(1/signalExponent);
 end
