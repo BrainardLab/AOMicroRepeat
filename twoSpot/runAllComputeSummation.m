@@ -15,6 +15,8 @@ if (testMode)
 else
     defocusDioptersList = [0 0.05 0.10 0.15];
     pupilDiameterMmList = [2 3 4 5 6 7];
+    defocusDioptersList = [0];
+    pupilDiameterMmList = [7];
     testing = false;
     write = true;
     verbose = false;
