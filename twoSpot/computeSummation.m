@@ -31,11 +31,13 @@ analysisBaseDir = getpref(baseProject,'analysisDir');
 if (options.testing)
     nPixels = 128;
     nTrialsTest = 64;
+    minTrials = 1024;
     diameterList = [0.25 0.5 1 2]/60;
 else
     nPixels = 256;
-    nTrialsTest = 512;
-	diameterList = linspace(0.15,2,20)/60;
+    nTrialsTest = 32;
+    minTrials = 5000;
+	diameterList = logspace(log10(0.15),log10(2),20)/60;
 end
 
 % Ancillary stimulus parameters
@@ -120,10 +122,18 @@ thresholdPara = struct('logThreshLimitLow', 3, ...
                        'slopeDelta', 2.5);
 
 % Parameter for running the QUEST+
+%
 % See t_thresholdEngine.m for more on options of the two different mode of
-% operation (fixed numer of trials vs. adaptive)
-questEnginePara = struct('minTrial', 1280, 'maxTrial', 1280, ...
-                         'numEstimator', 1, 'stopCriterion', 0.05);
+% operation (fixed numer of trials vs. adaptive). See t_thresholdEngine and
+% questThresholdEngine for more info.
+%
+% Here we set maxTrial = minTrial, and don't use an additinal stop
+% criterion, so fundamentally we just run minTrials trials. This is total
+% trials evaluated, not number of separate constrasts.  So if you increase 
+% nTrialsTest, you'll get fewer contrasts tested unless you also increase
+% minTrials in proportion.
+questEnginePara = struct('minTrial', minTrials, 'maxTrial', minTrials, ...
+                         'numEstimator', 1, 'stopCriterion', []);
                      
 % Create a static two-spot AO scene with a particular incr-decr direction,
 % and other relevant parameters
@@ -189,8 +199,8 @@ thresholdEnergy = pi*((diameterList/2).^2).*threshold;
 %% Smooth curve through the data.  MATLAB's smoothing spline.
 % Vary smoothness parameter to control.  Bigger is less smooth.
 % Want this pretty big.
-fObj = fit(log10(60*diameterList)',log10(thresholdEnergy)','smoothingspline','smoothingparam',smoothingParam);
 diameterPlot = linspace(diameterList(1),diameterList(end),100);
+fObj = fit(log10(60*diameterList)',log10(thresholdEnergy)','smoothingspline','smoothingparam',options.smoothingParam);
 log10ThresholdEnergySmooth = feval(fObj,log10(60*diameterPlot));
 
 %% Plot
@@ -201,7 +211,7 @@ xlabel('Log Spot Diameter (minutes)');
 ylabel('Log Threshold Energy');
 set(theSummationFig, 'Position',  [800, 0, 600, 800]);
 if (options.write)
-    print(theSummationFig, fullfile(analysisOutDir,sprintf('CompObsEllipse.tiff')), '-dtiff');
+    print(theSummationFig, fullfile(analysisOutDir,sprintf('CompSummation.tiff')), '-dtiff');
 end
 
 %% Save

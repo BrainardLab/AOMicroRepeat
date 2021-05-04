@@ -10,22 +10,24 @@ if (testMode)
     defocusDioptersList = [0];
     pupilDiameterMmList = [7];
     testing = true;
-    write = false;
+    write = true;
     verbose = true;
+    smoothingParam = 0.995;
 else
     defocusDioptersList = [0 0.05 0.10 0.15];
     pupilDiameterMmList = [2 3 4 5 6 7];
     defocusDioptersList = [0];
-    pupilDiameterMmList = [7];
+    pupilDiameterMmList = [3];
     testing = false;
     write = true;
     verbose = false;
+    smoothingParam = 0.995;
 end
 
 % Do them
 for dd = 1:length(defocusDioptersList)
     for pp = 1:length(pupilDiameterMmList)
         computeSummation('defocusDiopters',defocusDioptersList(dd),'pupilDiameterMm',pupilDiameterMmList(pp), ...
-            'testing',testing,'write', write,'verbose',verbose);
+            'testing',testing,'write', write,'verbose',verbose,'smoothingParam',smoothingParam);
     end
 end
