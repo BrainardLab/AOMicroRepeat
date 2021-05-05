@@ -146,7 +146,7 @@ sceneComputeFunction = @sceCircularSpot;
 nDirs = length(diameterList);
 dataFig = figure();
 logThreshold = zeros(1, nDirs);
-whichFrameToVisualize = 3;
+
 for ii = 1:nDirs
 
     % Instantiate a sceneEngine with the above sceneComputeFunctionHandle
