@@ -18,6 +18,10 @@ arguments
     options.testing (1,1) logical = false;
     options.write (1,1) logical = true;
     options.verbose (1,1) logical = false;
+    options.spotWidthDegs (1,1) double = 1.286/60;
+    options.spotHeightDegs (1,1) double = 1/60; 
+    options.spotVerticalSepDegs (1,1) double =  1/60; 
+    options.conditionName (1,1) string = 'IncrDecr1';
 end
 
 %% Clear and close
@@ -50,7 +54,7 @@ spotWavelengthNm = 550;
 fieldSizeDegs = 0.25;
 pupilDiameterMm = options.pupilDiameterMm;
 defocusDiopters = options.defocusDiopters;
-analysisOutDir = fullfile(analysisBaseDir,sprintf('IncrDecr1_%s_%d',num2str(round(1000*defocusDiopters)),pupilDiameterMm));
+analysisOutDir = fullfile(analysisBaseDir,sprintf('%s_%s_%d',options.conditionName,num2str(round(1000*defocusDiopters)),pupilDiameterMm));
 if (~exist(analysisOutDir,'dir'))
     mkdir(analysisOutDir);
 end
@@ -63,9 +67,9 @@ twoSpotParams = struct(...
     'stimAngle', 0, ...                             % stimulus angle in incr/decr plane
     'spotWl', spotWavelengthNm, ...                 % spot wavelength: in nm
     'spotFWHM', 20, ...                             % spot full width at half max: in nm
-    'spotWidthDegs', 1.3/60, ...                    % spot width: in degrees
-    'spotHeightDegs', 1/60, ...                     % spot height: in degrees
-    'spotVerticalSepDegs', 1/60, ...                % spot center to center vertical separation: in degrees
+    'spotWidthDegs', options.spotWidthDegs, ...     % spot width: in degrees
+    'spotHeightDegs', options.spotHeightDegs, ...   % spot height: in degrees
+    'spotVerticalSepDegs', options.spotVerticalSepDegs, ... % spot center to center vertical separation: in degrees
     'spotHorizontalSepDegs', 0, ...                 % spot center to center horizontal separation: in degrees
     'spotBgDegs', fieldSizeDegs, ...                % spot background: in degrees
     'spotBgPowerUW', (fieldSizeDegs^2)*76/1000*(2/3), ... % spot background power: in uW
