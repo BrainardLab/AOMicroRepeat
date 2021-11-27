@@ -13,7 +13,7 @@ if (testMode)
     write = false;
     verbose = true;
 else
-    defocusDioptersList = [0 0.05 0.10];
+    defocusDioptersList = [0 0.05 0.10 0.15];
     pupilDiameterMmList = [7];
     testing = false;
     write = true;
@@ -23,7 +23,7 @@ end
 %% 2020-01-31
 %
 % 7x9
-degsPerPixel = (1/7)*(1/60);
+degsPerPixel = 1/415;
 spotWidthDegs = 9*degsPerPixel;
 spotHeightDegs = 7*degsPerPixel;
 for dd = 1:length(defocusDioptersList)
