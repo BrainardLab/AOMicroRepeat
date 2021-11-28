@@ -20,7 +20,8 @@ arguments
     options.verbose (1,1) logical = false;
     options.spotWidthDegs (1,1) double = 1.286/60;
     options.spotHeightDegs (1,1) double = 1/60; 
-    options.spotVerticalSepDegs (1,1) double =  1/60; 
+    options.spotVerticalSepDegs (1,1) double =  1/60
+    options.degsPerPixel = 1/415; 
     options.conditionName (1,1) string = 'IncrDecr1';
 end
 
@@ -231,8 +232,12 @@ if (options.write)
 end
 
 %% Save
+spotWidthPixels = round(options.spotWidthDegs/options.degsPerPixel);
+spotHeightPixels =  round(options.spotHeightDegs/options.degsPerPixel); 
+spotVerticalSepPixels = round(options.spotVerticalSepDegs/options.degsPerPixel);
+
 close(dataFig);
 close(theContourFig);
 if (options.write)
-    save(fullfile(analysisOutDir,'CompObserver'));
+    save(fullfile(analysisOutDir,sprintf('CompObserver_%d_%d_%d',spotHeightPixels,spotWidthPixels,spotVerticalSepPixels-spotHeightPixels)));
 end
