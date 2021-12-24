@@ -21,7 +21,7 @@ else
 end
 
 %% Degrees per pixel
-degsPerPixel = 1/415;s that eeas  impm it easuily optimal, is that right?
+degsPerPixel = 1/415;
 
 %% 7x9, various separations, optics
 spotHeightDegs = 7*degsPerPixel;
@@ -74,7 +74,7 @@ end
 %% 6x8
 spotHeightDegs = 6*degsPerPixel;
 spotWidthDegs = 8*degsPerPixel;
-spotVertSepDegs = spotHeightDegs + 0*degsPerPixel;;
+spotVertSepDegs = spotHeightDegs + 0*degsPerPixel;
 for dd = 1:length(defocusDioptersList)
     for pp = 1:length(pupilDiameterMmList)
         computeTwoSpotContour('conditionName','6_8_0','defocusDiopters',defocusDioptersList(dd),'pupilDiameterMm',pupilDiameterMmList(pp), ...
@@ -87,6 +87,18 @@ spotVertSepDegs = spotHeightDegs + 4*degsPerPixel;
 for dd = 1:length(defocusDioptersList)
     for pp = 1:length(pupilDiameterMmList)
         computeTwoSpotContour('conditionName','6_8_4','defocusDiopters',defocusDioptersList(dd),'pupilDiameterMm',pupilDiameterMmList(pp), ...
+            'spotWidthDegs',spotWidthDegs ,'spotHeightDegs',spotHeightDegs,'spotVerticalSepDegs',spotVertSepDegs, ...
+            'testing',testing,'write', write,'verbose',verbose);
+    end
+end
+
+%% 5x7
+spotHeightDegs = 5*degsPerPixel;
+spotWidthDegs = 7*degsPerPixel;
+spotVertSepDegs = spotHeightDegs + 0*degsPerPixel;
+for dd = 1:length(defocusDioptersList)
+    for pp = 1:length(pupilDiameterMmList)
+        computeTwoSpotContour('conditionName','5_7_0','defocusDiopters',defocusDioptersList(dd),'pupilDiameterMm',pupilDiameterMmList(pp), ...
             'spotWidthDegs',spotWidthDegs ,'spotHeightDegs',spotHeightDegs,'spotVerticalSepDegs',spotVertSepDegs, ...
             'testing',testing,'write', write,'verbose',verbose);
     end
