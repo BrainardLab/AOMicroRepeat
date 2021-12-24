@@ -68,6 +68,22 @@ for dd = 1:length(defocusDioptersList)
         computeTwoSpotContour('conditionName','7_9_8','defocusDiopters',defocusDioptersList(dd),'pupilDiameterMm',pupilDiameterMmList(pp), ...
             'spotWidthDegs',spotWidthDegs ,'spotHeightDegs',spotHeightDegs,'spotVerticalSepDegs',spotVertSepDegs, ...
             'testing',testing,'write', write,'verbose',verbose);
+
+spotVertSepDegs = spotHeightDegs + 12*degsPerPixel;
+for dd = 1:length(defocusDioptersList)
+    for pp = 1:length(pupilDiameterMmList)
+        computeTwoSpotContour('conditionName','7_9_8','defocusDiopters',defocusDioptersList(dd),'pupilDiameterMm',pupilDiameterMmList(pp), ...
+            'spotWidthDegs',spotWidthDegs ,'spotHeightDegs',spotHeightDegs,'spotVerticalSepDegs',spotVertSepDegs, ...
+            'testing',testing,'write', write,'verbose',verbose);
+    end
+end
+
+spotVertSepDegs = spotHeightDegs + 16*degsPerPixel;
+for dd = 1:length(defocusDioptersList)
+    for pp = 1:length(pupilDiameterMmList)
+        computeTwoSpotContour('conditionName','7_9_8','defocusDiopters',defocusDioptersList(dd),'pupilDiameterMm',pupilDiameterMmList(pp), ...
+            'spotWidthDegs',spotWidthDegs ,'spotHeightDegs',spotHeightDegs,'spotVerticalSepDegs',spotVertSepDegs, ...
+            'testing',testing,'write', write,'verbose',verbose);
     end
 end
 
