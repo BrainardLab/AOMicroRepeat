@@ -110,6 +110,43 @@ for dd = 1:length(defocusDioptersList)
     end
 end
 
+%% 7x9 additional
+spotVertSepDegs = spotHeightDegs + 1*degsPerPixel;
+for dd = 1:length(defocusDioptersList)
+    for pp = 1:length(pupilDiameterMmList)
+        computeTwoSpotContour('conditionName','7_9_1','defocusDiopters',defocusDioptersList(dd),'pupilDiameterMm',pupilDiameterMmList(pp), ...
+            'spotWidthDegs',spotWidthDegs ,'spotHeightDegs',spotHeightDegs,'spotVerticalSepDegs',spotVertSepDegs, ...
+            'testing',testing,'write', write,'verbose',verbose);
+    end
+end
+
+spotVertSepDegs = spotHeightDegs + 3*degsPerPixel;
+for dd = 1:length(defocusDioptersList)
+    for pp = 1:length(pupilDiameterMmList)
+        computeTwoSpotContour('conditionName','7_9_3','defocusDiopters',defocusDioptersList(dd),'pupilDiameterMm',pupilDiameterMmList(pp), ...
+            'spotWidthDegs',spotWidthDegs ,'spotHeightDegs',spotHeightDegs,'spotVerticalSepDegs',spotVertSepDegs, ...
+            'testing',testing,'write', write,'verbose',verbose);
+    end
+end
+
+spotVertSepDegs = spotHeightDegs + 5*degsPerPixel;
+for dd = 1:length(defocusDioptersList)
+    for pp = 1:length(pupilDiameterMmList)
+        computeTwoSpotContour('conditionName','7_9_5','defocusDiopters',defocusDioptersList(dd),'pupilDiameterMm',pupilDiameterMmList(pp), ...
+            'spotWidthDegs',spotWidthDegs ,'spotHeightDegs',spotHeightDegs,'spotVerticalSepDegs',spotVertSepDegs, ...
+            'testing',testing,'write', write,'verbose',verbose);
+    end
+end
+
+spotVertSepDegs = spotHeightDegs + 20*degsPerPixel;
+for dd = 1:length(defocusDioptersList)
+    for pp = 1:length(pupilDiameterMmList)
+        computeTwoSpotContour('conditionName','7_9_20','defocusDiopters',defocusDioptersList(dd),'pupilDiameterMm',pupilDiameterMmList(pp), ...
+            'spotWidthDegs',spotWidthDegs ,'spotHeightDegs',spotHeightDegs,'spotVerticalSepDegs',spotVertSepDegs, ...
+            'testing',testing,'write', write,'verbose',verbose);
+    end
+end
+
 %% 5x7
 spotHeightDegs = 5*degsPerPixel;
 spotWidthDegs = 7*degsPerPixel;
