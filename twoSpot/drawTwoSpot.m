@@ -105,7 +105,6 @@ stim2RowOffset = centerRow+(stimRowSepFull-stimRowSep);
 stim1ColOffset = centerCol+stimColSep;
 stim2ColOffset = centerCol-(stimColSepFull-stimColSep);
 
-
 % Fill in the spots
 spotPattern((-minusV:plusV)+stim1RowOffset, ...
     (-minusH:plusH)+stim1ColOffset) = spot1Value;
