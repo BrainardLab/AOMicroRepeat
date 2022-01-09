@@ -146,7 +146,7 @@ questEnginePara = struct( ...
 % Create a static two-spot AO scene with a particular incr-decr direction,
 % and other relevant parameters
 % Compute function handle for two-spot AO stimuli
-sceneComputeFunction = @sceTwoSpot;
+sceneComputeFunction = @sceAOTwoSpot;
 
 %% Compute threshold for each spatial direction
 % 
