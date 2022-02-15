@@ -3,6 +3,10 @@
 % Description:
 %   Run out the computational observer for the two spot experiment with a
 %   variety of defocus and pupil sizes.
+%
+% NOTE: When updating, need to change directory strings as
+%       well as numbers used in the computations.  It would
+%       be better to generate the strings from the numbers.
 
 %% Set parameters depending on mode
 testMode = false;
