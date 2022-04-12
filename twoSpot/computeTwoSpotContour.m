@@ -14,6 +14,7 @@ function computeTwoSpotContour(options)
 arguments
     options.defocusDiopters (1,1) double = 0.05;
     options.pupilDiameterMm (1,1) double = 6;
+    options.visualizeStimulus (1,1) logical = false;
     options.visualizeMosaicResponses (1,1) logical = false;
     options.testing (1,1) logical = false;
     options.write (1,1) logical = true;
@@ -23,6 +24,7 @@ arguments
     options.spotVerticalSepDegs (1,1) double =  1/60
     options.degsPerPixel = 1/415; 
     options.conditionName (1,1) string = 'IncrDecr1';
+    options.angleList = [];
 end
 
 %% Clear and close
@@ -38,13 +40,21 @@ if (options.testing)
     nTrialsTest = 64;
     nQuestTrials = 20*nTrialsTest;
     nQuestEstimators = 1;
-    angleList = [0 45 135 180 225];
+    if (isempty(options.angleList))
+        angleList = [0 45 135 180 225];
+    else
+        angleList = options.angleList;
+    end
 else
     nPixels = 256;
     nTrialsTest = 128;
     nQuestTrials = 60*nTrialsTest;
     nQuestEstimators = 2;
-	angleList = [0 22.5 45 67.5 90 112.5 135 157.5 180 202.5 225 247.5 270 292.5 315 337.5];
+    if (isempty(options.angleList))
+	    angleList = [0 22.5 45 67.5 90 112.5 135 157.5 180 202.5 225 247.5 270 292.5 315 337.5];
+    else
+        angleList = options.angleList;
+    end
 end
 
 % Ancillary stimulus parameters
@@ -168,7 +178,7 @@ for ii = 1:nDirs
     % function computePerformanceTAFC.
     [logThreshold(ii), questObj] = ...
         computeThresholdTAFC(twoSpotScene, theNeuralEngine, classifierEngine, classifierPara, ...
-        thresholdPara, questEnginePara, 'visualizeAllComponents', options.visualizeMosaicResponses, ...
+        thresholdPara, questEnginePara, 'visualizeStimulus',options.visualizeStimulus,'visualizeAllComponents', options.visualizeMosaicResponses, ...
         'extraVerbose',options.verbose);
     
     % Plot stimulus
