@@ -27,6 +27,8 @@ arguments
     options.angleList = [];
 end
 
+error('Fix defocus should be converted to microns before putting into zcoeffs');
+
 %% Clear and close
 close all; ieInit;
 
