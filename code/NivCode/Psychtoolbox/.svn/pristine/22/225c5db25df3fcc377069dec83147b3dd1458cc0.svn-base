@@ -1,0 +1,18 @@
+# This xorg.conf is meant for machines with Intel graphics card.
+# It sets the parameter TripleBuffer to off, to switch from
+# triple-buffering to double-buffering, which is needed for
+# precisely timed visual stimulus onset and onset timestamping.
+#
+# If you use a system with XOrg X-Server of version 1.16.0 -
+# 1.16.2 you will need to uncomment the ...
+# Option "DRI" "2" line by removing the # symbol.
+# This asks to use the old but mature DRI2 on DRI3/Present
+# capable X-Servers, instead of DRI3/Present for swap scheduling,
+# to avoid some bugs in the 1.16.0 - 1.16.2 DRI3/Present implementations,
+
+Section "Device"
+   Identifier "IntelGPU"
+   Driver     "intel"
+   Option     "TripleBuffer" "off"
+   #Option     "DRI" "2"
+EndSection
