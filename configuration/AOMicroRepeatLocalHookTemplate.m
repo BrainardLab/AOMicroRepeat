@@ -13,8 +13,7 @@ function AOCompObserverLocalHook
 % to match what is true on your computer.
 
 %% Say hello
-theProject = 'AOCompObserver';
-fprintf('Running %s local hook\n',theProject);
+theProject = 'AOMicroRepeat';
 
 %% Remove old preferences
 if (ispref(theProject))
@@ -27,25 +26,34 @@ end
 projectName = theProject;
 projectBaseDir = tbLocateProject(theProject);
 
-%% Figure out where baseDir for other kinds of data files is.
-sysInfo = GetComputerInfo();
-switch (sysInfo.localHostName)
-    case 'eagleray'
-        % DHB's desktop
-        baseDir = fullfile(filesep,'Volumes','Users1','Dropbox (Aguirre-Brainard Lab)');
+if (exist('GetComputerInfo','file'))
+    sysInfo = GetComputerInfo();
+    switch (sysInfo.localHostName)
  
-    otherwise
-        % Some unspecified machine, try user specific customization
-        switch(sysInfo.userShortName)
-            % Could put user specific things in, but at the moment generic
-            % is good enough.
-            otherwise
-                baseDir = fullfile('/Users',sysInfo.userShortName,'Dropbox (Aguirre-Brainard Lab)');
-        end
+        otherwise
+            % Some unspecified machine, try user specific customization
+            switch(sysInfo.userShortName)
+                % Could put user specific things in, but at the moment generic
+                % is good enough.
+                otherwise
+                    % Some unspecified machine, try our generic approach,
+                    % which works on a mac to find the dropbox for business
+                    % path.
+                    if ismac
+                        dbJsonConfigFile = '~/.dropbox/info.json';
+                        fid = fopen(dbJsonConfigFile);
+                        raw = fread(fid,inf);
+                        str = char(raw');
+                        fclose(fid);
+                        val = jsondecode(str);
+                        baseDir = val.business.path;
+                    end
+            end
+    end
 end
 
 %% Set preferences for project i/o
-
+%
 % This is where the psychophysical data is stored
 dataDir = fullfile(baseDir,'AOPY_data',theProject);
 
