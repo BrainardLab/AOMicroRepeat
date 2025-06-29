@@ -132,6 +132,7 @@ for mm = 1:length(theMethods)
                     log_intensity_rounded(i) = log10(lin_intensity_rounded(i));
                     log_intensity_rounded_chk(i) = log_intensity_rounded(i);
                     if (lin_intensity_rounded(i) == 0)
+                        log_intensity_rounded(i) = -3.5;
                         log_intensity_rounded_chk(i) = 0;
                     end
 
@@ -142,7 +143,7 @@ for mm = 1:length(theMethods)
                     % the second column of the LUT
                     lin_intensity_lut(i) = AOM.green_AOM_lut(lut_row_index(i),2);
 
-                    % Convert to log, taking log10(0) to be -3
+                    % Convert to log, taking log10(0) to be -3.5
                     log_intensity_lut(i) = log10(lin_intensity_lut(i));
 
                     % Sanity checks
