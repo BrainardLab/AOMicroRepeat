@@ -54,13 +54,13 @@ for mm = 1:length(theMethods)
     for pp = 1:length(theParticipants)
         theSubject = theParticipants{pp};
         for dd = 1:length(theDiameters)
-            theSize = theDiameters(dd);
+            theDiameter = theDiameters(dd);
             for ss = 1:length(theSessions)
                 theSession = theSessions(ss);
 
                 % Form path the the directory with the data sitting in it
-                pathToData = fullfile(dataDir,theSubject,['Session' num2str(theSession)],['Size' num2str(theSize)],theMethod);
-                pathToAnalysis = fullfile(analysisDir,theSubject,['Session' num2str(theSession)],['Size' num2str(theSize)],theMethod);
+                pathToData = fullfile(dataDir,theSubject,['Session' num2str(theSession)],['Size' num2str(theDiameter)],theMethod);
+                pathToAnalysis = fullfile(analysisDir,theSubject,['Session' num2str(theSession)],['Size' num2str(theDiameter)],theMethod);
                 if (~exist(pathToAnalysis,'dir'))
                     mkdir(pathToAnalysis);
                 end
@@ -145,7 +145,6 @@ for mm = 1:length(theMethods)
                     % Convert to log, taking log10(0) to be -3
                     log_intensity_lut(i) = log10(lin_intensity_lut(i));
 
-
                     % Sanity checks
                     if (abs(lin_intensity_rounded(i)-AOM.green_AOM_lut(lut_row_index(i),1)) > 1e-5)
                         error('Do not understand lut table and/or its indexing');
@@ -171,8 +170,11 @@ for mm = 1:length(theMethods)
                 %  Column 4 - lut corrected linear intensity
                 % These values are not adjusted for power measurements
 
-                [threshold] = FitPsychometricFunction(all_trials_unpacked);
-
+                [plot_log_intensities,plot_psychometric,corrected_psychometric, ...
+                    log_threshold,corrected_log_threshold,h] = FitPsychometricFunction(all_trials_unpacked);
+                title({ sprintf('Subject %s, %s, session %d, all data',theSubject,theMethod,theSession) ; ...
+                    sprintf('Diameter %d arcim,og threshold %0.2f',theDiameter,corrected_log_threshold) ; ''},'FontSize',20);
+                    
                 % Save what we learned
                 save(fullfile(pathToAnalysis,'all_trials_unpacked.mat'),'all_trials_unpacked','-v7.3');
 
@@ -185,7 +187,8 @@ for mm = 1:length(theMethods)
 end
 
 % Fit the psychometric function
-function [threshold] = FitPsychometricFunction(all_trials_unpacked)
+function [plot_log_intensities,plot_psychometric,corrected_psychometric, ...
+    log_threshold,corrected_log_threshold,h] = FitPsychometricFunction(all_trials_unpacked)
 
 % Sort data and get what we need
 sorted_data = sortrows(all_trials_unpacked,4);
@@ -206,25 +209,38 @@ for i = 1:length(numpresented)
 end
 
 % Fit using a wrapper into Palemedes
-[plot_log_intensities,plot_psychometric,threshold] = fitPsychometric(unique_log_intensities,num_seen',num_presented');
+thresholdCriterion = 0.78;
+[plot_log_intensities,plot_psychometric,corrected_psychometric, ...
+    log_threshold,corrected_log_threshold] = ...
+    fitPsychometric(unique_log_intensities,num_seen',num_presented',thresholdCriterion);
 
-% % Sorted_Intensities(guess,:)=[];
-% % Sorted_responses(guess,:)=[];
-% %Plot figure
-% minIntensityLog=-3.5;
-% maxIntensityLog= 0;
-% fontsize = 14; markersize = 6; fwidth = 350; fheight = 350;
-% % f0 = figure('Position', [400 200 fwidth fheight]); a0 = axes; hold(a0,'all');
-% % xlabel('Log trial intensity (au)','FontSize',fontsize);
-% % ylabel('Percent seen (%)','FontSize',fontsize);
-% % xlim([minIntensityLog maxIntensityLog]);
-% % ylim([0 100]);
-% % set(a0,'FontSize',fontsize);
-% % set(a0,'LineWidth',1,'TickLength',[0.025 0.025]);
-% % set(a0,'Color','none');
-% % set(f0,'Color',[1 1 1]);
-% % set(f0,'PaperPositionMode','auto');
-% % set(f0, 'renderer', 'painters');
+% Plot
+minIntensityLog=-3.5;
+maxIntensityLog= 0;
+fontsize = 18; fwidth = 600; fheight = 600;
+h = figure('Position', [400 200 fwidth fheight]); a0 = axes; hold(a0,'all');
+set(gca,'FontName','Helvetical','FontSize',14);
+xlabel('Log trial intensity (au)','FontSize',fontsize);
+ylabel('Fraction seen','FontSize',fontsize);
+xlim([minIntensityLog maxIntensityLog]);
+ylim([0 1]);
+set(a0,'FontSize',fontsize);
+set(a0,'LineWidth',1,'TickLength',[0.025 0.025]);
+set(a0,'Color','none');
+set(h,'Color',[1 1 1]);
+set(h,'PaperPositionMode','auto');
+set(h, 'renderer', 'painters');
+baseMarkerSize = 10;
+sizeNormalizer = 40;
+for tt = 1:length(unique_log_intensities)
+    markerSize = 4+round(baseMarkerSize*num_presented(tt)/sizeNormalizer);
+    plot(unique_log_intensities(tt), num_seen(tt)' ./ num_presented(tt)','ro','MarkerSize',markerSize,'MarkerFaceColor','r');
+end
+plot(plot_log_intensities,corrected_psychometric,'k-','LineWidth',3);
+plot(plot_log_intensities,plot_psychometric,'r:','LineWidth',2);
+plot([-3.5 corrected_log_threshold],[thresholdCriterion thresholdCriterion],'k:','LineWidth',2);
+plot([corrected_log_threshold corrected_log_threshold],[0 thresholdCriterion],'k:','LineWidth',2);
+
 % 
 % % Set up Palamedes logistic fit
 % PF = @PAL_Logistic;
@@ -401,28 +417,30 @@ end
 end
 
 
-function [xx,fittedCurve,threshold,pse] = fitPsychometric(x,NumPos,OutOfNum)
+function [fit_log_intensity,fit_psychometric,corrected_fit_psychometric, ...
+    log_threshold,corrected_log_threshold] = fitPsychometric(log_intensity,NumPos,OutOfNum,thresholdCriterion)
 %fitPsychometric
 %
 % Usage:
-%   [xx,FittedCurve,threshold] = fitPsychometric(x,NumPos,OutOfNum);
+%   [fit_log_intensity,fit_psychometric,corrected_fit_psychonmetric, ...
+%        log_threshold,corrected_log_threshold] = fitPsychometric(x,NumPos,OutOfNum,thresholdCriterion)
 %
 % Inputs:
 %   x        : (vector) stimulus levels tested
 %   NumPos   : (vector) for each stimulus level tested, the number of trials a positive response was given
 %   OutOfNum : (vector) for each stimulus level tested, the total number of trials
+%   thresholdCriterion : [scalar] criterion for threshold
 %
 % History:
 %   07/05/21  amn  Wrote it.
+%   06/28/25  dhb  Adopted for this project
 
-%% Calculate x-axis values to plot
+% Calculate x-axis values to plot
 %
 % Increase the number of stimulus level values to plot for a smooth fit.
-xx = linspace(min(x),max(x),1000);
+fit_log_intensity = linspace(min(log_intensity),max(log_intensity),1000);
 
-%% Calculate psychometric function fit using Palamedes Toolbox
-
-% Psychometric function form (alternative: PAL_Weibull).
+% Psychometric function form (alternative: PAL_Gumbel).
 PF = @PAL_Logistic;
 
 % 'paramsFree' is a boolean vector that determines what parameters get
@@ -432,7 +450,7 @@ paramsFree = [1 1 1 1];
 % Set up starting points:
 %   1st (mean of the cumulative normal): set to mean of stimulus levels tested
 %   2nd (standard deviation): set to a fraction of the range of stimulus levels tested
-searchGrid = [mean(x) 1/(max(x)-min(x)) 0 0];
+searchGrid = [mean(log_intensity) 1/(max(log_intensity)-min(log_intensity)) 0 0];
 
 % Set up lapse limits.
 guessLimits = [0 0.05];
@@ -442,15 +460,20 @@ lapseLimits = [0 0.05];
 options = PAL_minimize('options');
 
 % Fit with Palemedes Toolbox.
-[paramsValues] = PAL_PFML_Fit(x,NumPos,OutOfNum,searchGrid,paramsFree,PF, ...
+[paramsValues] = PAL_PFML_Fit(log_intensity,NumPos,OutOfNum,searchGrid,paramsFree,PF, ...
     'lapseLimits',lapseLimits,'guessLimits',guessLimits,'searchOptions',options,'gammaEQlambda',false);
 
 % Get fitted curve values.
-fittedCurve = PF(paramsValues,xx);
+fit_psychometric = PF(paramsValues,fit_log_intensity);
 
 % Calculate threshold: the difference between the stimulus levels at
 % performances equal to 0.7602 and 0.5.
-%pse = PF(paramsValues,0.5,'inverse');
-threshold = PF(paramsValues,0.7602,'inverse');
+log_threshold = PF(paramsValues,thresholdCriterion,'inverse');
+
+% Now correct for guessing and lapse rate
+paramsValues(3) = 0;
+paramsValues(4) = 0;
+corrected_fit_psychometric = PF(paramsValues,fit_log_intensity);
+corrected_log_threshold = PF(paramsValues,thresholdCriterion,'inverse');
 
 end
