@@ -239,6 +239,8 @@ for pp = 1:length(theParticipants)
 
     % Close figures this subject
     close all;
+
+    % Make summary figures for this subject here
 end
 
 % Write out full analysis data table
@@ -249,6 +251,10 @@ dataTable = table(theSubject,theDiameter,theSession,theMethod,theSplit, ...
     theTableThresholdCriterion, ...
     'VariableNames',tableVariableNames);
 writetable(dataTable,fullfile(analysisDir,'fitTable.xlsx'),'FileType','spreadsheet');
+
+
+% Overall summary figures here
+
 
 % FitPsychometricFunction
 %
