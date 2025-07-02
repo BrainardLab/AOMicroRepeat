@@ -25,23 +25,31 @@ analysisDir = getpref('AOMicroRepeat','analysisDir');
 % Generally speaking, this routine loops over everything and does its thing
 %
 % Define subjects
-theParticipants = {'11002'};
+theParticipants = {'11002' '11108' '11118' '11119' '11125'};   
+theParticipants = {'11118'};   
 
 % Define sessions (1 or 2)
 theSessions = [1 2];
+theSessions = [2];
 
 % Define session splits
 theSplits = {'All', 'FirstHalf', 'SecondHalf'};
+theSplits = {'All'};
 
 % Define sizes (8 or 43)
 theDiameters = [8 43];
+theDiameters = [8];
 
 % Define methods ('MOCS' or 'QUEST')
 theMethods = {'MOCS' 'QUEST'};
+theMethods = {'MOCS'};
 
 %% Some parameters
 log0Value = -3.5;
-thresholdCriterion = 0.92;
+thresholdCriterion = 0.78;
+nBootstraps = 500;
+convertToDb = true;
+justCheckFiles = false;
 
 %% Freeze rng seed for repeatability
 rng(101);
@@ -65,6 +73,11 @@ for pp = 1:length(theParticipants)
         for dd = 1:length(theDiameters)
             for ss = 1:length(theSessions)
                 for hh = 1:length(theSplits)
+                    % Say hello
+                    if (~justCheckFiles)
+                        fprintf('Analyzing condition %d\n',tableRow);
+                    end
+
                     % Store info for what we are analyzing in this run
                     theMethod{tableRow,1} = theMethods{mm};
                     theSubject{tableRow,1} = theParticipants{pp};
@@ -80,13 +93,11 @@ for pp = 1:length(theParticipants)
                     end
 
                     % Get list of data files
-                    %
-                    % The three is to skip over '.' and '..' which come first
-                    dirOffset = 3;
-                    trial_videos = dir(pathToData);
+                    dirOffset = 1;
+                    trial_videos = dir(fullfile(pathToData,'*.mat'));
                     num_trial_videos = length(trial_videos(dirOffset:end));
-                    if (num_trial_videos ~= 4)
-                        error('Expect 4 data files');
+                    if (num_trial_videos ~= 4 & num_trial_videos ~= 3)
+                        error('Expect 3 or 4 data files');
                     end
 
                     % Read and concatenate the data
@@ -94,18 +105,25 @@ for pp = 1:length(theParticipants)
                     all_trials_unpacked = [];
                     for i = 1:num_trial_videos
                         % Read the data file
+                        % fprintf('Reading file %s\n',fullfile(pathToData,trial_videos(i+dirOffset-1).name));
                         tempData = load(fullfile(pathToData,trial_videos(i+dirOffset-1).name));
 
                         % Grab the trial data we need
                         if (isfield(tempData,'trial_vector'))
                             if (~strcmp(theMethod{tableRow},'MOCS'))
-                                error('Inconsistency in our understanding of method');
+                                fprintf('File %s\n\tUnder QUEST, appears to be MOCS\n\tTrials: %d\n',fullfile(pathToData,trial_videos(i+dirOffset-1).name),length(tempData.trial_vector));
+                                if (~justCheckFiles)
+                                    error('Inconsistency in our understanding of method');
+                                end
                             end
                             all_trials{i,1} = tempData.trial_vector;
                             all_trials{i,2} = tempData.response_vector;
                         elseif (isfield(tempData,'trial_matrix'))
                             if (~strcmp(theMethod{tableRow},'QUEST'))
-                                error('Inconsistency in our understanding of method');
+                                fprintf('File %s\n\tUnder MOCS, appears to be QUEST\n\tTrials: %d\n',fullfile(pathToData,trial_videos(i+dirOffset-1).name),length(tempData.trial_matrix));
+                                if (~justCheckFiles)
+                                    error('Inconsistency in our understanding of method');
+                                end
                             end
                             all_trials{i,1} = tempData.trial_matrix;
                             all_trials{i,2} = tempData.response_matrix;
@@ -114,16 +132,24 @@ for pp = 1:length(theParticipants)
                         end
 
                         % Get/check number of trials
-                        if (i == 1)
-                            nTrialsPerSession = length(all_trials{i,1});
-                        else
-                            if (length(all_trials{i,1}) ~= nTrialsPerSession)
-                                error('Trial mismatch across runs');
+                        if (~justCheckFiles)
+                            if (i == 1)
+                                nTrialsPerSession = length(all_trials{i,1});
+                            else
+                                if (length(all_trials{i,1}) ~= nTrialsPerSession)
+                                    error('Trial mismatch across runs');
+                                end
                             end
-                        end
 
-                        % Concatenate
-                        all_trials_unpacked = [all_trials_unpacked ; [all_trials{i,1} all_trials{i,2}]];
+                            % Concatenate
+                            all_trials_unpacked = [all_trials_unpacked ; [all_trials{i,1} all_trials{i,2}]];
+                        end
+                    end
+
+                    % If just checking, break and don't do anything else
+                    if (justCheckFiles)
+                        tableRow = tableRow + 1;
+                        break;
                     end
 
                     % Do the lookup table conversion
@@ -174,12 +200,12 @@ for pp = 1:length(theParticipants)
                         all_trials_unpacked(i,4) = log_intensity_lut(i);
                     end
 
-
+                    % NEED TO DO THIS
                     % Correct for trials that were nominally not zero, but
                     % really were zero.
-                    % NEED TO DO THIS
-
+                    
                     % Here is the format of all_trials_unpacked
+                    %
                     % These values are not adjusted for power measurements.
                     % they are scaled with the instrument maximum having a
                     % linear intensity of 1.
@@ -188,7 +214,7 @@ for pp = 1:length(theParticipants)
                     %  Column 2 - 1 = seen, 0 = not seen
                     %  Column 3 - lut corrected linear intensity
                     %  Column 4 - lut corrected log intensity
-
+    
                     % Split the data
                     nTrials = size(all_trials_unpacked,1);
                     shuffleIndex = Shuffle(1:nTrials);
@@ -203,26 +229,94 @@ for pp = 1:length(theParticipants)
                             error('Unknown split specified');
                     end
                     all_trials_unpacked = all_trials_unpacked(dataIndex,:);
+                    nTrials = size(all_trials_unpacked,1);
+
+                    % Extract the core data to fit
+                    trial_log_intensities = all_trials_unpacked(:,4);
+                    trial_responses = all_trials_unpacked(:,2);
+
+                    % Convert to dB?
+                    if (convertToDb)
+                       trial_log_intensities = 10*trial_log_intensities; 
+                       log0Value = 10*log0Value;
+                    end
 
                     % Fit the psychometric function.  The fitting routine makes
                     % a plot and we adjust the title here for things the
                     % fitting routine doesn't know about.
                     [plot_log_intensities,plot_psychometric,corrected_psychometric, ...
-                        log_threshold,corrected_log_threshold,psiParamsValues,h] = FitPsychometricFunction(all_trials_unpacked(:,4),all_trials_unpacked(:,2),log0Value,thresholdCriterion);
-                    title({ sprintf('Subject %s, %s, session %d, split %s',theSubject{tableRow},theMethod{tableRow},theSession(tableRow),theSplit{tableRow}) ; ...
-                        sprintf('Diameter %d arcmin, log threshold %0.2f',theDiameter(tableRow),corrected_log_threshold) ; ...
-                        sprintf('Slope %0.1f, guess %0.2f, lapse %0.2f',psiParamsValues(2),psiParamsValues(3),psiParamsValues(4)) ; ''},'FontSize',20);
+                        log_threshold,corrected_log_threshold,psiParamsValues,h] = FitPsychometricFunction(trial_log_intensities,trial_responses,log0Value,thresholdCriterion,true,convertToDb);
+                    if (convertToDb)
+                        title({ sprintf('Subject %s, %s, session %d, split %s',theSubject{tableRow},theMethod{tableRow},theSession(tableRow),theSplit{tableRow}) ; ...
+                            sprintf('Diameter %d arcmin, threshold (dB) %0.2f',theDiameter(tableRow),corrected_log_threshold) ; ...
+                            sprintf('Slope %0.1f, guess %0.2f, lapse %0.2f',psiParamsValues(2),psiParamsValues(3),psiParamsValues(4)) ; ''},'FontSize',20);
+                    else
+                        title({ sprintf('Subject %s, %s, session %d, split %s',theSubject{tableRow},theMethod{tableRow},theSession(tableRow),theSplit{tableRow}) ; ...
+                            sprintf('Diameter %d arcmin, log threshold %0.2f',theDiameter(tableRow),corrected_log_threshold) ; ...
+                            sprintf('Slope %0.1f, guess %0.2f, lapse %0.2f',psiParamsValues(2),psiParamsValues(3),psiParamsValues(4)) ; ''},'FontSize',20);
+                    end
                     drawnow;
                     saveas(h,fullfile(pathToAnalysis,'psychometricFcn.tif'),'tif');
 
+                    % Bootstrap the data
+                    bootstrap_log_intensities = zeros(nTrials,nBootstraps);
+                    bootstrap_responses = zeros(nTrials,nBootstraps);
+                    switch(theMethod{tableRow})
+                        case 'QUEST'
+                            % For QUEST, we draw with replacement from all
+                            % the trials.
+                            for bb = 1:nBootstraps
+                                bootIndex = randi(nTrials,nTrials,1);
+                                bootstrap_log_intensities(:,bb) = trial_log_intensities(bootIndex);
+                                bootstrap_responses(:,bb) = trial_responses(bootIndex);
+                            end
+                        case 'MOCS'
+                            % For MOCS, we respect the experimental design
+                            % and bootstrap each stimulus intensity
+                            % separately.
+                            unique_log_intensities = unique(trial_log_intensities);
+                            for bb = 1:nBootstraps
+                                temp_boot_intensities = [];
+                                temp_boot_responses = [];
+                                for uu = 1:length(unique_log_intensities)
+                                    uindex = find(trial_log_intensities == unique_log_intensities(uu));
+                                    utemp_intensities = trial_log_intensities(uindex);
+                                    utemp_responses = trial_responses(uindex);
+
+                                    bootIndex = randi(length(uindex),length(uindex),1);
+                                    temp_boot_intensities = [temp_boot_intensities ; utemp_intensities(bootIndex)];
+                                    temp_boot_responses = [temp_boot_responses ; utemp_responses(bootIndex)];
+                                end
+                                bootstrap_log_intensities(:,bb) = temp_boot_intensities;
+                                bootstrap_responses(:,bb) = temp_boot_responses;
+                            end
+                        otherwise
+                            error('Unknown method specified');
+                    end
+
+                    % Bootstrap the fits and extract CI.  Add CI to plot a
+                    % a thick blue horizontal bar.
+                    for bb = 1:nBootstraps
+                        if (rem(bb,100) == 0)
+                            fprintf('\tBootstrap fit %d of %d\n',bb,nBootstraps);
+                        end
+                        [~,~,~,~,boot_corrected_threshold(bb),~,~] = FitPsychometricFunction(bootstrap_log_intensities(:,bb),bootstrap_responses(:,bb),log0Value,thresholdCriterion,false,convertToDb);
+                    end
+                    boot_quantiles = quantile(boot_corrected_threshold,[0.025 0.5 0.975]);
+                    figure(h);
+                    plot([boot_quantiles(1) boot_quantiles(3)],[thresholdCriterion thresholdCriterion],'b','LineWidth',4);
+                    saveas(h,fullfile(pathToAnalysis,'psychometricFcnCI.tif'),'tif');
+
                     % Save what we learned
                     save(fullfile(pathToAnalysis,'fitOutput.mat'),'all_trials_unpacked','plot_log_intensities','plot_psychometric', ...
-                        'corrected_psychometric','log_threshold','corrected_log_threshold','psiParamsValues','-v7.3');
+                        'corrected_psychometric','log_threshold','corrected_log_threshold','psiParamsValues','boot_corrected_threshold','boot_quantiles','-v7.3');
 
                     % Accumulate data
                     theTableLogThreshold(tableRow,1) = log_threshold;
                     theTableCorrectedLogThreshold(tableRow,1) = corrected_log_threshold;
-                    theTableCorrectedDbThreshold(tableRow,1) = 10*corrected_log_threshold;
+                    theTableCorrectedLogThresholdBootMedian(tableRow,1)= boot_quantiles(2);
+                    theTableCorrectedBootCILow(tableRow,1) = boot_quantiles(1);
+                    theTableCorrectedBootCIHigh(tableRow,1) = boot_quantiles(3);
                     theTablePsiParamsValues(tableRow,:) = psiParamsValues;
                     theTableThresholdCriterion(tableRow,1) = thresholdCriterion;
 
@@ -240,27 +334,34 @@ for pp = 1:length(theParticipants)
     % Close figures this subject
     close all;
 
-    % Make summary figures for this subject here
+    % Make any summary figures for this subject here
+    if (~justCheckFiles)
+    end
 end
 
 % Write out full analysis data table
-tableVariableNames = {'Subject','Diameter','Session','Method','Split','Log10 Threshold','Corrected Log10 Threshold','Corrected Threshold (dB)', 'Alpha','Beta','Guess','Lapse','Criterion'};
-dataTable = table(theSubject,theDiameter,theSession,theMethod,theSplit, ...
-    round(theTableLogThreshold,2),round(theTableCorrectedLogThreshold,2), round(theTableCorrectedDbThreshold,1), ...
-    round(theTablePsiParamsValues(:,1),2),round(theTablePsiParamsValues(:,2),1), round(theTablePsiParamsValues(:,3),2), round(theTablePsiParamsValues(:,4),2), ...
-    theTableThresholdCriterion, ...
-    'VariableNames',tableVariableNames);
-writetable(dataTable,fullfile(analysisDir,'fitTable.xlsx'),'FileType','spreadsheet');
-
-
-% Overall summary figures here
+if (~justCheckFiles)
+    if (convertToDb)
+        tableVariableNames = {'Subject','Diameter','Session','Method','Split','Threshold (dB)','Corrected Threshold (dB)','CI Low','CI High', 'Alpha','Beta','Guess','Lapse','Criterion'};
+        thresholdPlaces = 1;
+    else
+        tableVariableNames = {'Subject','Diameter','Session','Method','Split','Log10 Threshold','Corrected Log10 Threshold','CI Low','CI High', 'Alpha','Beta','Guess','Lapse','Criterion'};
+        thresholdPlaces = 2;
+    end
+    dataTable = table(theSubject,theDiameter,theSession,theMethod,theSplit, ...
+        round(theTableLogThreshold,thresholdPlaces),round(theTableCorrectedLogThreshold,thresholdPlaces),round(theTableCorrectedBootCILow,thresholdPlaces), round(theTableCorrectedBootCIHigh,thresholdPlaces), ...
+        round(theTablePsiParamsValues(:,1),2),round(theTablePsiParamsValues(:,2),2), round(theTablePsiParamsValues(:,3),2), round(theTablePsiParamsValues(:,4),2), ...
+        theTableThresholdCriterion, ...
+        'VariableNames',tableVariableNames);
+    writetable(dataTable,fullfile(analysisDir,'fitTable.xlsx'),'FileType','spreadsheet');
+end
 
 
 % FitPsychometricFunction
 %
 % Massage data, fit and plot psychometric function
 function [plot_log_intensities,plot_psychometric,corrected_psychometric, ...
-    log_threshold,corrected_log_threshold,psiParamsValues,h] = FitPsychometricFunction(log_intensity,responses,log0Value,thresholdCriterion)
+    log_threshold,corrected_log_threshold,psiParamsValues,h] = FitPsychometricFunction(log_intensity,responses,log0Value,thresholdCriterion,make_plot,convert_to_db)
 
 % Sort data and get what we need
 sorted_data = sortrows([log_intensity responses],1);
@@ -283,34 +384,46 @@ end
 % Fit using a wrapper into Palemedes
 [plot_log_intensities,plot_psychometric,corrected_psychometric, ...
     log_threshold,corrected_log_threshold, psiParamsValues] = ...
-    fitPsychometric(unique_log_intensities,num_seen',num_presented',thresholdCriterion);
+    fitPsychometric(unique_log_intensities,num_seen',num_presented',thresholdCriterion,convert_to_db);
 
 % Plot
-minIntensityLog=-3.5;
-maxIntensityLog= 0;
-fontsize = 18; fwidth = 600; fheight = 600;
-h = figure('Position', [400 200 fwidth fheight]); a0 = axes; hold(a0,'all');
-set(gca,'FontName','Helvetical','FontSize',14);
-xlabel('Log trial intensity (au)','FontSize',fontsize);
-ylabel('Fraction seen','FontSize',fontsize);
-xlim([minIntensityLog maxIntensityLog]);
-ylim([0 1]);
-set(a0,'FontSize',fontsize);
-set(a0,'LineWidth',1,'TickLength',[0.025 0.025]);
-set(a0,'Color','none');
-set(h,'Color',[1 1 1]);
-set(h,'PaperPositionMode','auto');
-set(h, 'renderer', 'painters');
-baseMarkerSize = 10;
-sizeNormalizer = 40;
-for tt = 1:length(unique_log_intensities)
-    markerSize = 4+round(baseMarkerSize*num_presented(tt)/sizeNormalizer);
-    plot(unique_log_intensities(tt), num_seen(tt)' ./ num_presented(tt)','ro','MarkerSize',markerSize,'MarkerFaceColor','r');
+if (make_plot)
+    if (convert_to_db)
+        minIntensityLog=-35;
+    else
+        minIntensityLog=-3.5;
+    end
+    maxIntensityLog= 0;
+    fontsize = 18; fwidth = 600; fheight = 600;
+    h = figure('Position', [400 200 fwidth fheight]); a0 = axes; hold(a0,'all');
+    set(gca,'FontName','Helvetical','FontSize',14);
+    if (convert_to_db)
+        xlabel('Trial intensity (dB)','FontSize',fontsize);
+    else
+        xlabel('Log trial intensity (au)','FontSize',fontsize);
+    end
+    ylabel('Fraction seen','FontSize',fontsize);
+    xlim([minIntensityLog maxIntensityLog]);
+    ylim([0 1]);
+    set(a0,'FontSize',fontsize);
+    set(a0,'LineWidth',1,'TickLength',[0.025 0.025]);
+    set(a0,'Color','none');
+    set(h,'Color',[1 1 1]);
+    set(h,'PaperPositionMode','auto');
+    set(h, 'renderer', 'painters');
+    baseMarkerSize = 10;
+    sizeNormalizer = 40;
+    for tt = 1:length(unique_log_intensities)
+        markerSize = 4+round(baseMarkerSize*num_presented(tt)/sizeNormalizer);
+        plot(unique_log_intensities(tt), num_seen(tt)' ./ num_presented(tt)','ro','MarkerSize',markerSize,'MarkerFaceColor','r');
+    end
+    plot(plot_log_intensities,corrected_psychometric,'k-','LineWidth',3);
+    plot(plot_log_intensities,plot_psychometric,'r:','LineWidth',2);
+    plot([minIntensityLog corrected_log_threshold],[thresholdCriterion thresholdCriterion],'k:','LineWidth',2);
+    plot([corrected_log_threshold corrected_log_threshold],[0 thresholdCriterion],'k:','LineWidth',2);
+else
+    h  = [];
 end
-plot(plot_log_intensities,corrected_psychometric,'k-','LineWidth',3);
-plot(plot_log_intensities,plot_psychometric,'r:','LineWidth',2);
-plot([-3.5 corrected_log_threshold],[thresholdCriterion thresholdCriterion],'k:','LineWidth',2);
-plot([corrected_log_threshold corrected_log_threshold],[0 thresholdCriterion],'k:','LineWidth',2);
 
 end
 
@@ -319,7 +432,7 @@ end
 % Wrapper into Palamedes that fits the logistic with parameters reasonable
 % for our data.
 function [fit_log_intensity,fit_psychometric,corrected_fit_psychometric, ...
-    log_threshold,corrected_log_threshold,psiParamsValues] = fitPsychometric(log_intensity,num_pos,out_of_num,threshold_criterion)
+    log_threshold,corrected_log_threshold,psiParamsValues] = fitPsychometric(log_intensity,num_pos,out_of_num,threshold_criterion,convert_to_db)
 %
 % Usage:
 %   [fit_log_intensity,fit_psychometric,corrected_fit_psychonmetric, ...
@@ -338,7 +451,11 @@ function [fit_log_intensity,fit_psychometric,corrected_fit_psychometric, ...
 % Calculate x-axis values to plot
 %
 % Increase the number of stimulus level values to plot for a smooth fit.
-fit_log_intensity = linspace(-3.5,1,1000);
+if (convert_to_db)
+    fit_log_intensity = linspace(-35,0,1000);
+else
+    fit_log_intensity = linspace(-3.5,0,1000);
+end
 
 % Psychometric function form (alternative: PAL_Gumbel).
 PF = @PAL_Logistic;
@@ -352,8 +469,13 @@ guessUpper = 0.10;
 lapseUpper = 0.05;
 
 % Set up starting points:
-searchGrid.alpha = -3.5:.01:0;
-searchGrid.beta = 10:1:40;
+if (convert_to_db)
+    searchGrid.alpha = -35:.1:0;
+    searchGrid.beta = 1:0.1:4;
+else
+    searchGrid.alpha = -3.5:.01:0;
+    searchGrid.beta = 10:1:40;
+end
 searchGrid.gamma = linspace(0,guessUpper,3);
 searchGrid.lambda = linspace(0,lapseUpper,6);
 
@@ -369,8 +491,8 @@ options = PAL_minimize('options');
     'lapseLimits',lapseLimits,'guessLimits',guessLimits,'searchOptions',options,'gammaEQlambda',false, ...
     'checkLimits',false);
 
-% Check whether beta is bigger than we would like,
-% constrain it at max if so.
+% Check whether beta is bigger or smaller than we would like,
+% constrain it if so.
 if (psiParamsValues(2) > max(searchGrid.beta))
     searchGrid.beta = max(searchGrid.beta);
     paramsFree = [1 0 1 1];
@@ -379,7 +501,16 @@ if (psiParamsValues(2) > max(searchGrid.beta))
         'checkLimits',false);
     % disp('Overrun on beta')
     % psiParamsValues
+elseif (psiParamsValues(2) < min(searchGrid.beta))
+    searchGrid.beta = min(searchGrid.beta);
+    paramsFree = [1 0 1 1];
+    [psiParamsValues] = PAL_PFML_Fit(log_intensity,num_pos,out_of_num,searchGrid,paramsFree,PF, ...
+        'lapseLimits',lapseLimits,'guessLimits',guessLimits,'searchOptions',options,'gammaEQlambda',false, ...
+        'checkLimits',false);
+    % disp('Underunrun on beta')
+    % psiParamsValues
 end
+
 
 % Get fitted curve values.
 fit_psychometric = PF(psiParamsValues,fit_log_intensity);
