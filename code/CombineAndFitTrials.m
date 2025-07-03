@@ -25,26 +25,22 @@ analysisDir = getpref('AOMicroRepeat','analysisDir');
 % Generally speaking, this routine loops over everything and does its thing
 %
 % Define subjects
-theParticipants = {'11002' '11108' '11118' '11119' '11125'};   
-theParticipants = {'11118'};   
+theParticipants = {'11002' '11108' '11118' '11119' '11125'};
 
 % Define sessions (1 or 2)
 theSessions = [1 2];
-theSessions = [2];
 
 % Define session splits
 theSplits = {'All', 'FirstHalf', 'SecondHalf'};
-theSplits = {'All'};
 
 % Define sizes (8 or 43)
 theDiameters = [8 43];
-theDiameters = [8];
 
 % Define methods ('MOCS' or 'QUEST')
 theMethods = {'MOCS' 'QUEST'};
-theMethods = {'MOCS'};
 
 %% Some parameters
+log0TrialThreshold = -3;
 log0Value = -3.5;
 thresholdCriterion = 0.78;
 nBootstraps = 500;
@@ -69,10 +65,14 @@ AOM = load('green_AOM_LUT_processing');
 %% Loop over everything
 tableRow = 1;
 for pp = 1:length(theParticipants)
-    for mm = 1:length(theMethods)
-        for dd = 1:length(theDiameters)
-            for ss = 1:length(theSessions)
-                for hh = 1:length(theSplits)
+    for dd = 1:length(theDiameters)
+        for ss = 1:length(theSessions)
+            for hh = 1:length(theSplits)
+                checkSessionDate = [];
+                MOCSFileTimes = [];
+                QUESTFileTimes = [];
+                for mm = 1:length(theMethods)
+
                     % Say hello
                     if (~justCheckFiles)
                         fprintf('Analyzing condition %d\n',tableRow);
@@ -96,14 +96,64 @@ for pp = 1:length(theParticipants)
                     dirOffset = 1;
                     trial_videos = dir(fullfile(pathToData,'*.mat'));
                     num_trial_videos = length(trial_videos(dirOffset:end));
-                    if (num_trial_videos ~= 4 & num_trial_videos ~= 3)
-                        error('Expect 3 or 4 data files');
+                    if (num_trial_videos ~= 4)
+                        error('Expect 4 data files');
                     end
 
                     % Read and concatenate the data
                     all_trials = {};
                     all_trials_unpacked = [];
                     for i = 1:num_trial_videos
+                        % Get check date from filename.  This should be the
+                        % same for all the MOCS and QUEST files from the
+                        % same subject session.  The method is the inner
+                        % loop variable, so we can do the check here.
+                        if (isempty(checkSessionDate))
+                            checkSessionDate = trial_videos(i+dirOffset-1).name(7:16);
+                        else
+                            if (~strcmp(checkSessionDate,trial_videos(i+dirOffset-1).name(7:16)))
+                                error('Not all data files from same session are on the same date');
+                            end
+                        end
+
+                        % Check that QUEST file times are later than last
+                        % MOCS time.  This code assumes that it runs to
+                        % completion on the same calendar day on which it
+                        % was started, which will almost always be true.
+                        %
+                        % Count underscores to find start of the time
+                        % string.
+                        nUnderscore = 0;
+                        for cc = 1:length(trial_videos(i+dirOffset-1).name)
+                            if (trial_videos(i+dirOffset-1).name(cc) == '_')
+                                nUnderscore = nUnderscore + 1;
+                            end
+                            if (nUnderscore == 4)
+                                timeStartIndex = cc + 1;
+                                break;
+                            end
+                        end
+                        fileTimeStr = trial_videos(i+dirOffset-1).name(timeStartIndex:timeStartIndex+4);
+
+                        % Handle way single digit time numbers get written
+                        % in the filename.  Brute force this. Ugh.
+                        if (fileTimeStr(2) == '_')
+                            fileTimeStr = ['0' fileTimeStr];
+                        end
+                        if (fileTimeStr(5) == '_')
+                            fileTimeStr(5) = fileTimeStr(4);
+                            fileTimeStr(4) = '0';
+                        end
+                        fileTimeStr = fileTimeStr(1:5);
+
+                        % Convert to format MATLAB can operate on
+                        fileTime = datetime(fileTimeStr,'InputFormat','HH_mm');
+                        if (strcmp(theMethod(tableRow),'MOCS'))
+                            MOCSFileTimes = [MOCSFileTimes ; fileTime];
+                        else
+                            QUESTFileTimes = [QUESTFileTimes ; fileTime];
+                        end
+
                         % Read the data file
                         % fprintf('Reading file %s\n',fullfile(pathToData,trial_videos(i+dirOffset-1).name));
                         tempData = load(fullfile(pathToData,trial_videos(i+dirOffset-1).name));
@@ -115,6 +165,13 @@ for pp = 1:length(theParticipants)
                                 if (~justCheckFiles)
                                     error('Inconsistency in our understanding of method');
                                 end
+
+                            end
+                            if (length(tempData.trial_vector) ~= 90 & length(tempData.trial_vector) ~= 100)
+                                fprintf('File %s: Wrong number of trials in MOCS data file\n');
+                                if (~justCheckFiles)
+                                    error('Wrong number of trials in MOCS data file');
+                                end
                             end
                             all_trials{i,1} = tempData.trial_vector;
                             all_trials{i,2} = tempData.response_vector;
@@ -125,7 +182,21 @@ for pp = 1:length(theParticipants)
                                     error('Inconsistency in our understanding of method');
                                 end
                             end
+                            if (length(tempData.trial_matrix) ~= 44)
+                                fprintf('File %s: Wrong number of trials in QUEST data file\n');
+                                if (~justCheckFiles)
+                                    error('Wrong number of trials in QUEST data file');
+                                end
+                            end
                             all_trials{i,1} = tempData.trial_matrix;
+                            questCatchTrialIndex = find(isnan(tempData.theThreshold));
+                            if (length(questCatchTrialIndex) ~= 4)
+                                fprintf('Wrong number of catch trials in QUEST data file');
+                                if (~justCheckFiles)
+                                    error('Wrong number of catch trials in QUEST data file');
+                                end
+                            end
+                            all_trials{i,1}(questCatchTrialIndex) = log0Value;
                             all_trials{i,2} = tempData.response_matrix;
                         else
                             error('Do not understand data format');
@@ -145,187 +216,255 @@ for pp = 1:length(theParticipants)
                             all_trials_unpacked = [all_trials_unpacked ; [all_trials{i,1} all_trials{i,2}]];
                         end
                     end
+   
+                    if (strcmp(theMethod{tableRow},'MOCS') & size(MOCSFileTimes,1) ~= 4)
+                        error('Wrong number of MOCS files somewhere in data tree');
+                    end
+                    if (strcmp(theMethod{tableRow},'QUEST')  & size(QUESTFileTimes,1) ~= 4)
+                        error('Wrong number of QUEST files somewhere in data tree');
+                    end
+                    if (strcmp(theMethod{tableRow},'QUEST'))
+                        QUESTFileTimesSorted = sort(QUESTFileTimes);
+                        MOCSFileTimesSorted = sort(MOCSFileTimes);
+                        for ff = 1:size(MOCSFileTimes,1)
+                            if (QUESTFileTimesSorted(ff) < MOCSFileTimesSorted(ff))
+                                fprintf('File time order error\n');
+                                if (~justCheckFiles)
+                                    error('File time order error');
+                                end
+                            end
+                        end
+                    end
 
                     % If just checking, break and don't do anything else
-                    if (justCheckFiles)
-                        tableRow = tableRow + 1;
-                        break;
-                    end
+                    if (~justCheckFiles)
+                        % Clear out variables from previous time through
+                        % the loop.
+                        clear log_intensity_nominal lin_intensity_nominal lin_intensity_rounded log_intensity_nominal log_intensity_rounded log_intensity_rounded_chk
+                        clear lut_row_index dac_intensity_lut lin_intensity_lut
+                        % Do the lookup table conversion
+                        for i = 1:size(all_trials_unpacked,1)
+                            % Get the nominal log intensity from the data
+                            log_intensity_nominal(i) = all_trials_unpacked(i,1);
 
-                    % Do the lookup table conversion
-                    for i = 1:size(all_trials_unpacked,1)
-                        % Get the nominal log intensity from the data
-                        log_intensity_nominal(i) = all_trials_unpacked(i,1);
+                            % Convert to nominal lin intensity
+                            lin_intensity_nominal(i) = 10.^log_intensity_nominal(i);
 
-                        % Convert to nominal lin intensity
-                        lin_intensity_nominal(i) = 10.^log_intensity_nominal(i);
-
-                        % Round this.  Should match first column of lut
-                        lin_intensity_rounded(i) = round(lin_intensity_nominal(i)*1000)/1000;
-
-                        % Get the rounded log intensity, which we think is what
-                        % is in the third column of the lut.  Except that if
-                        % the linear intensity is 0, then the entry of the
-                        % third column is zero and not -Inf.  Since we won't
-                        % use the rounded log intensity for anything other than
-                        % checking, we just tweak it here.
-                        log_intensity_rounded(i) = log10(lin_intensity_rounded(i));
-                        log_intensity_rounded_chk(i) = log_intensity_rounded(i);
-                        if (lin_intensity_rounded(i) == 0)
-                            log_intensity_rounded(i) = -3.5;
-                            log_intensity_rounded_chk(i) = 0;
-                        end
-
-                        % Compute the row index into the lut based on the linear intensity
-                        lut_row_index(i) = lin_intensity_rounded(i)*1000+1;
-
-                        % Get the corrected linear intensity by indexing into
-                        % the second column of the LUT
-                        lin_intensity_lut(i) = AOM.green_AOM_lut(lut_row_index(i),2);
-
-                        % Convert to log, taking log10(0) to be -3.5
-                        log_intensity_lut(i) = log10(lin_intensity_lut(i));
-
-                        % Sanity checks
-                        if (abs(lin_intensity_rounded(i)-AOM.green_AOM_lut(lut_row_index(i),1)) > 1e-5)
-                            error('Do not understand lut table and/or its indexing');
-                        end
-                        if (abs(log_intensity_rounded_chk(i)-AOM.green_AOM_lut(lut_row_index(i),3)) > 1e-5)
-                            error('Do not understand lut table and/or its indexing');
-                        end
-
-                        % Tag corrected log and linear intensities into the
-                        % all_trials_unpacked variable that we save
-                        all_trials_unpacked(i,3) = lin_intensity_lut(i);
-                        all_trials_unpacked(i,4) = log_intensity_lut(i);
-                    end
-
-                    % NEED TO DO THIS
-                    % Correct for trials that were nominally not zero, but
-                    % really were zero.
-                    
-                    % Here is the format of all_trials_unpacked
-                    %
-                    % These values are not adjusted for power measurements.
-                    % they are scaled with the instrument maximum having a
-                    % linear intensity of 1.
-                    %
-                    %  Column 1 - nominal log10 intensity
-                    %  Column 2 - 1 = seen, 0 = not seen
-                    %  Column 3 - lut corrected linear intensity
-                    %  Column 4 - lut corrected log intensity
-    
-                    % Split the data
-                    nTrials = size(all_trials_unpacked,1);
-                    shuffleIndex = Shuffle(1:nTrials);
-                    switch (theSplit{tableRow})
-                        case 'All'
-                            dataIndex = 1:nTrials;
-                        case 'FirstHalf'
-                            dataIndex = shuffleIndex(1:round(nTrials/2));
-                        case 'SecondHalf'
-                            dataIndex = shuffleIndex(round(nTrials/2):nTrials);
-                        otherwise
-                            error('Unknown split specified');
-                    end
-                    all_trials_unpacked = all_trials_unpacked(dataIndex,:);
-                    nTrials = size(all_trials_unpacked,1);
-
-                    % Extract the core data to fit
-                    trial_log_intensities = all_trials_unpacked(:,4);
-                    trial_responses = all_trials_unpacked(:,2);
-
-                    % Convert to dB?
-                    if (convertToDb)
-                       trial_log_intensities = 10*trial_log_intensities; 
-                       log0Value = 10*log0Value;
-                    end
-
-                    % Fit the psychometric function.  The fitting routine makes
-                    % a plot and we adjust the title here for things the
-                    % fitting routine doesn't know about.
-                    [plot_log_intensities,plot_psychometric,corrected_psychometric, ...
-                        log_threshold,corrected_log_threshold,psiParamsValues,h] = FitPsychometricFunction(trial_log_intensities,trial_responses,log0Value,thresholdCriterion,true,convertToDb);
-                    if (convertToDb)
-                        title({ sprintf('Subject %s, %s, session %d, split %s',theSubject{tableRow},theMethod{tableRow},theSession(tableRow),theSplit{tableRow}) ; ...
-                            sprintf('Diameter %d arcmin, threshold (dB) %0.2f',theDiameter(tableRow),corrected_log_threshold) ; ...
-                            sprintf('Slope %0.1f, guess %0.2f, lapse %0.2f',psiParamsValues(2),psiParamsValues(3),psiParamsValues(4)) ; ''},'FontSize',20);
-                    else
-                        title({ sprintf('Subject %s, %s, session %d, split %s',theSubject{tableRow},theMethod{tableRow},theSession(tableRow),theSplit{tableRow}) ; ...
-                            sprintf('Diameter %d arcmin, log threshold %0.2f',theDiameter(tableRow),corrected_log_threshold) ; ...
-                            sprintf('Slope %0.1f, guess %0.2f, lapse %0.2f',psiParamsValues(2),psiParamsValues(3),psiParamsValues(4)) ; ''},'FontSize',20);
-                    end
-                    drawnow;
-                    saveas(h,fullfile(pathToAnalysis,'psychometricFcn.tif'),'tif');
-
-                    % Bootstrap the data
-                    bootstrap_log_intensities = zeros(nTrials,nBootstraps);
-                    bootstrap_responses = zeros(nTrials,nBootstraps);
-                    switch(theMethod{tableRow})
-                        case 'QUEST'
-                            % For QUEST, we draw with replacement from all
-                            % the trials.
-                            for bb = 1:nBootstraps
-                                bootIndex = randi(nTrials,nTrials,1);
-                                bootstrap_log_intensities(:,bb) = trial_log_intensities(bootIndex);
-                                bootstrap_responses(:,bb) = trial_responses(bootIndex);
+                            % Log10 trial values less than 3 get rounded
+                            % down to 0 intensity.  Deal with this.
+                            if (log_intensity_nominal(i) < log0TrialThreshold)
+                                log_intensity_nominal(i) = log0Value;
+                                lin_intensity_nominal(i) = 0;
                             end
-                        case 'MOCS'
-                            % For MOCS, we respect the experimental design
-                            % and bootstrap each stimulus intensity
-                            % separately.
-                            unique_log_intensities = unique(trial_log_intensities);
-                            for bb = 1:nBootstraps
-                                temp_boot_intensities = [];
-                                temp_boot_responses = [];
-                                for uu = 1:length(unique_log_intensities)
-                                    uindex = find(trial_log_intensities == unique_log_intensities(uu));
+
+                            % Round linear intensity nominal.  Should match a row first column of lut
+                            lin_intensity_rounded(i) = round(lin_intensity_nominal(i)*1000)/1000;
+
+                            % Get the rounded log intensity, which we think is what
+                            % is in the third column of the lut.  Except that if
+                            % the linear intensity is 0, then the entry of the
+                            % third column is zero and not -Inf.  Handle
+                            % this for the check, and map the -Inf to the
+                            % log value we use for 0 for further analysis.
+                            log_intensity_rounded(i) = log10(lin_intensity_rounded(i));
+                            log_intensity_rounded_chk(i) = log_intensity_rounded(i);
+                            if (lin_intensity_rounded(i) == 0)
+                                log_intensity_rounded(i) = log0Value;
+                                log_intensity_rounded_chk(i) = 0;
+                            end
+
+                            % Compute the row index into the lut based on the linear intensity
+                            lut_row_index(i) = lin_intensity_rounded(i)*1000+1;
+
+                            % Get the corrected linear intensity by
+                            % averaging the nominal linear intensities that
+                            % correspond to the DAC value actually used.
+                            % Since we don't know precisely what the AOM
+                            % does in this case, since the LUT was created
+                            % by interpolation of measurements that were
+                            % made long ago, that seems as clever as
+                            % anything else I can think of.  One could also
+                            % use the min or the max of the ambiguous set
+                            % of values, or any weighted average.
+                            dac_intensity_lut(i) = AOM.green_AOM_lut(lut_row_index(i),4);
+                            questCatchTrialIndex = find(AOM.green_AOM_lut(:,4) == dac_intensity_lut(i) );
+                            lin_intensity_lut(i) = mean(AOM.green_AOM_lut(questCatchTrialIndex,1));
+
+                            % Convert to log, taking log10(0) to be -3.5
+                            log_intensity_lut(i) = log10(lin_intensity_lut(i));
+                            if (lin_intensity_lut(i) == 0)
+                                log_intensity_lut(i) = -3.5;
+                            end
+
+                            % Sanity checks
+                            if (abs(lin_intensity_rounded(i)-AOM.green_AOM_lut(lut_row_index(i),1)) > 1e-5)
+                                error('Do not understand lut table and/or its indexing');
+                            end
+                            if (abs(log_intensity_rounded_chk(i)-AOM.green_AOM_lut(lut_row_index(i),3)) > 1e-5)
+                                error('Do not understand lut table and/or its indexing');
+                            end
+
+                            % Tag corrected log and linear intensities into the
+                            % all_trials_unpacked variable that we save
+                            all_trials_unpacked(i,3) = lin_intensity_lut(i);
+                            all_trials_unpacked(i,4) = log_intensity_lut(i);
+                        end
+
+                        % Figure to make sure LUT conversion is basically
+                        % the identity.  Uncomment if you want to look at
+                        % this.
+                        % figure; subplot(1,2,1);
+                        % plot(lin_intensity_nominal,lin_intensity_lut,'ro');
+                        % axis('square'); axis([0 1 0 1]);
+                        % subplot(1,2,2);
+                        % plot(lin_intensity_nominal,lin_intensity_lut,'ro');
+                        % axis('square'); axis([0 0.1 0 0.1]);
+                        % drawnow;
+
+                        % Here is the format of all_trials_unpacked
+                        %
+                        % These values are not adjusted for power measurements.
+                        % they are scaled with the instrument maximum having a
+                        % linear intensity of 1.
+                        %
+                        %  Column 1 - nominal log10 intensity
+                        %  Column 2 - 1 = seen, 0 = not seen
+                        %  Column 3 - lut corrected linear intensity
+                        %  Column 4 - lut corrected log intensity
+                        %
+                        % Split the data
+                        nTrials = size(all_trials_unpacked,1);
+                        shuffleIndex = Shuffle(1:nTrials);
+                        switch (theSplit{tableRow})
+                            case 'All'
+                                dataIndex = 1:nTrials;
+                            case 'FirstHalf'
+                                dataIndex = shuffleIndex(1:round(nTrials/2));
+                            case 'SecondHalf'
+                                dataIndex = shuffleIndex(round(nTrials/2)+1:nTrials);
+                            otherwise
+                                error('Unknown split specified');
+                        end
+                        all_trials_unpacked = all_trials_unpacked(dataIndex,:);
+                        nTrials = size(all_trials_unpacked,1);
+
+                        % Extract the core data to fit
+                        trial_log_intensities = all_trials_unpacked(:,4);
+                        trial_responses = all_trials_unpacked(:,2);
+
+                        % Convert to dB?
+                        if (convertToDb)
+                            trial_log_intensities = 10*trial_log_intensities;
+                            log0Value = 10*log0Value;
+                        end
+
+                        % Fit the psychometric function.  The fitting routine makes
+                        % a plot and we adjust the title here for things the
+                        % fitting routine doesn't know about.
+                        [plot_log_intensities,plot_psychometric,corrected_psychometric, ...
+                            log_threshold,corrected_log_threshold,psiParamsValues,h] = FitPsychometricFunction(trial_log_intensities,trial_responses,log0Value,thresholdCriterion,true,convertToDb);
+                        if (convertToDb)
+                            title({ sprintf('Subject %s, %s, session %d, split %s',theSubject{tableRow},theMethod{tableRow},theSession(tableRow),theSplit{tableRow}) ; ...
+                                sprintf('Diameter %d arcmin, threshold (dB) %0.2f',theDiameter(tableRow),corrected_log_threshold) ; ...
+                                sprintf('Slope %0.1f, guess %0.2f, lapse %0.2f',psiParamsValues(2),psiParamsValues(3),psiParamsValues(4)) ; ''},'FontSize',20);
+                        else
+                            title({ sprintf('Subject %s, %s, session %d, split %s',theSubject{tableRow},theMethod{tableRow},theSession(tableRow),theSplit{tableRow}) ; ...
+                                sprintf('Diameter %d arcmin, log threshold %0.2f',theDiameter(tableRow),corrected_log_threshold) ; ...
+                                sprintf('Slope %0.1f, guess %0.2f, lapse %0.2f',psiParamsValues(2),psiParamsValues(3),psiParamsValues(4)) ; ''},'FontSize',20);
+                        end
+                        drawnow;
+                        saveas(h,fullfile(pathToAnalysis,'psychometricFcn.tif'),'tif');
+
+                        % Bootstrap the data
+                        bootstrap_log_intensities = zeros(nTrials,nBootstraps);
+                        bootstrap_responses = zeros(nTrials,nBootstraps);
+                        switch(theMethod{tableRow})
+                            case 'QUEST'
+                                % For QUEST, we draw with replacement from all
+                                % the trials except the design catch
+                                % trials, which we draw from separately.
+                                questNonCatchTrialIndex = setdiff(1:nTrials,questCatchTrialIndex);
+                                for bb = 1:nBootstraps
+                                    temp_boot_intensities = [];
+                                    temp_boot_responses = [];
+                                    
+                                    % Catch trials
+                                    uindex = questCatchTrialIndex;
                                     utemp_intensities = trial_log_intensities(uindex);
                                     utemp_responses = trial_responses(uindex);
-
                                     bootIndex = randi(length(uindex),length(uindex),1);
                                     temp_boot_intensities = [temp_boot_intensities ; utemp_intensities(bootIndex)];
                                     temp_boot_responses = [temp_boot_responses ; utemp_responses(bootIndex)];
+
+                                    % Non catch trials
+                                    uindex = questNonCatchTrialIndex;
+                                    utemp_intensities = trial_log_intensities(uindex);
+                                    utemp_responses = trial_responses(uindex);
+                                    bootIndex = randi(length(uindex),length(uindex),1);
+                                    temp_boot_intensities = [temp_boot_intensities ; utemp_intensities(bootIndex)];
+                                    temp_boot_responses = [temp_boot_responses ; utemp_responses(bootIndex)];
+
+                                    bootstrap_log_intensities(:,bb) = temp_boot_intensities;
+                                    bootstrap_responses(:,bb) = temp_boot_responses;
                                 end
-                                bootstrap_log_intensities(:,bb) = temp_boot_intensities;
-                                bootstrap_responses(:,bb) = temp_boot_responses;
-                            end
-                        otherwise
-                            error('Unknown method specified');
-                    end
+                                clear questCatchTrialIndex questNonCatchTrialIndex
 
-                    % Bootstrap the fits and extract CI.  Add CI to plot a
-                    % a thick blue horizontal bar.
-                    for bb = 1:nBootstraps
-                        if (rem(bb,100) == 0)
-                            fprintf('\tBootstrap fit %d of %d\n',bb,nBootstraps);
+                            case 'MOCS'
+                                % For MOCS, we respect the experimental design
+                                % and bootstrap each stimulus intensity
+                                % separately.
+                                unique_log_intensities = unique(trial_log_intensities);
+                                for bb = 1:nBootstraps
+                                    temp_boot_intensities = [];
+                                    temp_boot_responses = [];
+                                    for uu = 1:length(unique_log_intensities)
+                                        uindex = find(trial_log_intensities == unique_log_intensities(uu));
+                                        utemp_intensities = trial_log_intensities(uindex);
+                                        utemp_responses = trial_responses(uindex);
+
+                                        bootIndex = randi(length(uindex),length(uindex),1);
+                                        temp_boot_intensities = [temp_boot_intensities ; utemp_intensities(bootIndex)];
+                                        temp_boot_responses = [temp_boot_responses ; utemp_responses(bootIndex)];
+                                    end
+                                    bootstrap_log_intensities(:,bb) = temp_boot_intensities;
+                                    bootstrap_responses(:,bb) = temp_boot_responses;
+                                end
+                            otherwise
+                                error('Unknown method specified');
                         end
-                        [~,~,~,~,boot_corrected_threshold(bb),~,~] = FitPsychometricFunction(bootstrap_log_intensities(:,bb),bootstrap_responses(:,bb),log0Value,thresholdCriterion,false,convertToDb);
+
+                        % Bootstrap the fits and extract CI.  Add CI to plot a
+                        % a thick blue horizontal bar.
+                        for bb = 1:nBootstraps
+                            if (rem(bb,100) == 0)
+                                fprintf('\tBootstrap fit %d of %d\n',bb,nBootstraps);
+                            end
+                            [~,~,~,~,boot_corrected_threshold(bb),~,~] = FitPsychometricFunction(bootstrap_log_intensities(:,bb),bootstrap_responses(:,bb),log0Value,thresholdCriterion,false,convertToDb);
+                        end
+                        boot_quantiles = quantile(boot_corrected_threshold,[0.025 0.5 0.975]);
+                        figure(h);
+                        plot([boot_quantiles(1) boot_quantiles(3)],[thresholdCriterion thresholdCriterion],'b','LineWidth',4);
+                        saveas(h,fullfile(pathToAnalysis,'psychometricFcnCI.tif'),'tif');
+
+                        % Save what we learned
+                        save(fullfile(pathToAnalysis,'fitOutput.mat'),'all_trials_unpacked','plot_log_intensities','plot_psychometric', ...
+                            'corrected_psychometric','log_threshold','corrected_log_threshold','psiParamsValues','boot_corrected_threshold','boot_quantiles','-v7.3');
+
+                        % Accumulate data
+                        theTableLogThreshold(tableRow,1) = log_threshold;
+                        theTableCorrectedLogThreshold(tableRow,1) = corrected_log_threshold;
+                        theTableCorrectedLogThresholdBootMedian(tableRow,1)= boot_quantiles(2);
+                        theTableCorrectedBootCILow(tableRow,1) = boot_quantiles(1);
+                        theTableCorrectedBootCIHigh(tableRow,1) = boot_quantiles(3);
+                        theTablePsiParamsValues(tableRow,:) = psiParamsValues;
+                        theTableThresholdCriterion(tableRow,1) = thresholdCriterion;
+
+                        % Clear
+                        clear all_trials all_trials_unpacked
+
+                        % Bump table row
+                        tableRow = tableRow + 1;
                     end
-                    boot_quantiles = quantile(boot_corrected_threshold,[0.025 0.5 0.975]);
-                    figure(h);
-                    plot([boot_quantiles(1) boot_quantiles(3)],[thresholdCriterion thresholdCriterion],'b','LineWidth',4);
-                    saveas(h,fullfile(pathToAnalysis,'psychometricFcnCI.tif'),'tif');
-
-                    % Save what we learned
-                    save(fullfile(pathToAnalysis,'fitOutput.mat'),'all_trials_unpacked','plot_log_intensities','plot_psychometric', ...
-                        'corrected_psychometric','log_threshold','corrected_log_threshold','psiParamsValues','boot_corrected_threshold','boot_quantiles','-v7.3');
-
-                    % Accumulate data
-                    theTableLogThreshold(tableRow,1) = log_threshold;
-                    theTableCorrectedLogThreshold(tableRow,1) = corrected_log_threshold;
-                    theTableCorrectedLogThresholdBootMedian(tableRow,1)= boot_quantiles(2);
-                    theTableCorrectedBootCILow(tableRow,1) = boot_quantiles(1);
-                    theTableCorrectedBootCIHigh(tableRow,1) = boot_quantiles(3);
-                    theTablePsiParamsValues(tableRow,:) = psiParamsValues;
-                    theTableThresholdCriterion(tableRow,1) = thresholdCriterion;
-
-                    % Clear
-                    clear all_trials all_trials_unpacked
-
-                    % Bump table row
-                    tableRow = tableRow + 1;
-
                 end
             end
         end
@@ -510,7 +649,6 @@ elseif (psiParamsValues(2) < min(searchGrid.beta))
     % disp('Underunrun on beta')
     % psiParamsValues
 end
-
 
 % Get fitted curve values.
 fit_psychometric = PF(psiParamsValues,fit_log_intensity);
