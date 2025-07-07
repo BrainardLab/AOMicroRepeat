@@ -26,15 +26,19 @@ analysisDir = getpref('AOMicroRepeat','analysisDir');
 %
 % Define subjects
 theParticipants = {'11002' '11108' '11118' '11119' '11125'};
+theParticipants = {'11118'};
 
 % Define sessions (1 or 2)
+theSessions = [1 2];
 theSessions = [1 2];
 
 % Define session splits
 theSplits = {'All', 'FirstHalf', 'SecondHalf'};
+theSplits = {'Combined'};
 
 % Define sizes (8 or 43)
 theDiameters = [8 43];
+theDiameters = [43];
 
 % Define methods ('MOCS' or 'QUEST')
 theMethods = {'MOCS' 'QUEST'};
@@ -102,7 +106,9 @@ for pp = 1:length(theParticipants)
 
                     % Read and concatenate the data
                     all_trials = {};
-                    all_trials_unpacked = [];
+                    if (~strcmp(theSplits{hh},'Combined') | ~strcmp(theMethods{mm},'QUEST'))
+                        all_trials_unpacked = [];
+                    end
                     for i = 1:num_trial_videos
                         % Get check date from filename.  This should be the
                         % same for all the MOCS and QUEST files from the
@@ -236,7 +242,7 @@ for pp = 1:length(theParticipants)
                         end
                     end
 
-                    % If just checking, break and don't do anything else
+                    % If just checking, don't do anything else
                     if (~justCheckFiles)
                         % Clear out variables from previous time through
                         % the loop.
@@ -313,13 +319,13 @@ for pp = 1:length(theParticipants)
                         % Figure to make sure LUT conversion is basically
                         % the identity.  Uncomment if you want to look at
                         % this.
-                        % figure; subplot(1,2,1);
-                        % plot(lin_intensity_nominal,lin_intensity_lut,'ro');
-                        % axis('square'); axis([0 1 0 1]);
-                        % subplot(1,2,2);
-                        % plot(lin_intensity_nominal,lin_intensity_lut,'ro');
-                        % axis('square'); axis([0 0.1 0 0.1]);
-                        % drawnow;
+                        figure; subplot(1,2,1);
+                        plot(lin_intensity_nominal,lin_intensity_lut,'ro');
+                        axis('square'); axis([0 1 0 1]);
+                        subplot(1,2,2);
+                        plot(lin_intensity_nominal,lin_intensity_lut,'ro');
+                        axis('square'); axis([0 0.01 0 0.01]);
+                        drawnow;
 
                         % Here is the format of all_trials_unpacked
                         %
@@ -336,7 +342,7 @@ for pp = 1:length(theParticipants)
                         nTrials = size(all_trials_unpacked,1);
                         shuffleIndex = Shuffle(1:nTrials);
                         switch (theSplit{tableRow})
-                            case 'All'
+                            case {'All' 'Combined'}
                                 dataIndex = 1:nTrials;
                             case 'FirstHalf'
                                 dataIndex = shuffleIndex(1:round(nTrials/2));
@@ -446,6 +452,11 @@ for pp = 1:length(theParticipants)
                         plot([boot_quantiles(1) boot_quantiles(3)],[thresholdCriterion thresholdCriterion],'b','LineWidth',4);
                         saveas(h,fullfile(pathToAnalysis,'psychometricFcnCI.tif'),'tif');
 
+                        % Save a version without our informative title, for
+                        % paper figures
+                        title('');
+                        saveas(h,fullfile(pathToAnalysis,'psychometricFcnCINoTitle.tif'),'tif');
+
                         % Save what we learned
                         save(fullfile(pathToAnalysis,'fitOutput.mat'),'all_trials_unpacked','plot_log_intensities','plot_psychometric', ...
                             'corrected_psychometric','log_threshold','corrected_log_threshold','psiParamsValues','boot_corrected_threshold','boot_quantiles','-v7.3');
@@ -459,13 +470,24 @@ for pp = 1:length(theParticipants)
                         theTablePsiParamsValues(tableRow,:) = psiParamsValues;
                         theTableThresholdCriterion(tableRow,1) = thresholdCriterion;
 
-                        % Clear
-                        clear all_trials all_trials_unpacked
+                        % Clear unless its combined and MOCS.  In that
+                        % case, toss the last two columns so that the next
+                        % time around we append the QUEST data to the MOCS
+                        % data.
+                        clear all_trials
+                         if (~strcmp(theSplits{hh},'Combined') | strcmp(theMethods{mm},'QUEST'))
+                            clear all_trials_unpacked
+                         else
+                             all_trials_unpacked = all_trials_unpacked(:,1:2);
+                         end
 
                         % Bump table row
                         tableRow = tableRow + 1;
                     end
                 end
+                
+                % Just to be safe
+                clear all_trials all_trials_unpacked
             end
         end
     end
