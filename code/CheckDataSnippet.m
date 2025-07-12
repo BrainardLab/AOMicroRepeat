@@ -8,3 +8,4 @@ max(trial_matrix(index))
 % incorrect response.  Intensity is raw log10, not LUT corrected.
 index = find(response_vector);
 max(trial_vector(index))
+unique(trial_vector)

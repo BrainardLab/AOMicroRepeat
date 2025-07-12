@@ -1,12 +1,13 @@
 %% CombineTrials
 %
 % Combine all of the psychophysical data files into one big .mat
-% file.  We do this in part to simplify the programs, and in part because
-% the fitting program is crashing randomly and perhaps separating these
-% two parts will help track it down.
+% file.  We do this to simplify the other programs, since the logic
+% here involves lots of checks that everything is as it should be.
+% 
 %
 % Also identify catch trials in QUEST runs, which are somewhat obscurely
-% indicated.
+% indicated, and fix them up so later programs don't have to worry about
+% this.
 
 %% Initialize
 close all; clear all;
@@ -56,8 +57,8 @@ theMethods = {'MOCS' 'QUEST', 'COMBINED'};
 
 %% Get the AOM lookup table info.
 %
-% We use this below to masssage the nominal data, given
-% the lookup table
+% This is loaded and saved here with the data, so that the programs that
+% read the output of this program don't have to go and find it.
 %
 % As far as I can guess
 %   Column 1: nominal linear intensities
@@ -89,10 +90,6 @@ for pp = 1:length(theParticipants)
 
                         % Form path the the directory with the data sitting in it
                         pathToData = fullfile(dataDir,theSubject{tableRow},['Session' num2str(theSession(tableRow))],['Size' num2str(theDiameter(tableRow))],theMethod{tableRow});
-                        pathToAnalysis = fullfile(analysisDir,theSubject{tableRow},['Session' num2str(theSession(tableRow))],['Size' num2str(theDiameter(tableRow))],theMethod{tableRow},theSplit{tableRow});
-                        if (~exist(pathToAnalysis,'dir'))
-                            mkdir(pathToAnalysis);
-                        end
 
                         % Get list of data files
                         dirOffset = 1;

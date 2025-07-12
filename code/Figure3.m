@@ -2,6 +2,9 @@
 %% Clear
 clear; close all;
 
+%% Output variant
+outputVariant = 'SlopeFixed';
+
 %% Parameters
 axisFontSize = 14;
 labelFontSize = 18;
@@ -14,7 +17,7 @@ analysisDir = getpref('AOMicroRepeat','analysisDir');
 
 %% Read table of fit information
 wState = warning('off','MATLAB:table:ModifiedAndSavedVarnames');
-dataTable = readtable(fullfile(analysisDir,'fitTable.xlsx'),'FileType','spreadsheet'); %,'VariableNamingRule','preserve');
+dataTable = readtable(fullfile(analysisDir,outputVariant,'fitTable.xlsx'),'FileType','spreadsheet'); %,'VariableNamingRule','preserve');
 warning(wState);
 
 %% Get all MOCS data for full sessions
