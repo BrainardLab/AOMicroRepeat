@@ -5,9 +5,19 @@
 %% Initialize
 close all; clear all;
 
-%% Name of output path for the fits
-outputName = 'SlopeFree';
-switch (outputName)
+%% Variant
+outputVariant = 'SlopeFree';
+
+%% Some parameters
+guessUpper = 0.05;
+lapseUpper = 0.05;
+log0TrialThreshold = -3;
+thresholdCriterion = 0.78;
+nBootstraps = 500;
+convertToDb = true;
+
+%% Determine other parameters based on variant
+switch (outputVariant)
     case 'SlopeFree'
         if (convertToDb)
             slopeLower = 0.5;
@@ -44,21 +54,6 @@ theSplits = d.theSplits;
 theMethods = d.theMethods;
 AOM = d.AOM;
 
-%% Some parameters
-guessUpper = 0.05;
-lapseUpper = 0.05;
-log0TrialThreshold = -3;
-thresholdCriterion = 0.78;
-nBootstraps = 500;
-convertToDb = true;
-if (convertToDb)
-    slopeLower = 3.5;
-    slopeUpper = 3.5;
-else
-    slopeLower = 35;
-    slopeUpper = 35;
-end
-
 %% Freeze rng seed for repeatability
 rng(101);
 
@@ -91,7 +86,7 @@ for pp = 1:length(theParticipants)
                     fprintf('\tEntering LUT correction loop over trials ... ')
                     for i = 1:size(all_trials_unpacked{pp,dd,ss,hh,mm},1)
                         % Dir for this output
-                        pathToAnalysis = fullfile(analysisDir,outputName,theSubject{tableRow},['Session' num2str(theSession(tableRow))],['Size' num2str(theDiameter(tableRow))],theMethod{tableRow},theSplit{tableRow});
+                        pathToAnalysis = fullfile(analysisDir,outputVariant,theSubject{tableRow},['Session' num2str(theSession(tableRow))],['Size' num2str(theDiameter(tableRow))],theMethod{tableRow},theSplit{tableRow});
                         if (~exist(pathToAnalysis,"dir"))
                             mkdir(pathToAnalysis);
                         end
