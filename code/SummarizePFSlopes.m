@@ -31,11 +31,19 @@ for pp = 1:length(theSubjects)
             index = strcmp(dataTable.Subject,theSubjects{pp}) & (dataTable.Diameter == theDiameters(dd)) & (dataTable.Session == theSessions(ss) & ...
                 strcmp(dataTable.Method,'MOCS') & strcmp(dataTable.Split,'All'));
             betaMOCS(pp,dd,ss) = dataTable.Beta(index);
-            lapseMOCS(pp,dd,ss) = dataTable.Lapse(index);
+            lapseFromFitMOCS(pp,dd,ss) = dataTable.Lapse(index);
+            lapseFromDataMOCS(pp,dd,ss) = dataTable.lapseEstFromData(index);
+            lapseNTrialsFromDataMOCS(pp,dd,ss) = dataTable.nTrialsLapseEstFromData(index);
+            guessFromFitMOCS(pp,dd,ss) = dataTable.Guess(index);
+            guessFromDataMOCS(pp,dd,ss) = dataTable.guessEstFromData(index);
+            guessNTrialsFromDataMOCS(pp,dd,ss) = dataTable.nTrialsGuessEstFromData(index);
         end
     end
 end
-fprintf('MOCS, size %d, mean beta %0.2f, stdev %0.3f, lapse = %0.3f\n',theDiameter,mean(betaMOCS(:)),std(betaMOCS(:)),mean(lapseMOCS(:)));
+fprintf('MOCS, size %d, mean beta %0.2f, stdev %0.3f, lapse from fit %0.3f, lapse from data %0.3f (%0.1f), guess from fit %0.3f, guess from data %0.3f (%0.1f)\n', ...
+    theDiameter,mean(betaMOCS(:)),std(betaMOCS(:)), ...
+    mean(lapseFromFitMOCS(:)),mean(lapseFromDataMOCS(:)),mean(lapseNTrialsFromDataMOCS(:)), ...
+    mean(guessFromFitMOCS(:)),mean(guessFromDataMOCS(:)),mean(guessNTrialsFromDataMOCS(:)));
 
 %% Get all QUEST beta for full sessions at 8 arcmin
 theSubjects = unique(dataTable.Subject);
@@ -47,11 +55,20 @@ for pp = 1:length(theSubjects)
             index = strcmp(dataTable.Subject,theSubjects{pp}) & (dataTable.Diameter == theDiameters(dd)) & (dataTable.Session == theSessions(ss) & ...
                 strcmp(dataTable.Method,'QUEST') & strcmp(dataTable.Split,'All'));
             betaQUEST(pp,dd,ss) = dataTable.Beta(index);
-            lapseQUEST(pp,dd,ss) = dataTable.Lapse(index);
+            lapseFromFitQUEST(pp,dd,ss) = dataTable.Lapse(index);
+            lapseFromDataQUEST(pp,dd,ss) = dataTable.lapseEstFromData(index);
+            lapseNTrialsFromDataQUEST(pp,dd,ss) = dataTable.nTrialsLapseEstFromData(index);
+            guessFromFitQUEST(pp,dd,ss) = dataTable.Guess(index);
+            guessFromDataQUEST(pp,dd,ss) = dataTable.guessEstFromData(index);
+            guessNTrialsFromDataQUEST(pp,dd,ss) = dataTable.nTrialsGuessEstFromData(index);
         end
     end
 end
-fprintf('QUEST, size %d, mean beta %0.2f, stdev %0.3f, lapse %0.3f\n',theDiameter,mean(betaQUEST(:)),std(betaQUEST(:)),mean(lapseQUEST(:)));
+index = find(lapseNTrialsFromDataQUEST(:) >= 10);
+fprintf('QUEST, size %d, mean beta %0.2f, stdev %0.3f, lapse from fit %0.3f, lapse from data %0.3f (%0.1f), guess from fit %0.3f, guess from data %0.3f (%0.1f)\n', ...
+    theDiameter,mean(betaQUEST(:)),std(betaQUEST(:)), ...
+    mean(lapseFromFitQUEST(:)),mean(lapseFromDataQUEST(index)),mean(lapseNTrialsFromDataQUEST(index)), ...
+    mean(guessFromFitQUEST(:)),mean(guessFromDataQUEST(:)),mean(guessNTrialsFromDataQUEST(:)));
 
 %% Get all MOCS beta for full sessions at 43 arcmin
 theDiameter = 43;
@@ -64,11 +81,19 @@ for pp = 1:length(theSubjects)
             index = strcmp(dataTable.Subject,theSubjects{pp}) & (dataTable.Diameter == theDiameters(dd)) & (dataTable.Session == theSessions(ss) & ...
                 strcmp(dataTable.Method,'MOCS') & strcmp(dataTable.Split,'All'));
             betaMOCS(pp,dd,ss) = dataTable.Beta(index);
-            lapseMOCS(pp,dd,ss) = dataTable.Lapse(index);
+            lapseFromFitMOCS(pp,dd,ss) = dataTable.Lapse(index);
+            lapseFromDataMOCS(pp,dd,ss) = dataTable.lapseEstFromData(index);
+            lapseNTrialsFromDataMOCS(pp,dd,ss) = dataTable.nTrialsLapseEstFromData(index);
+            guessFromFitMOCS(pp,dd,ss) = dataTable.Guess(index);
+            guessFromDataMOCS(pp,dd,ss) = dataTable.guessEstFromData(index);
+            guessNTrialsFromDataMOCS(pp,dd,ss) = dataTable.nTrialsGuessEstFromData(index);
         end
     end
 end
-fprintf('MOCS, size %d, mean beta %0.2f, stdev %0.3f,lapse %0.3f\n',theDiameter,mean(betaMOCS(:)),std(betaMOCS(:)),mean(lapseMOCS(:)));
+fprintf('MOCS, size %d, mean beta %0.2f, stdev %0.3f, lapse from fit %0.3f, lapse from data %0.3f (%0.1f), guess from fit %0.3f, guess from data %0.3f (%0.1f)\n', ...
+    theDiameter,mean(betaMOCS(:)),std(betaMOCS(:)), ...
+    mean(lapseFromFitMOCS(:)),mean(lapseFromDataMOCS(:)),mean(lapseNTrialsFromDataMOCS(:)), ...
+    mean(guessFromFitMOCS(:)),mean(guessFromDataMOCS(:)),mean(guessNTrialsFromDataMOCS(:)));
 
 %% Get all QUEST beta for full sessions at 43 arcmin
 theSubjects = unique(dataTable.Subject);
@@ -80,8 +105,17 @@ for pp = 1:length(theSubjects)
             index = strcmp(dataTable.Subject,theSubjects{pp}) & (dataTable.Diameter == theDiameters(dd)) & (dataTable.Session == theSessions(ss) & ...
                 strcmp(dataTable.Method,'QUEST') & strcmp(dataTable.Split,'All'));
             betaQUEST(pp,dd,ss) = dataTable.Beta(index);
-            lapseQUEST(pp,dd,ss) = dataTable.Lapse(index);
+            lapseFromFitQUEST(pp,dd,ss) = dataTable.Lapse(index);
+            lapseFromDataQUEST(pp,dd,ss) = dataTable.lapseEstFromData(index);
+            lapseNTrialsFromDataQUEST(pp,dd,ss) = dataTable.nTrialsLapseEstFromData(index);
+            guessFromFitQUEST(pp,dd,ss) = dataTable.Guess(index);
+            guessFromDataQUEST(pp,dd,ss) = dataTable.guessEstFromData(index);
+            guessNTrialsFromDataQUEST(pp,dd,ss) = dataTable.nTrialsGuessEstFromData(index);
         end
     end
 end
-fprintf('QUEST, size %d, mean beta %0.2f, stdev %0.3f, lapse %0.3f\n',theDiameter,mean(betaQUEST(:)),std(betaQUEST(:)),mean(lapseQUEST(:)));
+index = find(lapseNTrialsFromDataQUEST(:) >= 10);
+fprintf('QUEST, size %d, mean beta %0.2f, stdev %0.3f, lapse from fit %0.3f, lapse from data %0.3f (%0.1f), guess from fit %0.3f, guess from data %0.3f (%0.1f)\n', ...
+    theDiameter,mean(betaQUEST(:)),std(betaQUEST(:)), ...
+    mean(lapseFromFitQUEST(:)),mean(lapseFromDataQUEST(index)),mean(lapseNTrialsFromDataQUEST(index)), ...
+    mean(guessFromFitQUEST(:)),mean(guessFromDataQUEST(:)),mean(guessNTrialsFromDataQUEST(:)));

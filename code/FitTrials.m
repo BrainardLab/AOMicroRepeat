@@ -3,7 +3,7 @@
 % Read in the combined data file and fit it all.
 
 %% Initialize
-close all; clear all;
+close all hidden; clear all;
 
 %% Variant
 outputVariant = 'SlopeFixed';
@@ -15,7 +15,24 @@ thresholdCriterion = 0.78;
 nBootstraps = 500;
 convertToDb = true;
 
+% This parameter determins how much above threshold a trial intensity
+% needs to be for us to use it to estimate lapse rate.
+if (convertToDb)
+    lapseEstIntensityThreshold = 6.0;
+else
+    lapseEstIntensityThreshold = 0.6;
+end
+
 %% Determine other parameters based on variant
+%
+% Note that locking lapse rate to 0 for slope fixed leads
+% to some pathalogical fits, for reasons I don't fully understand.
+% Finesse by using 1%, which is small enough for practical
+% purposes.
+%
+% To get fixed slope values, first run with 'SlopeFree', and then
+% use SummarizePFSlopes to get useful info, including the
+% mean slopes from the slope free fits.
 switch (outputVariant)
     case 'SlopeFree'
         if (convertToDb)
@@ -29,18 +46,18 @@ switch (outputVariant)
             slopeLower43 = 5;
             slopeUpper43 = 70;
         end
-        lapseUpper = 0.01;
+        lapseUpper = 0.05;
     case 'SlopeFixed'
         if (convertToDb)
             slopeLower8 = 1.08;
             slopeUpper8 = 1.08;
-            slopeLower43 = 2.75;
-            slopeUpper43 = 2.75;
+            slopeLower43 = 2.69;
+            slopeUpper43 = 2.69;
         else
             slopeLower8 = 10.8;
             slopeUpper8 = 10.8;
-            slopeLower43 = 27.5;
-            slopeUpper43 = 27.5;
+            slopeLower43 = 26.9;
+            slopeUpper43 = 26.9;
         end
         lapseUpper = 0.01;
 end
@@ -279,13 +296,15 @@ for pp = 1:length(theParticipants)
                     % Set beta for this size
                     switch (theDiameter(tableRow))
                         case 8
-                            slopeLower = slopeLower8;
-                            slopeUpper = slopeUpper8;
+                            slopeLowerUse(tableRow,1) = slopeLower8;
+                            slopeUpperUse(tableRow,1) = slopeUpper8;
                         case 43
-                            slopeLower = slopeLower43;
-                            slopeUpper = slopeUpper43;
+                            slopeLowerUse(tableRow,1) = slopeLower43;
+                            slopeUpperUse(tableRow,1) = slopeUpper43;
                         otherwise
                     end
+                    guessUpperUse(tableRow,1) = guessUpper;
+                    lapseUpperUse(tableRow,1) = lapseUpper;
 
                     % Fit the psychometric function.  The fitting routine makes
                     % a plot and we adjust the title here for things the
@@ -293,7 +312,7 @@ for pp = 1:length(theParticipants)
                     fprintf('\tCalling top level PF fit routine\n');
                     [plot_log_intensities,plot_psychometric,corrected_psychometric, ...
                         log_threshold,corrected_log_threshold,psiParamsValues,h] = FitPsychometricFunction(trial_log_intensities,trial_responses,log0ValueUse,thresholdCriterion, ...
-                        convertToDb,true,figureVis,guessUpper,lapseUpper,slopeLower,slopeUpper);
+                        convertToDb,true,figureVis,guessUpperUse(tableRow),lapseUpperUse(tableRow),slopeLowerUse(tableRow),slopeUpperUse(tableRow));
                     fprintf('\tDone with top level PF fit\n');
                     if (convertToDb)
                         title({ sprintf('Subject %s, %s, session %d, split %s',theSubject{tableRow},theMethod{tableRow},theSession(tableRow),theSplit{tableRow}) ; ...
@@ -306,6 +325,22 @@ for pp = 1:length(theParticipants)
                     end
                     drawnow;
                     saveas(h,fullfile(pathToAnalysis,'psychometricFcn.tif'),'tif');
+
+                    % Estimate guess and lapse rates from the data
+                    index = find(trial_log_intensities == log0ValueUse);
+                    if (~isempty(index))
+                        guessEstFromData(tableRow,1) = mean(trial_responses(index));
+                    else
+                        guessEstFromData(tableRow,1) = -1;
+                    end
+                    nTrialsGuessEstFromData(tableRow,1) = length(index);
+                    index = find(trial_log_intensities > corrected_log_threshold + lapseEstIntensityThreshold);
+                    if (~isempty(index))
+                        lapseEstFromData(tableRow,1) = 1-mean(trial_responses(index));
+                    else
+                        lapseEstFromData(tableRow,1) = -1;
+                    end
+                    nTrialsLapseEstFromData(tableRow,1) = length(index);
 
                     % Bootstrap the data
                     fprintf('\tBootstrapping data\n')
@@ -372,7 +407,7 @@ for pp = 1:length(theParticipants)
                             fprintf('\t\tBootstrap fit %d of %d\n',bb,nBootstraps);
                         end
                         [~,~,~,~,boot_corrected_threshold(bb),~,~] = FitPsychometricFunction(bootstrap_log_intensities(:,bb),bootstrap_responses(:,bb),log0ValueUse,thresholdCriterion, ...
-                            convertToDb,false,false,guessUpper,lapseUpper,slopeLower,slopeUpper);
+                            convertToDb,false,false,guessUpperUse(tableRow),lapseUpperUse(tableRow),slopeLowerUse(tableRow),slopeUpperUse(tableRow));
                     end
                     fprintf('\tDone fitting bootstrapped data\n');
                     boot_quantiles = quantile(boot_corrected_threshold,[0.025 0.5 0.975]);
@@ -425,16 +460,20 @@ end
 % Write out full analysis data table
 fprintf('\nWriting xlsx file ... ')
 if (convertToDb)
-    tableVariableNames = {'Subject','Diameter','Session','Method','Split','Threshold (dB)','Corrected Threshold (dB)','CI Low','CI High', 'Alpha','Beta','Guess','Lapse','Criterion'};
+    tableVariableNames = {'Subject','Diameter','Session','Method','Split','Threshold (dB)','Corrected Threshold (dB)','CI Low','CI High', 'Alpha','Beta','Guess','Lapse', ...
+        'Criterion','SlopeLimitLow','SlopeLimitHigh','guessLimit','lapseLimit','guessEstFromData','nTrialsGuessEstFromData','lapseEstFromData','nTrialsLapseEstFromData'};
     thresholdPlaces = 1;
 else
-    tableVariableNames = {'Subject','Diameter','Session','Method','Split','Log10 Threshold','Corrected Log10 Threshold','CI Low','CI High', 'Alpha','Beta','Guess','Lapse','Criterion'};
+    tableVariableNames = {'Subject','Diameter','Session','Method','Split','Log10 Threshold','Corrected Log10 Threshold','CI Low','CI High', 'Alpha','Beta','Guess','Lapse', ...
+        'Criterion','SlopeLimitLow','SlopeLimitHigh','guessLimit','lapseLimit','guessEstFromData','nTrialsGuessEstFromData','lapseEstFromData','nTrialsLapseEstFromData'};
     thresholdPlaces = 2;
 end
 dataTable = table(theSubject,theDiameter,theSession,theMethod,theSplit, ...
     round(theTableLogThreshold,thresholdPlaces),round(theTableCorrectedLogThreshold,thresholdPlaces),round(theTableCorrectedBootCILow,thresholdPlaces), round(theTableCorrectedBootCIHigh,thresholdPlaces), ...
-    round(theTablePsiParamsValues(:,1),2),round(theTablePsiParamsValues(:,2),2), round(theTablePsiParamsValues(:,3),2), round(theTablePsiParamsValues(:,4),2), ...
+    round(theTablePsiParamsValues(:,1),2),round(theTablePsiParamsValues(:,2),2), round(theTablePsiParamsValues(:,3),3), round(theTablePsiParamsValues(:,4),3), ...
     theTableThresholdCriterion, ...
+    slopeLowerUse,slopeUpperUse,guessUpperUse,lapseUpperUse, ...
+    round(guessEstFromData,3), nTrialsGuessEstFromData,round(lapseEstFromData,3),nTrialsLapseEstFromData, ...
     'VariableNames',tableVariableNames);
 writetable(dataTable,fullfile(analysisDir,outputVariant,'fitTable.xlsx'),'FileType','spreadsheet');
 fprintf('done\n');

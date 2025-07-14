@@ -158,8 +158,10 @@ for pp = 1:length(theParticipants)
                             % fprintf('Reading file %s\n',fullfile(pathToData,trial_videos(i+dirOffset-1).name));
                             loadedData{pp,dd,ss,hh,mm,i} = load(fullfile(pathToData,trial_videos(i+dirOffset-1).name));
 
-                            % Grab the trial data we need
+                            % Grab the trial data we need.  Also do some
+                            % MOCS and QUEST specific reality checks
                             if (isfield(loadedData{pp,dd,ss,hh,mm,i},'trial_vector'))
+                                % It's a MOCS data file by what's in it
                                 if (~strcmp(theMethod{tableRow},'MOCS'))
                                     fprintf('File %s\n\tUnder QUEST, appears to be MOCS\n\tTrials: %d\n',fullfile(pathToData,trial_videos(i+dirOffset-1).name),length(loadedData{pp,dd,ss,hh,mm,i}.trial_vector));
                                 end
@@ -168,7 +170,23 @@ for pp = 1:length(theParticipants)
                                 end
                                 all_trials{pp,dd,ss,hh,mm}{i,1} = loadedData{pp,dd,ss,hh,mm,i}.trial_vector;
                                 all_trials{pp,dd,ss,hh,mm}{i,2} = loadedData{pp,dd,ss,hh,mm,i}.response_vector;
+
+                                % Reality check on MOCS stimulus levels.
+                                % This should be the same across runs
+                                % within session, I think, but are not
+                                % always. This doesn't error out, but does
+                                % report the unexpected cases.
+                                for j = i-1:-1:1  
+                                    if (any(unique(loadedData{pp,dd,ss,hh,mm,j}.trial_vector) ~= unique(loadedData{pp,dd,ss,hh,mm,i}.trial_vector)))
+                                        fprintf('\t\tMOCS mismatch in trial levels across runs\n')
+                                        fprintf('\t\t%s, session %d, size %d, run loaded #%d vs run loaded #%d\n',theParticipants{pp},theSessions(ss), theDiameters(dd),i,j);
+                                        fprintf('\t\tFile loaded #%d: %s\n',i,fullfile(trial_videos(i+dirOffset-1).name));
+                                        fprintf('\t\tFile loaded #%d: %s\n',j,fullfile(trial_videos(j+dirOffset-1).name));
+                                    end
+                                end
+
                             elseif (isfield(loadedData{pp,dd,ss,hh,mm,i},'trial_matrix'))
+                                % It's a QUEST data file by what's in it
                                 if (~strcmp(theMethod{tableRow},'QUEST'))
                                     fprintf('File %s\n\tUnder MOCS, appears to be QUEST\n\tTrials: %d\n',fullfile(pathToData,trial_videos(i+dirOffset-1).name),length(loadedData{pp,dd,ss,hh,mm,i}.trial_matrix));
                                 end
@@ -186,7 +204,9 @@ for pp = 1:length(theParticipants)
                                 error('Do not understand data format');
                             end
 
-                            % Get/check number of trials
+                            % Get/check number of trials and make sure they
+                            % are the same for each run within
+                            % method/session.
                             if (i == 1)
                                 nTrialsPerSession = length(all_trials{pp,dd,ss,hh,mm}{i,1});
                             else
@@ -195,7 +215,8 @@ for pp = 1:length(theParticipants)
                                 end
                             end
 
-                            % Concatenate
+                            % Concatenate across runs into one long pair of
+                            % vectors.
                             all_trials_unpacked{pp,dd,ss,hh,mm} = [all_trials_unpacked{pp,dd,ss,hh,mm} ; [all_trials{pp,dd,ss,hh,mm}{i,1} all_trials{pp,dd,ss,hh,mm}{i,2}] ];
                         end
 
