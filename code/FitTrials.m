@@ -75,11 +75,10 @@ switch (outputVariant)
         lapseUpper = 0.01;
 end
 
-
 %% Figure visibility
 %
 % Maybe making invisible figures will avoid crashes?
-figureVis = 'off';
+figureVis = 'on';
 
 %% Read combined data produced by CombineData
 analysisDir = getpref('AOMicroRepeat','analysisDir');
@@ -209,8 +208,10 @@ for pp = 1:length(theParticipants)
                     plot(lin_intensity_nominal,lin_intensity_lut,'ro');
                     axis('square'); axis([0 1 0 1]);
                     plot([0 1],[0 1],'k:');
+                    xlabel('Linear intensity nominal');
+                    ylabel('Linear intensity LUT');
                     title({ sprintf('%s, %s, session %d, split %s, d %d',theSubject{tableRow},theMethod{tableRow},theSession(tableRow),theSplit{tableRow},theDiameter(tableRow)) ; ...
-                        ''},'FontSize',14);
+                        ''},'FontSize',10);
                     subplot(1,2,2); hold on;
                     plot(lin_intensity_nominal,lin_intensity_lut,'ro');
                     axis('square');
@@ -221,10 +222,32 @@ for pp = 1:length(theParticipants)
                         axis([0 0.01 0 0.01]);
                         plot([0 0.01],[0 0.01],'k:');
                     end
+                    xlabel('Linear intensity nominal');
+                    ylabel('Linear intensity LUT');
                     title({ sprintf('%s, %s, session %d, split %s, d %d',theSubject{tableRow},theMethod{tableRow},theSession(tableRow),theSplit{tableRow},theDiameter(tableRow)) ; ...
-                        ''},'FontSize',14);
+                        ''},'FontSize',10);
                     drawnow;
                     saveas(h1,fullfile(pathToAnalysis,'quantizationFig.tif'),'tif');
+
+                    h2 = figure('visible',figureVis);
+                    plot(log_intensity_nominal,log_intensity_lut,'ro');
+                    axis('square');
+                    if (convertToDb)
+                        axis([-36 1 -36 1]);
+                        plot([-36 1],[-36 1],'k:');
+                        xlabel('Intensity nominal (dB)');
+                        ylabel('Intensity LUT (dB)');
+                    else
+                        axis([-3.6 0.1 -3.6 0.1]);
+                        plot([-3.6 0.1],[-3.6 0.1],'k:');
+                        xlabel('Log10 intensity nominal');
+                        ylabel('Log10 intensity LUT');
+                    end
+                    title({ sprintf('%s, %s, session %d, split %s, d %d',theSubject{tableRow},theMethod{tableRow},theSession(tableRow),theSplit{tableRow},theDiameter(tableRow)) ; ...
+                        ''},'FontSize',10);
+                    drawnow;
+                    saveas(h2,fullfile(pathToAnalysis,'quantizationLogFig.tif'),'tif');
+
 
                     % Here is the format of all_trials_unpacked
                     %
