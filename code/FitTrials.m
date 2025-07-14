@@ -6,7 +6,7 @@
 close all hidden; clear all;
 
 %% Variant
-outputVariant = 'SlopeFixed';
+outputVariant = 'SlopeFree1';
 
 %% Some parameters
 guessUpper = 0.05;
@@ -47,6 +47,19 @@ switch (outputVariant)
             slopeUpper43 = 70;
         end
         lapseUpper = 0.05;
+    case 'SlopeFree1'
+        if (convertToDb)
+            slopeLower8 = 0.5;
+            slopeUpper8 = 7;
+            slopeLower43 = 0.5;
+            slopeUpper43 = 7;
+        else
+            slopeLower8 = 5;
+            slopeUpper8 = 70;
+            slopeLower43 = 5;
+            slopeUpper43 = 70;
+        end
+        lapseUpper = 0.01;
     case 'SlopeFixed'
         if (convertToDb)
             slopeLower8 = 1.08;
@@ -197,7 +210,7 @@ for pp = 1:length(theParticipants)
                     axis('square'); axis([0 1 0 1]);
                     plot([0 1],[0 1],'k:');
                     title({ sprintf('%s, %s, session %d, split %s, d %d',theSubject{tableRow},theMethod{tableRow},theSession(tableRow),theSplit{tableRow},theDiameter(tableRow)) ; ...
-                                       ''},'FontSize',14);
+                        ''},'FontSize',14);
                     subplot(1,2,2); hold on;
                     plot(lin_intensity_nominal,lin_intensity_lut,'ro');
                     axis('square');
@@ -291,7 +304,7 @@ for pp = 1:length(theParticipants)
                                     saveas(hs,fullfile(pathToAnalysis,sprintf('staircasePlotNoTitle_run%d.tif',zz)),'tif');
                                 end
                             end
-                    end           
+                    end
 
                     % Set beta for this size
                     switch (theDiameter(tableRow))
