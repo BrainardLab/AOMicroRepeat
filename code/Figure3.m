@@ -68,6 +68,7 @@ legend( ...
     'Location','SouthEast');
 axis('square');
 axis([limMin limMax limMin limMax]);
+saveas(gcf,fullfile(analysisDir,outputVariant,'Figure3a.pdf'),'pdf');
 
 %% t-tests
 [~,p(1,1)] = ttest(sensitivityMOCS(:,1,1),sensitivityQUEST(:,1,1));

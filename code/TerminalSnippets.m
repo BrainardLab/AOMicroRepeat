@@ -12,3 +12,5 @@ open */*/Size8/QUEST/All/psycho*CI.tif
 open */*/Size43/MOCS/All/psycho*CI.tif
 open */*/Size43/QUEST/All/psycho*CI.tif
 
+open */*/Size8/COMBINED/All/psycho*CI.tif */*/Size43/COMBINED/All/psycho*CI.tif
+
