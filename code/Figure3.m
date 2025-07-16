@@ -3,7 +3,7 @@
 clear; close all;
 
 %% Output variant
-outputVariant = 'SlopeFixed';
+outputVariant = 'SlopeFree1';
 
 %% Parameters
 axisFontSize = 14;
