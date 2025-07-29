@@ -4,10 +4,20 @@
 % file.  We do this to simplify the other programs, since the logic
 % here involves lots of checks that everything is as it should be.
 % 
-%
 % Also identify catch trials in QUEST runs, which are somewhat obscurely
 % indicated, and fix them up so later programs don't have to worry about
 % this.
+%
+% Although this might look like it is splitting the data into two halves, that
+% actually happens elsewhere, and here all the data are stored under all the splits.
+% This is a vestige from the time this code was part of the full data analysis loop, and
+% if we were better people we'd skip this step here.  Maybe we will become better at some
+% point.
+%
+% The output of this program is a mat file 'CombinedData.mat' that gets stored in the
+% analysis output tree, and that contains one big cell array with all of the data.
+%
+% See also: FitTrials, FigureN
 
 %% Initialize
 close all; clear all;

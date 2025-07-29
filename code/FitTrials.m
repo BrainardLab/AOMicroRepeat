@@ -6,6 +6,13 @@
 close all hidden; clear all;
 
 %% Variant
+%
+% The variant is a string that determines a set of fitting parameters.  Output for each
+% variant is stored separately.  As an example, maybe we want to allow the slope of the
+% psychometric function to be a free parameter versus fix it to a particular value, or
+% maybe we want to experiment with different limits on the guess or lapse rate.  The
+% variant string allows you to go look at how paremeters for each variant were set and
+% then go find the output for that variant.
 outputVariant = 'SlopeFree1';
 
 %% Some parameters
@@ -16,7 +23,9 @@ nBootstraps = 500;
 convertToDb = true;
 
 % This parameter determins how much above threshold a trial intensity
-% needs to be for us to use it to estimate lapse rate.
+% needs to be for us to use it to estimate lapse rate. Different numerical
+% values depending on whether you are using log10 units or dB. Indeed, this sort of
+% numerical adjustment happens in other places below.
 if (convertToDb)
     lapseEstIntensityThreshold = 6.0;
 else
@@ -262,6 +271,10 @@ for pp = 1:length(theParticipants)
                     %  Column 4 - lut corrected log intensity
                     %
                     % Split the data
+                    %
+                    % This currently does not respect the details of the experimental
+                    % design (e.g. does not split the trials for each MOCS level).
+                    % It's possible this should be moved into CombineTrials.m
                     fprintf('\tSplitting data as specified\n')
                     nTrials = size(all_trials_unpacked{pp,dd,ss,hh,mm},1);
                     shuffleIndex = Shuffle(1:nTrials);
@@ -288,9 +301,12 @@ for pp = 1:length(theParticipants)
                         log0ValueUse = 10*log0Value;
                     end
 
-                    % Staircase plot.  We only do this for full sessions.
+                    % Staircase plot.  We only do this for full sessions and only for MOCS
+                    % and QUEST, not COMBINED.
+                    %
                     % We take advantage of the fact that we know the data
-                    % were concatenated run-by-run.
+                    % were concatenated run-by-run.  Maybe not the most secure coding, but
+                    % OK at least for now.
                     switch (theSplit{tableRow})
                         case 'All'
                             if (strcmp(theMethod{tableRow},'MOCS') | strcmp(theMethod{tableRow},'QUEST'))

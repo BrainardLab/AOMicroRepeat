@@ -29,6 +29,9 @@ for pp = 1:length(theSubjects)
         for ss = 1:length(theSessions)
             index = strcmp(dataTable.Subject,theSubjects{pp}) & (dataTable.Diameter == theDiameters(dd)) & (dataTable.Session == theSessions(ss) & ...
                 strcmp(dataTable.Method,'MOCS') & strcmp(dataTable.Split,'All'));
+            if (sum(index) ~= 1)
+                error('Have not properly set up condition to pick out just one sensitivity');
+            end
             sensitivityMOCS(pp,dd,ss) = -dataTable.CorrectedThreshold_dB_(index);
         end
     end
@@ -43,6 +46,9 @@ for pp = 1:length(theSubjects)
         for ss = 1:length(theSessions)
             index = strcmp(dataTable.Subject,theSubjects{pp}) & (dataTable.Diameter == theDiameters(dd)) & (dataTable.Session == theSessions(ss) & ...
                 strcmp(dataTable.Method,'QUEST') & strcmp(dataTable.Split,'All'));
+            if (sum(index) ~= 1)
+                error('Have not properly set up condition to pick out just one sensitivity');
+            end
             sensitivityQUEST(pp,dd,ss) = -dataTable.CorrectedThreshold_dB_(index);
         end
     end

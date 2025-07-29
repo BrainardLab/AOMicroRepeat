@@ -17,8 +17,8 @@ sorted_responses = sorted_data(:,2);
 
 % Get unique stimulus levels and data for those
 [unique_log_intensities] = unique(sorted_log_intensities,'legacy');
-numpresented = zeros(size(unique_log_intensities));
-for i = 1:length(numpresented)
+num_presented = zeros(size(unique_log_intensities));
+for i = 1:length(num_presented)
     num_presented(i) = length(find(sorted_log_intensities == unique_log_intensities(i)));
     num_seen(i) = sum(sorted_responses(find(sorted_log_intensities == unique_log_intensities(i))));
 end
