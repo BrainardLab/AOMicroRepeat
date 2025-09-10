@@ -29,7 +29,7 @@ if (make_plot)
 end
 [plot_log_intensities,plot_psychometric,corrected_psychometric, ...
     log_threshold,corrected_log_threshold, psiParamsValues] = ...
-    fitPsychometric(unique_log_intensities,num_seen',num_presented',thresholdCriterion,convert_to_db,guessUpper,lapseUpper,slopeLower,slopeUpper);
+    fitPsychometric(unique_log_intensities,num_seen',num_presented,thresholdCriterion,convert_to_db,guessUpper,lapseUpper,slopeLower,slopeUpper);
 if (make_plot)
     fprintf('done\n');
 end
