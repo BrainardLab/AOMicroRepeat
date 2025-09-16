@@ -78,7 +78,7 @@ saveas(gcf,fullfile(analysisDir,outputVariant,'Figure3a.pdf'),'pdf');
 
 %% t-tests
 [~,p(1,1)] = ttest(sensitivityMOCS(:,1,1),sensitivityQUEST(:,1,1));
-[~,p(1,1)] = ttest(sensitivityMOCS(:,1,2),sensitivityQUEST(:,1,2));
+[~,p(1,2)] = ttest(sensitivityMOCS(:,1,2),sensitivityQUEST(:,1,2));
 [~,p(2,1)] = ttest(sensitivityMOCS(:,2,1),sensitivityQUEST(:,2,1));
 [~,p(2,2)] = ttest(sensitivityMOCS(:,2,2),sensitivityQUEST(:,2,2));
 fprintf('MOCS vs QUEST t-test p values\n');
