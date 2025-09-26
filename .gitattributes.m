@@ -1,0 +1,1 @@
+* text=auto: This tells Git to automatically handle EOL conversion for files it detects as text.
