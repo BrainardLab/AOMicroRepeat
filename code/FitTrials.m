@@ -1,4 +1,4 @@
-%% FitTrials
+    %% FitTrials
 %
 % Read in the combined data file and fit it all.
 
@@ -290,6 +290,12 @@ for pp = 1:length(theParticipants)
                     end
                     all_trials_unpacked{pp,dd,ss,hh,mm} = all_trials_unpacked{pp,dd,ss,hh,mm}(dataIndex,:);
                     nTrials = size(all_trials_unpacked{pp,dd,ss,hh,mm},1);
+                    
+                    % Within-session repeatability split
+                    
+                    dataIndex = 1:nTrials;
+                    all_trials_unpacked{pp,dd,ss} = all_trials_unpacked{pp,dd,ss}(dataIndex,:);
+                    
 
                     % Extract the core data to fit
                     trial_log_intensities = all_trials_unpacked{pp,dd,ss,hh,mm}(:,4);

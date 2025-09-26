@@ -35,10 +35,10 @@ close all; clear all;
 % In the code example I got, this was
 %  path = 'W:\Data\11125\20231103\AO_Psychophysics\MOCS\8\group2';
 % but that does not match the actuall data tree I received for 11002.
-dataDir = getpref('AOMicroRepeat','dataDir');
+dataDir = getpref('RepeatabilityPaper','dataDir','D:\Nivedhitha\RepeatabilityPaper\AOMicroRepeat\dataDir');
 
 %% Also analysis output dir, same idea
-analysisDir = getpref('AOMicroRepeat','analysisDir');
+analysisDir = getpref('RepeatabilityPaper','analysisDir','D:\Nivedhitha\RepeatabilityPaper\AOMicroRepeat\analysisDir');
 
 %% Some parameters
 log0Value = -3.5;
@@ -49,10 +49,9 @@ log0Value = -3.5;
 %
 % Define subjects
 theParticipants = {'11002' '11108' '11118' '11119' '11125'};
-
+% theParticipants = {'11002'};
 % Define sessions (1 or 2)
 theSessions = [1 2];
-
 % Define session splits
 theSplits = {'All', 'FirstHalf', 'SecondHalf'};
 
@@ -64,6 +63,7 @@ theDiameters = [8 43];
 % When we create COMBINED data below, we count
 % on this being as it is.  Don't change wihtout care.
 theMethods = {'MOCS' 'QUEST', 'COMBINED'};
+
 
 %% Get the AOM lookup table info.
 %
@@ -80,10 +80,15 @@ AOM = load('green_AOM_LUT_processing');
 %% Loop over everything
 tableRow = 1;
 for pp = 1:length(theParticipants)
+    pp
     for dd = 1:length(theDiameters)
+        dd
         for ss = 1:length(theSessions)
+            ss
             for hh = 1:length(theSplits)
+                hh
                 checkSessionDate = [];
+                checkSessionTime = [];
                 MOCSFileTimes = [];
                 QUESTFileTimes = [];
                 for mm = 1:length(theMethods)
@@ -125,7 +130,7 @@ for pp = 1:length(theParticipants)
                                     error('Not all data files from same session are on the same date');
                                 end
                             end
-
+                            
                             % Check that QUEST file times are later than last
                             % MOCS time.  This code assumes that it runs to
                             % completion on the same calendar day on which it
@@ -246,19 +251,51 @@ for pp = 1:length(theParticipants)
                             end
                         end
                     else
+                                
                         % Concatenate MOCS and QUEST data into COMBINED
                         all_trials_unpacked{pp,dd,ss,hh,mm} = [all_trials_unpacked{pp,dd,ss,hh,1} ; all_trials_unpacked{pp,dd,ss,hh,2}];
+                        
                     end
-
+                    
+                     grouped_data_combinedsession = {};
+                     if (strcmp(theMethod{tableRow},'QUEST'))
+                       QUESTFileTimesSorted = sort(QUESTFileTimes(ss));
+                       odd_idx_QUEST = mod(1:numel(QUESTFileTimesSorted),2)==1;
+                       even_idx_QUEST = mod(1:numel(QUESTFileTimesSorted),2)==0;
+                       group_A_QUEST = QUESTFileTimesSorted(odd_idx_QUEST);
+                       group_A_QUEST_TimeStamp = timeofday(group_A_QUEST);
+                       group_B_QUEST = QUESTFileTimesSorted(even_idx_QUEST);
+                       group_B_QUEST_TimeStamp = timeofday(group_B_QUEST);
+                   
+                    
+                     elseif(strcmp(theMethod{tableRow},'MOCS'))
+                         
+                       MOCSFileTimesSorted = sort(MOCSFileTimes);
+                       odd_idx_MOCS = mod(1:numel(MOCSFileTimesSorted),2)==1;
+                       even_idx_MOCS = mod(1:numel(MOCSFileTimesSorted),2)==0;
+                       group_A_MOCS = MOCSFileTimesSorted(odd_idx_MOCS);
+                       group_A_MOCS_TimeStamp = timeofday(group_A_MOCS);
+                       group_B_MOCS = MOCSFileTimesSorted(even_idx_MOCS); 
+                       group_B_MOCS_TimeStamp = timeofday(group_B_MOCS);
+                        
+                     end  
+                          
+              
                     % Bump table row
                     tableRow = tableRow + 1;
                 end
             end
-        end
+        end       
+        
+%         group_A = [group_A_MOCS_TimeStamp,group_A_QUEST_TimeStamp];
+%         group_B = [group_B_MOCS_TimeStamp,group_B_QUEST_TimeStamp];
+                         
+%        grouped_data_combinedsession{pp,dd,ss,hh,1} = [group_A,group_B];
     end
+    
 end
 
 % Save out one nice big combined file
-save(fullfile(analysisDir,'combinedData.mat'),'all_trials','all_trials_unpacked','log0Value','theParticipants','theDiameters','theSessions','theSplits','theMethods','AOM','-v7.3');
+save(fullfile(analysisDir,'combinedData_ck.mat'),'all_trials','all_trials_unpacked','log0Value','theParticipants','theDiameters','theSessions','theSplits','theMethods','AOM','-v7.3');
 
 
