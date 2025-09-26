@@ -80,13 +80,9 @@ AOM = load('green_AOM_LUT_processing');
 %% Loop over everything
 tableRow = 1;
 for pp = 1:length(theParticipants)
-    pp
     for dd = 1:length(theDiameters)
-        dd
         for ss = 1:length(theSessions)
-            ss
             for hh = 1:length(theSplits)
-                hh
                 checkSessionDate = [];
                 checkSessionTime = [];
                 MOCSFileTimes = [];
