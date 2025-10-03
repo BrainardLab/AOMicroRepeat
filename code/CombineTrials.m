@@ -80,15 +80,20 @@ AOM = load('green_AOM_LUT_processing');
 %% Loop over everything
 tableRow = 1;
 for pp = 1:length(theParticipants)
+    pp
     for dd = 1:length(theDiameters)
+        dd
         for ss = 1:length(theSessions)
+            ss
             for hh = 1:length(theSplits)
+                hh
+      
                 checkSessionDate = [];
                 checkSessionTime = [];
                 MOCSFileTimes = [];
                 QUESTFileTimes = [];
                 for mm = 1:length(theMethods)
-
+                    mm
                     % Store info for what we are analyzing in this run
                     theMethod{tableRow,1} = theMethods{mm};
                     theSubject{tableRow,1} = theParticipants{pp};
@@ -250,48 +255,37 @@ for pp = 1:length(theParticipants)
                                 
                         % Concatenate MOCS and QUEST data into COMBINED
                         all_trials_unpacked{pp,dd,ss,hh,mm} = [all_trials_unpacked{pp,dd,ss,hh,1} ; all_trials_unpacked{pp,dd,ss,hh,2}];
+                      if (strcmp(theMethods{mm},'COMBINED'))
+                        disp('This is the COMBINED data, performing within-session analysis..');
+                        MOCS{pp,dd,ss,1} = all_trials_unpacked{pp,dd,ss,1,1};
+                        QUEST{pp,dd,ss,1} = all_trials_unpacked{pp,dd,ss,1,2};
+                        sz_MOCS= size(MOCS{1,1});
+                        sz_QUEST = size(QUEST{1,1});
+                        MOCS_data{pp,dd,ss,1} = reshape( MOCS{pp,dd,ss,1}, sz_MOCS(1)/4, []);
+                        QUEST_data{pp,dd,ss,1} = reshape(QUEST{pp,dd,ss,1}, sz_QUEST(1)/4, []);
+                        Grouped_data{pp,dd,ss,1} = [MOCS_data{pp,dd,ss,1};QUEST_data{pp,dd,ss,1}];
+                        Grouped_data_var = cell2mat(Grouped_data);
+                        G1{pp,dd,ss,1} = (Grouped_data_var(:, 1:2:end));% get odd data in one group
+                        G2{pp,dd,ss,1} = (Grouped_data_var(:, 2:2:end));% get even data in another group 
+                        sz_gd = size(Grouped_data_var);
+                        group1_data{pp,dd,ss,1,1} = reshape((cell2mat(G1)), sz_gd(1)*2,[]);
+                        group2_data{pp,dd,ss,1,1} = reshape((cell2mat(G2)), sz_gd(1)*2,[]);
                         
+                      elseif(strcmp(theMethods{mm},'MOCS')| strcmp(theMethods{mm},'QUEST'))
+                           disp('This is MOCS or QUEST, skipping within-session analysis..')
+                      end
                     end
-                    
-                     grouped_data_combinedsession = {};
-                     if (strcmp(theMethod{tableRow},'QUEST'))
-                       QUESTFileTimesSorted = sort(QUESTFileTimes(ss));
-                       odd_idx_QUEST = mod(1:numel(QUESTFileTimesSorted),2)==1;
-                       even_idx_QUEST = mod(1:numel(QUESTFileTimesSorted),2)==0;
-                       group_A_QUEST = QUESTFileTimesSorted(odd_idx_QUEST);
-                       group_A_QUEST_TimeStamp = timeofday(group_A_QUEST);
-                       group_B_QUEST = QUESTFileTimesSorted(even_idx_QUEST);
-                       group_B_QUEST_TimeStamp = timeofday(group_B_QUEST);
-                   
-                    
-                     elseif(strcmp(theMethod{tableRow},'MOCS'))
-                         
-                       MOCSFileTimesSorted = sort(MOCSFileTimes);
-                       odd_idx_MOCS = mod(1:numel(MOCSFileTimesSorted),2)==1;
-                       even_idx_MOCS = mod(1:numel(MOCSFileTimesSorted),2)==0;
-                       group_A_MOCS = MOCSFileTimesSorted(odd_idx_MOCS);
-                       group_A_MOCS_TimeStamp = timeofday(group_A_MOCS);
-                       group_B_MOCS = MOCSFileTimesSorted(even_idx_MOCS); 
-                       group_B_MOCS_TimeStamp = timeofday(group_B_MOCS);
-                        
-                     end  
-                          
-              
                     % Bump table row
                     tableRow = tableRow + 1;
                 end
             end
         end       
         
-%         group_A = [group_A_MOCS_TimeStamp,group_A_QUEST_TimeStamp];
-%         group_B = [group_B_MOCS_TimeStamp,group_B_QUEST_TimeStamp];
-                         
-%        grouped_data_combinedsession{pp,dd,ss,hh,1} = [group_A,group_B];
     end
     
 end
 
 % Save out one nice big combined file
-save(fullfile(analysisDir,'combinedData_ck.mat'),'all_trials','all_trials_unpacked','log0Value','theParticipants','theDiameters','theSessions','theSplits','theMethods','AOM','-v7.3');
+save(fullfile(analysisDir,'combinedData.mat'),'all_trials','all_trials_unpacked','group1_data','group2_data','log0Value','theParticipants','theDiameters','theSessions','theSplits','theMethods','AOM','-v7.3');
 
 
