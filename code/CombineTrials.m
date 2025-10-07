@@ -54,7 +54,7 @@ theParticipants = {'11002' '11108' '11118' '11119' '11125'};
 theSessions = [1 2];
 
 % Define session splits
-theSplits = {'All', 'FirstHalf', 'SecondHalf','Group1','Group2'};
+theSplits = {'All','Group1','Group2'};
 
 
 % Define sizes (8 or 43)

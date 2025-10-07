@@ -92,8 +92,10 @@ figureVis = 'off';
 
 %% Read combined data produced by CombineData
 analysisDir = getpref('AOMicroRepeat','analysisDir');
-d = load(fullfile(analysisDir,'combinedData.mat'),'all_trials','all_trials_unpacked','log0Value','theParticipants','theDiameters','theSessions','theSplits','theMethods','AOM');
+d = load(fullfile(analysisDir,'combinedData.mat'),'all_trials','all_trials_unpacked','group1_data','group2_data','log0Value','theParticipants','theDiameters','theSessions','theSplits','theMethods','AOM');
 all_trials_unpacked = d.all_trials_unpacked;
+group1_data = d.group1_data;
+group2_data = d.group1_data;
 log0Value = d.log0Value;
 theParticipants = d.theParticipants;
 theDiameters = d.theDiameters;
@@ -277,14 +279,18 @@ for pp = 1:length(theParticipants)
                     % It's possible this should be moved into CombineTrials.m
                     fprintf('\tSplitting data as specified\n')
                     nTrials = size(all_trials_unpacked{pp,dd,ss,hh,mm},1);
-                    shuffleIndex = Shuffle(1:nTrials);
+                    group1_nTrails = size(group1_data{pp,dd,ss,hh,mm},1);
+                    group2_nTrails = size(group2_data{pp,dd,ss,hh,mm},1);
+              
                     switch (theSplit{tableRow})
                         case 'All'
                             dataIndex = 1:nTrials;
-                        case 'FirstHalf'
-                            dataIndex = shuffleIndex(1:round(nTrials/2));
-                        case 'SecondHalf'
-                            dataIndex = shuffleIndex(round(nTrials/2)+1:nTrials);
+                        case 'Group1'
+                            dataIndex = 1:group1_nTrails;
+                            all_trials_unpacked{pp,dd,ss} = group1_data{pp,dd,ss}(dataIndex,:);
+                        case 'Group2'
+                            dataIndex = 1:group2_nTrails;
+                             all_trials_unpacked{pp,dd,ss} = group2_data{pp,dd,ss}(dataIndex,:);
                         otherwise
                             error('Unknown split specified');
                     end
@@ -293,9 +299,8 @@ for pp = 1:length(theParticipants)
                     
                     % Within-session repeatability split
                     
-                    dataIndex = 1:nTrials;
-                    all_trials_unpacked{pp,dd,ss} = all_trials_unpacked{pp,dd,ss}(dataIndex,:);
-                    
+                   
+                   
 
                     % Extract the core data to fit
                     trial_log_intensities = all_trials_unpacked{pp,dd,ss,hh,mm}(:,4);
