@@ -142,6 +142,8 @@ for pp = 1:length(theParticipants)
                         end
 
                         % Get the nominal log intensity from the data
+                      
+                   
                         log_intensity_nominal(i) = all_trials_unpacked{pp,dd,ss,hh,mm}(i,1);
 
                         % Convert to nominal lin intensity
@@ -213,6 +215,169 @@ for pp = 1:length(theParticipants)
                     end
                     fprintf('\tdone\n');
 
+       for j = 1:size(group1_data{pp,dd,ss,1,1},1)
+                        % Dir for this output
+                        pathToAnalysis = fullfile(analysisDir,outputVariant,theSubject{tableRow},['Session' num2str(theSession(tableRow))],['Size' num2str(theDiameter(tableRow))],theMethod{tableRow},theSplit{tableRow});
+                        if (~exist(pathToAnalysis,"dir"))
+                            mkdir(pathToAnalysis);
+                        end
+
+                        % Get the nominal log intensity from the data
+                      
+                     
+                        log_intensity_nominal(j) = group1_data{pp,dd,ss}(j,1);
+
+                        % Convert to nominal lin intensity
+                        lin_intensity_nominal(j) = 10.^log_intensity_nominal(j);
+
+                        % Log10 trial values less than 3 get rounded
+                        % down to 0 intensity.  Deal with this.
+                        if (log_intensity_nominal(j) < log0TrialThreshold)
+                            log_intensity_nominal(j) = log0Value;
+                            lin_intensity_nominal(j) = 0;
+                        end
+
+                        % Round linear intensity nominal.  Should match a row first column of lut
+                        lin_intensity_rounded(j) = round(lin_intensity_nominal(j)*1000)/1000;
+
+                        % Get the rounded log intensity, which we think is what
+                        % is in the third column of the lut.  Except that if
+                        % the linear intensity is 0, then the entry of the
+                        % third column is zero and not -Inf.  Handle
+                        % this for the check, and map the -Inf to the
+                        % log value we use for 0 for further analysis.
+                        log_intensity_rounded(j) = log10(lin_intensity_rounded(j));
+                        log_intensity_rounded_chk(j) = log_intensity_rounded(j);
+                        if (lin_intensity_rounded(j) == 0)
+                            log_intensity_rounded(j) = log0Value;
+                            log_intensity_rounded_chk(j) = 0;
+                        end
+
+                        % Compute the row index into the lut based on the linear intensity
+                        lut_row_index(j) = lin_intensity_rounded(j)*1000+1;
+
+                        % Get the corrected linear intensity by
+                        % averaging the nominal linear intensities that
+                        % correspond to the DAC value actually used.
+                        % Since we don't know precisely what the AOM
+                        % does in this case, since the LUT was created
+                        % by interpolation of measurements that were
+                        % made long ago, that seems as clever as
+                        % anything else I can think of.  One could also
+                        % use the min or the max of the ambiguous set
+                        % of values, or any weighted average.
+                        dac_intensity_lut(j) = AOM.green_AOM_lut(lut_row_index(j),4);
+                        lutRowIndex = find(AOM.green_AOM_lut(:,4) == dac_intensity_lut(j) );
+                        if (isempty(lutRowIndex))
+                            error('No LUT rows correspond to trial dac intensity');
+                        end
+                        lin_intensity_lut(j) = mean(AOM.green_AOM_lut(lutRowIndex,1));
+
+                        % Convert to log, taking log10(0) to be the
+                        % log0Value
+                        if (lin_intensity_lut(j) == 0)
+                            log_intensity_lut(j) = log0Value;
+                        else
+                            log_intensity_lut(j) = log10(lin_intensity_lut(i));
+                        end
+
+                        % Sanity checks
+                        if (abs(lin_intensity_rounded(j)-AOM.green_AOM_lut(lut_row_index(j),1)) > 1e-5)
+                            error('Do not understand lut table and/or its indexing');
+                        end
+                        if (abs(log_intensity_rounded_chk(j)-AOM.green_AOM_lut(lut_row_index(j),3)) > 1e-5)
+                            error('Do not understand lut table and/or its indexing');
+                        end
+
+                        % Tag corrected log and linear intensities into the
+                        % all_trials_unpacked variable that we save
+                        all_trials_unpacked_group1{pp,dd,ss,1,1}(j,3) = lin_intensity_lut(j);
+                        all_trials_unpacked_group1{pp,dd,ss,1,1}(j,4) = log_intensity_lut(j);
+        end
+                    fprintf('\tGroup1 done\n');
+
+         
+              for j = 1:size(group2_data{pp,dd,ss,1,1},1)
+                        % Dir for this output
+                        pathToAnalysis = fullfile(analysisDir,outputVariant,theSubject{tableRow},['Session' num2str(theSession(tableRow))],['Size' num2str(theDiameter(tableRow))],theMethod{tableRow},theSplit{tableRow});
+                        if (~exist(pathToAnalysis,"dir"))
+                            mkdir(pathToAnalysis);
+                        end
+
+                        % Get the nominal log intensity from the data
+                      
+                     
+                        log_intensity_nominal(j) = group2_data{pp,dd,ss}(j,1);
+
+                        % Convert to nominal lin intensity
+                        lin_intensity_nominal(j) = 10.^log_intensity_nominal(j);
+
+                        % Log10 trial values less than 3 get rounded
+                        % down to 0 intensity.  Deal with this.
+                        if (log_intensity_nominal(j) < log0TrialThreshold)
+                            log_intensity_nominal(j) = log0Value;
+                            lin_intensity_nominal(j) = 0;
+                        end
+
+                        % Round linear intensity nominal.  Should match a row first column of lut
+                        lin_intensity_rounded(j) = round(lin_intensity_nominal(j)*1000)/1000;
+
+                        % Get the rounded log intensity, which we think is what
+                        % is in the third column of the lut.  Except that if
+                        % the linear intensity is 0, then the entry of the
+                        % third column is zero and not -Inf.  Handle
+                        % this for the check, and map the -Inf to the
+                        % log value we use for 0 for further analysis.
+                        log_intensity_rounded(j) = log10(lin_intensity_rounded(j));
+                        log_intensity_rounded_chk(j) = log_intensity_rounded(j);
+                        if (lin_intensity_rounded(j) == 0)
+                            log_intensity_rounded(j) = log0Value;
+                            log_intensity_rounded_chk(j) = 0;
+                        end
+
+                        % Compute the row index into the lut based on the linear intensity
+                        lut_row_index(j) = lin_intensity_rounded(j)*1000+1;
+
+                        % Get the corrected linear intensity by
+                        % averaging the nominal linear intensities that
+                        % correspond to the DAC value actually used.
+                        % Since we don't know precisely what the AOM
+                        % does in this case, since the LUT was created
+                        % by interpolation of measurements that were
+                        % made long ago, that seems as clever as
+                        % anything else I can think of.  One could also
+                        % use the min or the max of the ambiguous set
+                        % of values, or any weighted average.
+                        dac_intensity_lut(j) = AOM.green_AOM_lut(lut_row_index(j),4);
+                        lutRowIndex = find(AOM.green_AOM_lut(:,4) == dac_intensity_lut(j) );
+                        if (isempty(lutRowIndex))
+                            error('No LUT rows correspond to trial dac intensity');
+                        end
+                        lin_intensity_lut(j) = mean(AOM.green_AOM_lut(lutRowIndex,1));
+
+                        % Convert to log, taking log10(0) to be the
+                        % log0Value
+                        if (lin_intensity_lut(j) == 0)
+                            log_intensity_lut(j) = log0Value;
+                        else
+                            log_intensity_lut(j) = log10(lin_intensity_lut(i));
+                        end
+
+                        % Sanity checks
+                        if (abs(lin_intensity_rounded(j)-AOM.green_AOM_lut(lut_row_index(j),1)) > 1e-5)
+                            error('Do not understand lut table and/or its indexing');
+                        end
+                        if (abs(log_intensity_rounded_chk(j)-AOM.green_AOM_lut(lut_row_index(j),3)) > 1e-5)
+                            error('Do not understand lut table and/or its indexing');
+                        end
+
+                        % Tag corrected log and linear intensities into the
+                        % all_trials_unpacked variable that we save
+                        all_trials_unpacked_group2{pp,dd,ss,1,1}(j,3) = lin_intensity_lut(j);
+                        all_trials_unpacked_group2{pp,dd,ss,1,1}(j,4) = log_intensity_lut(j);
+              end
+                    fprintf('\tGroup2 done\n');     
+                      
                     % Figure to make sure LUT conversion is basically
                     % the identity.  Uncomment if you want to look at
                     % this.
@@ -279,24 +444,34 @@ for pp = 1:length(theParticipants)
                     % It's possible this should be moved into CombineTrials.m
                     fprintf('\tSplitting data as specified\n')
                     nTrials = size(all_trials_unpacked{pp,dd,ss,hh,mm},1);
-                    group1_nTrails = size(group1_data{pp,dd,ss,hh,mm},1);
-                    group2_nTrails = size(group2_data{pp,dd,ss,hh,mm},1);
-              
-                    switch (theSplit{tableRow})
+                    group1_nTrails = size(all_trials_unpacked_group1{pp,dd,ss,1,1},1);
+                    group2_nTrails = size(all_trials_unpacked_group2{pp,dd,ss,1,1},1);
+%                     shuffleIndex = Shuffle(1:nTrials);
+                    
+                    
+               switch (theSplit{tableRow})
                         case 'All'
                             dataIndex = 1:nTrials;
                         case 'Group1'
+                          
                             dataIndex = 1:group1_nTrails;
-                            all_trials_unpacked{pp,dd,ss} = group1_data{pp,dd,ss}(dataIndex,:);
                         case 'Group2'
+                     
                             dataIndex = 1:group2_nTrails;
-                             all_trials_unpacked{pp,dd,ss} = group2_data{pp,dd,ss}(dataIndex,:);
                         otherwise
                             error('Unknown split specified');
-                    end
-                    all_trials_unpacked{pp,dd,ss,hh,mm} = all_trials_unpacked{pp,dd,ss,hh,mm}(dataIndex,:);
-                    nTrials = size(all_trials_unpacked{pp,dd,ss,hh,mm},1);
-                    
+               end
+               
+               if (strcmp(theSplits{hh},'All'))
+                all_trials_unpacked{pp,dd,ss,hh,mm} = all_trials_unpacked{pp,dd,ss,hh,mm}(dataIndex,:);
+               elseif (strcmp(theSplits{hh},'Group1'))
+                 all_trials_unpacked{pp,dd,ss,1,1} = all_trials_unpacked_group1{pp,dd,ss,1,1}(dataIndex,:);
+               else (strcmp(theSplits{hh},'Group2'))
+                  all_trials_unpacked{pp,dd,ss,1,1} = all_trials_unpacked_group2{pp,dd,ss,1,1}(dataIndex,:); 
+               end
+                nTrials = size(all_trials_unpacked{pp,dd,ss,hh,mm},1);
+
+%                     
                     % Within-session repeatability split
                     
                    
