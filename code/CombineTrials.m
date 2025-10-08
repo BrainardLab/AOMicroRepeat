@@ -48,18 +48,18 @@ log0Value = -3.5;
 % Generally speaking, this routine loops over everything and does its thing
 %
 % Define subjects
-theParticipants = {'11002' '11108' '11118' '11119' '11125'};
-
+% theParticipants = {'11002' '11108' '11118' '11119' '11125'};
+theParticipants = {'11002'};
 % Define sessions (1 or 2)
-theSessions = [1 2];
-
+% theSessions = [1 2];
+theSessions = 1;
 % Define session splits
 theSplits = {'All','Group1','Group2'};
 
 
 % Define sizes (8 or 43)
-theDiameters = [8 43];
-
+% theDiameters = [8 43];
+theDiameters = 8;
 % When we create COMBINED data below, we count
 % on this being as it is.  Don't change wihtout care.
 theMethods = {'MOCS' 'QUEST', 'COMBINED'};
