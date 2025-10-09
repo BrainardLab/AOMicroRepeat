@@ -464,10 +464,16 @@ for pp = 1:length(theParticipants)
                
                if (strcmp(theSplits{hh},'All'))
                 all_trials_unpacked{pp,dd,ss,hh,mm} = all_trials_unpacked{pp,dd,ss,hh,mm}(dataIndex,:);
+                trial_log_intensities = all_trials_unpacked{pp,dd,ss,hh,mm}(:,4);
+                trial_responses = all_trials_unpacked{pp,dd,ss,hh,mm}(:,2);
                elseif (strcmp(theSplits{hh},'Group1'))
                  all_trials_unpacked{pp,dd,ss,1,1} = all_trials_unpacked_group1{pp,dd,ss,1,1}(dataIndex,:);
+                 trial_log_intensities = all_trials_unpacked{pp,dd,ss,1,1}(:,1);
+                 trial_responses = all_trials_unpacked{pp,dd,ss,1,1}(:,2);
                else (strcmp(theSplits{hh},'Group2'))
                   all_trials_unpacked{pp,dd,ss,1,1} = all_trials_unpacked_group2{pp,dd,ss,1,1}(dataIndex,:); 
+                  trial_log_intensities = all_trials_unpacked{pp,dd,ss,0,1}(:,1);
+                  trial_responses = all_trials_unpacked{pp,dd,ss,1,1}(:,2);
                end
                 nTrials = size(all_trials_unpacked{pp,dd,ss,hh,mm},1);
 
@@ -478,8 +484,7 @@ for pp = 1:length(theParticipants)
                    
 
                     % Extract the core data to fit
-                    trial_log_intensities = all_trials_unpacked{pp,dd,ss,hh,mm}(:,4);
-                    trial_responses = all_trials_unpacked{pp,dd,ss,hh,mm}(:,2);
+               
 
                     % Convert to dB?
                     if (convertToDb)
