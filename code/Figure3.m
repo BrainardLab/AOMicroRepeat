@@ -76,6 +76,18 @@ for dd = 1:length(theDiameters)
         fprintf('\t%d pixels, session %d, p = %0.3f\n',theDiameters(dd),theSessions(ss),p(dd,ss));
     end
 end
+%% Wilcoxon test% Wilcoxon signed-rank test
+[p(1,1),h,~] = signrank(sensitivityMOCS(:,1,1),sensitivityQUEST(:,1,1));
+[p(1,2),h,~] = signrank(sensitivityMOCS(:,1,2),sensitivityQUEST(:,1,2));
+[p(2,1),h,~] = signrank(sensitivityMOCS(:,2,1),sensitivityQUEST(:,2,1));
+[p(2,2),h,~] = signrank(sensitivityMOCS(:,2,2),sensitivityQUEST(:,2,2));
+% Results
+fprintf('MOCS vs QUEST t-test p values-Wilcoxon Test\n');
+for dd = 1:length(theDiameters)
+    for ss = 1:length(theSessions)
+        fprintf('\t%d pixels, session %d, p = %0.3f\n',theDiameters(dd),theSessions(ss),p(dd,ss));
+    end
+end
 
 %% Get all Session 1 and Session 2 data for combined trials
 for pp = 1:length(theSubjects)

@@ -29,6 +29,16 @@ for dd = 1:length(theDiameters)
         fprintf('\t%d arcmin, p = %0.3f\n',theDiameters(dd),p(dd,ss));
 end
 
+%% Wilcoxon test% Wilcoxon signed-rank test
+[p(1,1),h,~] = signrank(sensitivitySessionwise(:,1,1),sensitivitySessionwise(:,1,2));
+[p(1,2),h,~] = signrank(sensitivitySessionwise(:,2,1),sensitivitySessionwise(:,2,2));
+
+% Results
+fprintf('Session 1 vs Session 2 t-test p values (Wilcoxon-test)\n');
+for dd = 1:length(theDiameters)
+        fprintf('\t%d arcmin, p = %0.3f\n',theDiameters(dd),p(dd,ss));
+end
+
 %% Figure 5b (Bland Altman plot) 
 Session1_8arcmin = sensitivitySessionwise(:,1,1);
 Session2_8arcmin = sensitivitySessionwise(:,1,2);

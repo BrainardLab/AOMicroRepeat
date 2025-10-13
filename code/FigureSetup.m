@@ -13,7 +13,7 @@ markerSize = 12;
 plotSize = [100, 100,800,800];
 
 %% Path to analysis output dir
-analysisDir = getpref('AOMicroRepeat','analysisDir');
+analysisDir = getpref('New_analysis_20250912','analysisDir','C:\Users\niveg\Aguirre-Brainard Lab Dropbox\Nivedhitha Govindasamy\AO-Microperimetry Repeatability Paper\Data_for_paper\David_code_analysis\New_analysis_20250912\analysisDir');
 
 %% Read table of fit information
 wState = warning('off','MATLAB:table:ModifiedAndSavedVarnames');

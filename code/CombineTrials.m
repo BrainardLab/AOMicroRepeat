@@ -35,10 +35,10 @@ close all; clear all;
 % In the code example I got, this was
 %  path = 'W:\Data\11125\20231103\AO_Psychophysics\MOCS\8\group2';
 % but that does not match the actuall data tree I received for 11002.
-dataDir = getpref('RepeatabilityPaper','dataDir','D:\Nivedhitha\RepeatabilityPaper\AOMicroRepeat\dataDir');
+dataDir = getpref('New_analysis_20250912','dataDir','C:\Users\niveg\Aguirre-Brainard Lab Dropbox\Nivedhitha Govindasamy\AO-Microperimetry Repeatability Paper\Data_for_paper\David_code_analysis\New_analysis_20250912\dataDir');
 
 %% Also analysis output dir, same idea
-analysisDir = getpref('RepeatabilityPaper','analysisDir','D:\Nivedhitha\RepeatabilityPaper\AOMicroRepeat\analysisDir');
+analysisDir = getpref('New_analysis_20250912','analysisDir','C:\Users\niveg\Aguirre-Brainard Lab Dropbox\Nivedhitha Govindasamy\AO-Microperimetry Repeatability Paper\Data_for_paper\David_code_analysis\New_analysis_20250912\analysisDir');
 
 %% Some parameters
 log0Value = -3.5;
