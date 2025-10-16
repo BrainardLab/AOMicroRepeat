@@ -11,7 +11,7 @@ titleFontSize = 20;
 legendFontSize = 14;
 markerSize = 12;
 plotSize = [100, 100,800,800];
-
+limMin = 18; limMax = 30;
 %% Path to analysis output dir
 analysisDir = getpref('New_analysis_20250912','analysisDir','C:\Users\niveg\Aguirre-Brainard Lab Dropbox\Nivedhitha Govindasamy\AO-Microperimetry Repeatability Paper\Data_for_paper\David_code_analysis\New_analysis_20250912\analysisDir');
 

@@ -1,14 +1,36 @@
 %% Session 1 VS Session 2 plots
+%% Clear
+clear; close all;
+
+%% Output variant
+outputVariant = 'SlopeFree1';
+%% Set up for the figures and read data
+FigureSetup;
+%% %% Get all Session 1 and Session 2 data for combined trials
+theSubjects = unique(dataTable.Subject);
+theDiameters = unique(dataTable.Diameter);
+theSessions = unique(dataTable.Session);
+for pp = 1:length(theSubjects)
+    for dd = 1:length(theDiameters)
+        for ss = 1:length(theSessions)
+            index = strcmp(dataTable.Subject,theSubjects{pp}) & (dataTable.Diameter == theDiameters(dd)) & (dataTable.Session == theSessions(ss) & ...
+                strcmp(dataTable.Method,'COMBINED') & strcmp(dataTable.Split,'All'));
+            if (sum(index) ~= 1)
+                error('Have not properly set up condition to pick out just one sensitivity');
+            end
+            sensitivitySessionwise(pp,dd,ss) = -dataTable.CorrectedThreshold_dB_(index);
+        end
+    end
+end
 
 %% Figure 5a
-f = figure; clf; hold on
-set(gca,'FontName', 'Helvetica','FontSize',axisFontSize);
+f = figure('Position',plotSize); clf; hold on
 plot(sensitivitySessionwise(:,1,1),sensitivitySessionwise(:,1,2),'bo','MarkerFaceColor','b','MarkerSize',markerSize);
 plot(sensitivitySessionwise(:,2,1),sensitivitySessionwise(:,2,2),'ro','MarkerFaceColor','r','MarkerSize',markerSize);
 
-plot([limMin limMax],[limMin limMax],'k:','LineWidth',1);
-xlabel('Session 1 Sensitivity (dB)','FontSize',labelFontSize);
-ylabel('Session 2 Sensitivity (dB)','FontSize',labelFontSize);
+plot([limMin limMax],[limMin limMax],'k:','LineWidth',2);
+xlabel('Session 1 Sensitivity (dB)','FontWeight','bold', 'FontSize', 18, 'FontName', 'Times New Roman');
+ylabel('Session 2 Sensitivity (dB)','FontWeight','bold', 'FontSize', 18, 'FontName', 'Times New Roman');
 legend( ...
     {sprintf('%d arcmin',theDiameters(1)) ; ...
     sprintf('%d arcmin',theDiameters(2)) ; ...
@@ -16,8 +38,14 @@ legend( ...
     ''}, ...
     'Location','SouthEast');
 axis('square');
+ax=gca;
+set(gca, 'FontName', 'Arial','FontWeight','bold')
+ax.XAxis.LineWidth = 2;
+ax.YAxis.LineWidth = 2;
+ax.XAxis.FontSize = 18;
+ax.YAxis.FontSize = 18;
 lgd = legend('show');
-lgd.FontSize = 10; 
+lgd.FontSize = 12; 
 axis([limMin limMax limMin limMax]);
 saveas(gcf,fullfile(analysisDir,outputVariant,'Figure4a.pdf'),'pdf');
  %% t-tests for between session comparision
@@ -26,7 +54,9 @@ saveas(gcf,fullfile(analysisDir,outputVariant,'Figure4a.pdf'),'pdf');
 
 fprintf('Session 1 vs Session 2 t-test p values\n');
 for dd = 1:length(theDiameters)
-        fprintf('\t%d arcmin, p = %0.3f\n',theDiameters(dd),p(dd,ss));
+   
+        fprintf('\t%d arcmin, p = %0.3f\n',theDiameters(dd),p(dd));
+    
 end
 
 %% Wilcoxon test% Wilcoxon signed-rank test
@@ -36,7 +66,9 @@ end
 % Results
 fprintf('Session 1 vs Session 2 t-test p values (Wilcoxon-test)\n');
 for dd = 1:length(theDiameters)
-        fprintf('\t%d arcmin, p = %0.3f\n',theDiameters(dd),p(dd,ss));
+   
+        fprintf('\t%d arcmin, p = %0.3f\n',theDiameters(dd),p(dd));
+    
 end
 
 %% Figure 5b (Bland Altman plot) 
@@ -55,7 +87,8 @@ mean_diff_SS43 = mean(diff_b);
 std_diff_SS43 = std(diff_b);
 
 % Open the figures
-figure('Position', [100, 100,800,800]);
+
+figure('Position', plotSize);
 
 % Plot Bland-Altman data for each comparison
 scatter(mean_a, diff_a, 150, 'blue', 'filled', 'o', 'MarkerFaceAlpha', 0.6, 'DisplayName', 'SS8');
@@ -73,13 +106,14 @@ line([26, 30], [mean_diff_SS43 + 1.96 * std_diff_SS43, mean_diff_SS43 + 1.96 * s
 line([26, 30], [mean_diff_SS43 - 1.96 * std_diff_SS43, mean_diff_SS43 - 1.96 * std_diff_SS43], 'Color', 'red', 'LineWidth', 2, 'LineStyle', '-',  'DisplayName', 'Lower Limit (SS43)');
 
 ax = gca;
+set(gca, 'FontName', 'Arial','FontWeight','bold','FontSize', 18)
 ax.XLim = [16, 32];
 ax.YLim = [-2.5, 2.5];
 ax.XAxis.LineWidth = 2;
 ax.YAxis.LineWidth = 2;
-ax.XAxis.FontSize = 16;
-ax.YAxis.FontSize = 16;
+ax.XAxis.FontSize = 18;
+ax.YAxis.FontSize = 18;
 ax.PlotBoxAspectRatio = [1 1 1]; 
 
-xlabel('Mean (Session 1 & 2) Sensitivity in dB', 'FontWeight', 'bold', 'FontSize', 18, 'FontName', 'Times New Roman');
-ylabel('(Session 1 - Session 2) Sensitivity', 'FontWeight', 'bold', 'FontSize', 18, 'FontName', 'Times New Roman');
+xlabel('Mean of Session1 and Session2 Sensitivity (dB)');
+ylabel('(Session 1 - Session 2) Sensitivity (dB)');

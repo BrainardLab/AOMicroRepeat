@@ -44,24 +44,34 @@ for pp = 1:length(theSubjects)
 end
 
 %% Make Figure 3a
-limMin = 18; limMax = 30;
+
 f = figure('Position',plotSize); clf; hold on
-set(gca,'FontName', 'Helvetica','FontSize',axisFontSize);
+
 plot(sensitivityMOCS(:,1,1),sensitivityQUEST(:,1,1),'bo','MarkerFaceColor','b','MarkerSize',markerSize);
 plot(sensitivityMOCS(:,1,2),sensitivityQUEST(:,1,2),'b^','MarkerFaceColor','b','MarkerSize',markerSize);
 plot(sensitivityMOCS(:,2,1),sensitivityQUEST(:,2,1),'ro','MarkerFaceColor','r','MarkerSize',markerSize);
 plot(sensitivityMOCS(:,2,2),sensitivityQUEST(:,2,2),'r^','MarkerFaceColor','r','MarkerSize',markerSize);
-plot([limMin limMax],[limMin limMax],'k:','LineWidth',1);
-xlabel('MOCS sensitivity (dB)','FontSize',labelFontSize);
-ylabel('QUEST sensitivity (dB)','FontSize',labelFontSize);
+plot([limMin limMax],[limMin limMax],'k:','LineWidth',2);
+xlabel('MOCS sensitivity (dB)', 'FontWeight','bold', 'FontSize', 18, 'FontName', 'Times New Roman');
+ylabel('QUEST sensitivity (dB)','FontWeight','bold', 'FontSize', 18, 'FontName', 'Times New Roman');
 legend( ...
     {sprintf('Session %d, %d pixels',theSessions(1),theDiameters(1)) ; ...
     sprintf('Session %d, %d pixels',theSessions(2),theDiameters(1)) ; ...
     sprintf('Session %d, %d pixels',theSessions(1),theDiameters(2)) ; ...
     sprintf('Session %d, %d pixels',theSessions(2),theDiameters(2)) ; ...
+    sprintf('Line of Equality')
     ''}, ...
     'Location','SouthEast');
 axis('square');
+
+lgd = legend('show');
+lgd.FontSize = 12; 
+ax=gca;
+set(gca, 'FontName', 'Arial','FontWeight','bold')
+ax.XAxis.LineWidth = 2;
+ax.YAxis.LineWidth = 2;
+ax.XAxis.FontSize = 18;
+ax.YAxis.FontSize = 18;
 axis([limMin limMax limMin limMax]);
 saveas(gcf,fullfile(analysisDir,outputVariant,'Figure3a.pdf'),'pdf');
 
@@ -89,22 +99,7 @@ for dd = 1:length(theDiameters)
     end
 end
 
-%% Get all Session 1 and Session 2 data for combined trials
-for pp = 1:length(theSubjects)
-    for dd = 1:length(theDiameters)
-        for ss = 1:length(theSessions)
-            index = strcmp(dataTable.Subject,theSubjects{pp}) & (dataTable.Diameter == theDiameters(dd)) & (dataTable.Session == theSessions(ss) & ...
-                strcmp(dataTable.Method,'COMBINED') & strcmp(dataTable.Split,'All'));
-            if (sum(index) ~= 1)
-                error('Have not properly set up condition to pick out just one sensitivity');
-            end
-            sensitivitySessionwise(pp,dd,ss) = -dataTable.CorrectedThreshold_dB_(index);
-        end
-    end
-end
-
 %% Figure 3b (Bland Altman plot) %% MOCS VS QUEST
-%
 % Recall that indices are subject, size (8 and 43), session (1 and 2)
 Session1_8pixels_M = sensitivityMOCS(:,1,1);
 Session2_8pixels_M = sensitivityMOCS(:,1,2);
@@ -155,16 +150,17 @@ line([26, 30], [mean_diff_Session2_43pixels + 1.96 * std_diff_Session2_43pixels,
 line([26, 30], [mean_diff_Session2_43pixels - 1.96 * std_diff_Session2_43pixels, mean_diff_Session2_43pixels - 1.96 * std_diff_Session2_43pixels], 'Color', 'red', 'LineWidth', 2, 'LineStyle', '--',  'DisplayName', 'Lower Limit (SS43, S2)');
 
 ax = gca;
+set(gca, 'FontName', 'Arial','FontWeight','bold','FontSize', 18)
 ax.XLim = [16, 32];
 ax.YLim = [-2.5, 2.5];
 ax.XAxis.LineWidth = 2;
 ax.YAxis.LineWidth = 2;
-ax.XAxis.FontSize = 16;
-ax.YAxis.FontSize = 16;
+ax.XAxis.FontSize = 18;
+ax.YAxis.FontSize = 18;
 ax.PlotBoxAspectRatio = [1 1 1]; % Maintain aspect ratio
 
-xlabel('Mean (MOCS,QUEST) Sensitivity in dB', 'FontWeight', 'bold', 'FontSize', 18, 'FontName', 'Times New Roman');
-ylabel('(MOCS-QUEST) Sensitivity', 'FontWeight', 'bold', 'FontSize', 18, 'FontName', 'Times New Roman');
+xlabel('Mean of MOCS and QUEST Sensitivity (dB)');
+ylabel('(MOCS-QUEST) Sensitivity');
 
 
 
