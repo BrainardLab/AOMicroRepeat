@@ -1,3 +1,4 @@
+
 %% CombineTrials
 %
 % Combine all of the psychophysical data files into one big .mat
@@ -80,9 +81,13 @@ AOM = load('green_AOM_LUT_processing');
 %% Loop over everything
 tableRow = 1;
 for pp = 1:length(theParticipants)
+
     for dd = 1:length(theDiameters)
+     
         for ss = 1:length(theSessions) 
+          
             for hh = 1:length(theSplits)
+            
         
                 checkSessionDate = [];
                 checkSessionTime = [];
@@ -251,32 +256,26 @@ for pp = 1:length(theParticipants)
                                 
                         % Concatenate MOCS and QUEST data into COMBINED
                         all_trials_unpacked{pp,dd,ss,hh,mm} = [all_trials_unpacked{pp,dd,ss,hh,1} ; all_trials_unpacked{pp,dd,ss,hh,2}];
-                    
-                    end
-                    
-                      if (strcmp(theMethods{mm},'MOCS')| strcmp(theMethods{mm},'QUEST'))
-                          disp('This is MOCS or QUEST, skipping within-session analysis..')
-                      elseif (strcmp(theMethods{mm},'COMBINED'))
-                        disp('This is the COMBINED data, performing within-session analysis..');  
-                        MOCS{pp,dd,ss,1} = all_trials_unpacked{pp,dd,ss,1,1}; % Get the MOCS data for each participant, from each session for each diameter (400x2 or 360x2)
-                        QUEST{pp,dd,ss,1} = all_trials_unpacked{pp,dd,ss,1,2}; % Get the QUEST data for each participant, from each session for each diameter (176x2)
-                        MOCS_split{pp,dd,ss,1} = reshape( MOCS{pp,dd,ss,1}, [],8); % Split the data into two halves (200x4 or 180x2)
-                        QUEST_split{pp,dd,ss,1} = reshape(QUEST{pp,dd,ss,1}, [],8); % Split the data into two halves (88x4)
-                        Grouped_data{pp,dd,ss,1} = [MOCS_split{pp,dd,ss,1};QUEST_split{pp,dd,ss,1}]; % Combined MOCS and QUEST(288x4 or 268x4)to make sure MOCS-QUEST combination is retained
-                        Grouped_data_var=reshape(Grouped_data{pp,dd,ss,1},[],8);
+        
+                    end        
+                      
+                    % Bump table row
+                    tableRow = tableRow + 1;
+                end
+                        MOCS{pp,dd,ss,hh,1} = all_trials_unpacked{pp,dd,ss,hh,1}; % Get the MOCS data for each participant, from each session for each diameter (400x2 or 360x2)
+                        QUEST{pp,dd,ss,hh,1} = all_trials_unpacked{pp,dd,ss,hh,2}; % Get the QUEST data for each participant, from each session for each diameter (176x2)
+                        MOCS_split{pp,dd,ss,hh,1} = reshape( MOCS{pp,dd,ss,hh,1}, [],8); % Split the data into two halves (200x4 or 180x2)
+                        QUEST_split{pp,dd,ss,hh,1} = reshape(QUEST{pp,dd,ss,hh,1}, [],8); % Split the data into two halves (88x4)
+                        Grouped_data{pp,dd,ss,hh,1} = [MOCS_split{pp,dd,ss,1};QUEST_split{pp,dd,ss,hh,1}]; % Combined MOCS and QUEST(288x4 or 268x4)to make sure MOCS-QUEST combination is retained
+                        Grouped_data_var=reshape(Grouped_data{pp,dd,ss,hh,1},[],8);
                         col_pairs = {[1 5], [2 6], [3 7], [4 8]}; % corresponding intensity and response pairs
                         pair_idx = randperm(4);% Assign random value for each MOCS-QUEST pair
                         shuffled_cols = [col_pairs{pair_idx}]; % choose random colns
                         Grouped_data_shuffled = Grouped_data_var(:, shuffled_cols);% everytime the coloumns are shuffled
-                        G1{pp,dd,ss,1} = [Grouped_data_shuffled(:,[1,3]),Grouped_data_shuffled(:,[2,4])];%put first half of data in one group (these coloumns changes randomly)
-                        G2{pp,dd,ss,1} = [Grouped_data_shuffled(:,[5,7]),Grouped_data_shuffled(:,[6,8])];%put the next half in other group (these coloumns changes randomly)
-                        group1_data{pp,dd,ss,1,1} = reshape(cell2mat(G1(pp,dd,ss,1)),[],2); % Combine two of the randomly chosen MOCS - QUEST pair to group 1
-                        group2_data{pp,dd,ss,1,1} = reshape(cell2mat(G2(pp,dd,ss,1)),[],2); %Combine two of the randomly chosen MOCS - QUEST pair to group 2
-
-                      end
-                    % Bump table row
-                    tableRow = tableRow + 1;
-                end
+                        G1{pp,dd,ss,hh,1} = [Grouped_data_shuffled(:,[1,3]),Grouped_data_shuffled(:,[2,4])];%put first half of data in one group (these coloumns changes randomly)
+                        G2{pp,dd,ss,hh,1} = [Grouped_data_shuffled(:,[5,7]),Grouped_data_shuffled(:,[6,8])];%put the next half in other group (these coloumns changes randomly)
+                        all_trials_unpacked{pp,dd,ss,2,3} = reshape(cell2mat(G1(pp,dd,ss,hh,1)),[],2); % Combine two of the randomly chosen MOCS - QUEST pair to group 1
+                        all_trials_unpacked{pp,dd,ss,3,3} = reshape(cell2mat(G2(pp,dd,ss,hh,1)),[],2); %Combine two of the randomly chosen MOCS - QUEST pair to group 2
             end
         end       
         
@@ -285,6 +284,6 @@ for pp = 1:length(theParticipants)
 end
 
 % Save out one nice big combined file
-save(fullfile(analysisDir,'combinedData.mat'),'all_trials','all_trials_unpacked','group1_data','group2_data','log0Value','theParticipants','theDiameters','theSessions','theSplits','theMethods','AOM','-v7.3');
+save(fullfile(analysisDir,'combinedData.mat'),'all_trials','all_trials_unpacked','log0Value','theParticipants','theDiameters','theSessions','theSplits','theMethods','AOM','-v7.3');
 
 
