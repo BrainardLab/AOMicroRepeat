@@ -262,7 +262,9 @@ for pp = 1:length(theParticipants)
                     % Bump table row
                     tableRow = tableRow + 1;
                 end
-                if 
+                
+                
+
                         MOCS{pp,dd,ss,hh,1} = all_trials_unpacked{pp,dd,ss,hh,1}; % Get the MOCS data for each participant, from each session for each diameter (400x2 or 360x2)
                         QUEST{pp,dd,ss,hh,1} = all_trials_unpacked{pp,dd,ss,hh,2}; % Get the QUEST data for each participant, from each session for each diameter (176x2)
                         MOCS_split{pp,dd,ss,hh,1} = reshape( MOCS{pp,dd,ss,hh,1}, [],8); % Split the data into two halves (200x4 or 180x2)
@@ -277,6 +279,7 @@ for pp = 1:length(theParticipants)
                         G2{pp,dd,ss,hh,1} = [Grouped_data_shuffled(:,[5,7]),Grouped_data_shuffled(:,[6,8])];%put the next half in other group (these coloumns changes randomly)
                         all_trials_unpacked{pp,dd,ss,2,3} = reshape(cell2mat(G1(pp,dd,ss,hh,1)),[],2); % Combine two of the randomly chosen MOCS - QUEST pair to group 1
                         all_trials_unpacked{pp,dd,ss,3,3} = reshape(cell2mat(G2(pp,dd,ss,hh,1)),[],2); %Combine two of the randomly chosen MOCS - QUEST pair to group 2
+                 
             end
         end       
         
