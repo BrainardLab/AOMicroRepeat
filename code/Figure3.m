@@ -25,10 +25,10 @@ for pp = 1:length(theSubjects)
                 error('Have not properly set up condition to pick out just one sensitivity');
             end
             sensitivityMOCS(pp,dd,ss) = -dataTable.CorrectedThreshold_dB_(index);
-            CILower_MOCS(pp,dd,ss)= -dataTable.CILow(index);
-            CIUpper_MOCS(pp,dd,ss)= -dataTable.CIHigh(index);
-            xneg(pp,dd,ss) = sensitivityMOCS(pp,dd,ss) - CILower_MOCS(pp,dd,ss);
-            xpos(pp,dd,ss) = CIUpper_MOCS(pp,dd,ss)- sensitivityMOCS(pp,dd,ss);
+            CILower_MOCS(pp,dd,ss)= -dataTable.CIHigh(index); %negative sensitivity, so high value corresonds to lower CI)
+            CIUpper_MOCS(pp,dd,ss)= -dataTable.CILow(index);%negative sensitivity, so low value corresonds to higher CI)
+            xneg(pp,dd,ss) = sensitivityMOCS(pp,dd,ss) - CIUpper_MOCS(pp,dd,ss);
+            xpos(pp,dd,ss) = sensitivityMOCS(pp,dd,ss)- CILower_MOCS(pp,dd,ss);
             
         end
     end
@@ -44,10 +44,10 @@ for pp = 1:length(theSubjects)
                 error('Have not properly set up condition to pick out just one sensitivity');
             end
             sensitivityQUEST(pp,dd,ss) = -dataTable.CorrectedThreshold_dB_(index);
-            CILower_QUEST(pp,dd,ss)= -dataTable.CILow(index);
-            CIUpper_QUEST(pp,dd,ss)= -dataTable.CIHigh(index);
-            yneg(pp,dd,ss) = sensitivityQUEST(pp,dd,ss) - CILower_QUEST(pp,dd,ss);
-            ypos(pp,dd,ss) = CIUpper_QUEST(pp,dd,ss)-sensitivityQUEST(pp,dd,ss);
+            CILower_QUEST(pp,dd,ss)= -dataTable.CIHigh(index); %negative sensitivity, so high value corresonds to lower CI
+            CIUpper_QUEST(pp,dd,ss)= -dataTable.CILow(index);%negative sensitivity, so low value corresonds to higher CI
+            yneg(pp,dd,ss) = sensitivityQUEST(pp,dd,ss) - CIUpper_QUEST(pp,dd,ss);
+            ypos(pp,dd,ss) = sensitivityQUEST(pp,dd,ss)- CILower_QUEST(pp,dd,ss);
           
         end
     end
@@ -59,9 +59,9 @@ f = figure('Position',plotSize); clf; hold on
 
 
 errorbar(sensitivityMOCS(:,1,1),sensitivityQUEST(:,1,1),yneg(:,1,1),ypos(:,1,1),xneg(:,1,1),xpos(:,1,1),'bo','MarkerFaceColor','b','MarkerSize',markerSize);
-errorbar(sensitivityMOCS(:,1,2),sensitivityQUEST(:,1,2),yneg(:,1,1),ypos(:,1,2),xneg(:,1,2),xpos(:,1,2),'b^','MarkerFaceColor','b','MarkerSize',markerSize);
-errorbar(sensitivityMOCS(:,2,1),sensitivityQUEST(:,2,1),yneg(:,1,1),ypos(:,2,1),xneg(:,1,2),xpos(:,2,1),'ro','MarkerFaceColor','r','MarkerSize',markerSize);
-errorbar(sensitivityMOCS(:,2,2),sensitivityQUEST(:,2,2),yneg(:,1,1),ypos(:,2,2),xneg(:,2,2),xpos(:,2,2),'r^','MarkerFaceColor','r','MarkerSize',markerSize);
+errorbar(sensitivityMOCS(:,1,2),sensitivityQUEST(:,1,2),yneg(:,1,2),ypos(:,1,2),xneg(:,1,2),xpos(:,1,2),'b^','MarkerFaceColor','b','MarkerSize',markerSize);
+errorbar(sensitivityMOCS(:,2,1),sensitivityQUEST(:,2,1),yneg(:,2,1),ypos(:,2,1),xneg(:,2,1),xpos(:,2,1),'ro','MarkerFaceColor','r','MarkerSize',markerSize);
+errorbar(sensitivityMOCS(:,2,2),sensitivityQUEST(:,2,2),yneg(:,2,2),ypos(:,2,2),xneg(:,2,2),xpos(:,2,2),'r^','MarkerFaceColor','r','MarkerSize',markerSize);
 
 plot([limMin limMax],[limMin limMax],'k:','LineWidth',2);
 xlabel('MOCS sensitivity (dB)', 'FontWeight','bold', 'FontSize', 18, 'FontName', 'Times New Roman');
@@ -155,9 +155,10 @@ ax.YAxis.LineWidth = 2;
 ax.XAxis.FontSize = 18;
 ax.YAxis.FontSize = 18;
 ax.PlotBoxAspectRatio = [1 1 1]; % Maintain aspect ratio
-saveas(gcf,fullfile(analysisDir,outputVariant,'Figure3b.pdf'),'pdf');
+
 xlabel('Mean of MOCS and QUEST Sensitivity (dB)');
-ylabel('(MOCS-QUEST) Sensitivity (dB)');
+ylabel('Difference of MOCS and QUEST Sensitivities (dB)');
+saveas(gcf,fullfile(analysisDir,outputVariant,'Figure3b.pdf'),'pdf');
 %% (3c) Session 2 8 pixels
 figure('Position', plotSize);
 scatter(mean_Session2_8pixels, diff_Session2_8pixels, 150, 'blue', 'filled', '^', 'MarkerFaceAlpha', 0.6, 'DisplayName', 'SS8S2');
@@ -173,9 +174,10 @@ ax.YAxis.LineWidth = 2;
 ax.XAxis.FontSize = 18;
 ax.YAxis.FontSize = 18;
 ax.PlotBoxAspectRatio = [1 1 1]; % Maintain aspect ratio
-saveas(gcf,fullfile(analysisDir,outputVariant,'Figure3c.pdf'),'pdf');
+
 xlabel('Mean of MOCS and QUEST Sensitivity (dB)');
-ylabel('(MOCS-QUEST) Sensitivity (dB)');
+ylabel('Difference of MOCS and QUEST Sensitivities(dB)');
+saveas(gcf,fullfile(analysisDir,outputVariant,'Figure3c.pdf'),'pdf');
 %% (3d) Session 1 43 pixels
 figure('Position', plotSize);
 scatter(mean_Session1_43pixels, diff_Session1_43pixels, 150, 'red', 'filled', 'o', 'MarkerFaceAlpha', 0.6, 'DisplayName', 'SS43S1');
@@ -191,9 +193,10 @@ ax.YAxis.LineWidth = 2;
 ax.XAxis.FontSize = 18;
 ax.YAxis.FontSize = 18;
 ax.PlotBoxAspectRatio = [1 1 1]; % Maintain aspect ratio
+
+xlabel('Mean of MOCS and QUEST Sensitivities (dB)');
+ylabel('Difference of MOCS and QUEST Sensitivities(dB)');
 saveas(gcf,fullfile(analysisDir,outputVariant,'Figure3d.pdf'),'pdf');
-xlabel('Mean of MOCS and QUEST Sensitivity (dB)');
-ylabel('(MOCS-QUEST) Sensitivity (dB)');
 %% (3e) Session 2 43 pixels
 figure('Position', plotSize);
 scatter(mean_Session2_43pixels, diff_Session2_43pixels, 150, 'red', 'filled', '^', 'MarkerFaceAlpha', 0.6, 'DisplayName', 'SS43S2');
@@ -209,9 +212,10 @@ ax.YAxis.LineWidth = 2;
 ax.XAxis.FontSize = 18;
 ax.YAxis.FontSize = 18;
 ax.PlotBoxAspectRatio = [1 1 1]; % Maintain aspect ratio
-saveas(gcf,fullfile(analysisDir,outputVariant,'Figure3e.pdf'),'pdf');
+
 xlabel('Mean of MOCS and QUEST Sensitivity (dB)');
-ylabel('(MOCS-QUEST) Sensitivity (dB)');
+ylabel('Difference of MOCS and QUEST Sensitivities (dB)');
+saveas(gcf,fullfile(analysisDir,outputVariant,'Figure3e.pdf'),'pdf');
 
 
 

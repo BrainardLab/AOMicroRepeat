@@ -19,18 +19,21 @@ for pp = 1:length(theSubjects)
                 error('Have not properly set up condition to pick out just one sensitivity');
             end
             sensitivitySessionwise(pp,dd,ss) = -dataTable.CorrectedThreshold_dB_(index);
+            CILower_SessionWise(pp,dd,ss)= -dataTable.CIHigh(index);%negative sensitivity, so high value corresonds to lower CI)
+            CIUpper_SessionWise(pp,dd,ss)= -dataTable.CILow(index);%negative sensitivity, so low value corresonds to higher CI)
+            neg(pp,dd,ss) = sensitivitySessionwise(pp,dd,ss) - CIUpper_SessionWise(pp,dd,ss);
+            pos(pp,dd,ss) = sensitivitySessionwise(pp,dd,ss)- CILower_SessionWise(pp,dd,ss);
         end
     end
 end
 
 %% Figure 5a
 f = figure('Position',plotSize); clf; hold on
-plot(sensitivitySessionwise(:,1,1),sensitivitySessionwise(:,1,2),'bo','MarkerFaceColor','b','MarkerSize',markerSize);
-plot(sensitivitySessionwise(:,2,1),sensitivitySessionwise(:,2,2),'ro','MarkerFaceColor','r','MarkerSize',markerSize);
-
+errorbar(sensitivitySessionwise(:,1,1),sensitivitySessionwise(:,1,2),neg(:,1,1),pos(:,1,1),neg(:,1,2),pos(:,1,2),'bo','MarkerFaceColor','b','MarkerSize',markerSize);
+errorbar(sensitivitySessionwise(:,2,1),sensitivitySessionwise(:,2,2),neg(:,2,1),pos(:,2,1),neg(:,2,2),pos(:,2,2),'ro','MarkerFaceColor','r','MarkerSize',markerSize);
 plot([limMin limMax],[limMin limMax],'k:','LineWidth',2);
-xlabel('Session 1 Sensitivity (dB)','FontWeight','bold', 'FontSize', 18, 'FontName', 'Times New Roman');
-ylabel('Session 2 Sensitivity (dB)','FontWeight','bold', 'FontSize', 18, 'FontName', 'Times New Roman');
+xlabel('Session 1 Sensitivity (dB)');
+ylabel('Session 2 Sensitivity (dB)');
 legend( ...
     {sprintf('%d arcmin',theDiameters(1)) ; ...
     sprintf('%d arcmin',theDiameters(2)) ; ...
@@ -47,7 +50,7 @@ ax.YAxis.FontSize = 18;
 lgd = legend('show');
 lgd.FontSize = 12; 
 axis([limMin limMax limMin limMax]);
-saveas(gcf,fullfile(analysisDir,outputVariant,'Figure4a.pdf'),'pdf');
+saveas(gcf,fullfile(analysisDir,outputVariant,'Figure5a.pdf'),'pdf');
  %% t-tests for between session comparision
 [~,p(1,1)] = ttest(sensitivitySessionwise(:,1,1),sensitivitySessionwise(:,1,2));
 [~,p(1,2)] = ttest(sensitivitySessionwise(:,2,1),sensitivitySessionwise(:,2,2));
@@ -115,5 +118,6 @@ ax.XAxis.FontSize = 18;
 ax.YAxis.FontSize = 18;
 ax.PlotBoxAspectRatio = [1 1 1]; 
 
-xlabel('Mean of Session1 and Session2 Sensitivity (dB)');
-ylabel('(Session 1 - Session 2) Sensitivity (dB)');
+xlabel('Mean of Session 1 and Session 2 Sensitivities (dB)');
+ylabel('Difference of Session 1 and Session 2 Sensitivities(dB)');
+saveas(gcf,fullfile(analysisDir,outputVariant,'Figure5b.pdf'),'pdf');

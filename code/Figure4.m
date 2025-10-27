@@ -18,6 +18,10 @@ for pp = 1:length(theSubjects)
                 error('Have not properly set up condition to pick out just one sensitivity');
             end
             sensitivityGroup1(pp,dd,ss) = -dataTable.CorrectedThreshold_dB_(index);
+            CILower_Group1(pp,dd,ss)= -dataTable.CIHigh(index); %negative sensitivity, so high value corresonds to lower CI
+            CIUpper_Group1(pp,dd,ss)= -dataTable.CILow(index);%negative sensitivity, so low value corresonds to higher CI
+            xneg(pp,dd,ss) = sensitivityGroup1(pp,dd,ss) - CIUpper_Group1(pp,dd,ss);
+            xpos(pp,dd,ss) = sensitivityGroup1(pp,dd,ss)- CILower_Group1(pp,dd,ss);
         end
     end
 end
@@ -35,19 +39,25 @@ for pp = 1:length(theSubjects)
                 error('Have not properly set up condition to pick out just one sensitivity');
             end
             sensitivityGroup2(pp,dd,ss) = -dataTable.CorrectedThreshold_dB_(index);
+            CILower_Group2(pp,dd,ss)= -dataTable.CIHigh(index); %negative sensitivity, so high value corresonds to lower CI
+            CIUpper_Group2(pp,dd,ss)= -dataTable.CILow(index);%negative sensitivity, so low value corresonds to higher CI
+            yneg(pp,dd,ss) = sensitivityGroup1(pp,dd,ss) - CIUpper_Group2(pp,dd,ss);
+            ypos(pp,dd,ss) = sensitivityGroup1(pp,dd,ss)- CILower_Group2(pp,dd,ss);
         end
     end
 end
 %% Make figure 4a
 f = figure('Position',plotSize); clf; hold on
 
-plot(sensitivityGroup1(:,1,1),sensitivityGroup2(:,1,1),'bo','MarkerFaceColor','b','MarkerSize',markerSize);
-plot(sensitivityGroup1(:,1,2),sensitivityGroup2(:,1,2),'b^','MarkerFaceColor','b','MarkerSize',markerSize);
-plot(sensitivityGroup1(:,2,1),sensitivityGroup2(:,2,1),'ro','MarkerFaceColor','r','MarkerSize',markerSize);
-plot(sensitivityGroup1(:,2,2),sensitivityGroup2(:,2,2),'r^','MarkerFaceColor','r','MarkerSize',markerSize);
+errorbar(sensitivityGroup1(:,1,1),sensitivityGroup2(:,1,1),yneg(:,1,1),ypos(:,1,1),xneg(:,1,1),xpos(:,1,1),'bo','MarkerFaceColor','b','MarkerSize',markerSize);
+errorbar(sensitivityGroup1(:,1,2),sensitivityGroup2(:,1,2),yneg(:,1,2),ypos(:,1,2),xneg(:,1,2),xpos(:,1,2),'b^','MarkerFaceColor','b','MarkerSize',markerSize);
+errorbar(sensitivityGroup1(:,2,1),sensitivityGroup2(:,2,1),yneg(:,2,1),ypos(:,2,1),xneg(:,2,1),xpos(:,2,1),'ro','MarkerFaceColor','r','MarkerSize',markerSize);
+errorbar(sensitivityGroup1(:,2,2),sensitivityGroup2(:,2,2),yneg(:,2,2),ypos(:,2,2),xneg(:,2,2),xpos(:,2,2),'r^','MarkerFaceColor','r','MarkerSize',markerSize);
+
+
 plot([limMin limMax],[limMin limMax],'k:','LineWidth',2);
-xlabel('Group1 sensitivity (dB)', 'FontWeight','bold', 'FontSize', 18, 'FontName', 'Times New Roman');
-ylabel('Group2 sensitivity (dB)','FontWeight','bold', 'FontSize', 18, 'FontName', 'Times New Roman');
+xlabel('Group 1 sensitivity (dB)');
+ylabel('Group 2 sensitivity (dB)');
 legend( ...
     {sprintf('Session %d, %d pixels',theSessions(1),theDiameters(1)) ; ...
     sprintf('Session %d, %d pixels',theSessions(2),theDiameters(1)) ; ...
@@ -67,7 +77,7 @@ ax.YAxis.LineWidth = 2;
 ax.XAxis.FontSize = 18;
 ax.YAxis.FontSize = 18;
 axis([limMin limMax limMin limMax]);
-saveas(gcf,fullfile(analysisDir,outputVariant,'Figure3a.pdf'),'pdf');
+saveas(gcf,fullfile(analysisDir,outputVariant,'Figure4a.pdf'),'pdf');
 
 
 %% %% t-tests
@@ -152,8 +162,8 @@ ax.YAxis.LineWidth = 2;
 ax.XAxis.FontSize = 18;
 ax.YAxis.FontSize = 18;
 ax.PlotBoxAspectRatio = [1 1 1]; % Maintain aspect ratio
-
-xlabel('Mean of Group1 and Group2 Sensitivity (dB)');
-ylabel('(Group1-Group2)Sensitivity (dB)');
+saveas(gcf,fullfile(analysisDir,outputVariant,'Figure4b.pdf'),'pdf');
+xlabel('Mean of Group 1 and Group 2 Sensitivities (dB)');
+ylabel('Difference of Group 1 and Group 2 Sensitivities (dB)');
 
 
