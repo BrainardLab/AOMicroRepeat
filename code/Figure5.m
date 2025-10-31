@@ -90,27 +90,19 @@ mean_diff_SS43 = mean(diff_b);
 std_diff_SS43 = std(diff_b);
 
 % Open the figures
+%% Figure 5b
 
 figure('Position', plotSize);
 
 % Plot Bland-Altman data for each comparison
 scatter(mean_a, diff_a, 150, 'blue', 'filled', 'o', 'MarkerFaceAlpha', 0.6, 'DisplayName', 'SS8');
 hold on;
-scatter(mean_b, diff_b, 150, 'red', 'filled', 'o', 'MarkerFaceAlpha', 0.6, 'DisplayName', 'SS43');
-
-% Plot mean differences and limits of agreement
 line([18, 23], [mean_diff_SS8, mean_diff_SS8], 'Color', 'blue', 'LineWidth', 4, 'LineStyle', '-', 'DisplayName', 'Mean Difference SS8');
-line([26, 30], [mean_diff_SS43, mean_diff_SS43], 'Color', 'red', 'LineWidth', 4, 'LineStyle', '-', 'DisplayName', 'Mean Difference SS43');
-
 line([18, 23], [mean_diff_SS8 + 1.96 * std_diff_SS8, mean_diff_SS8 + 1.96 * std_diff_SS8], 'Color', 'blue', 'LineWidth', 2, 'LineStyle', '-', 'DisplayName', 'Upper Limit (SS8)');
 line([18, 23], [mean_diff_SS8 - 1.96 * std_diff_SS8, mean_diff_SS8 - 1.96 * std_diff_SS8], 'Color', 'blue', 'LineWidth', 2, 'LineStyle', '-',  'DisplayName', 'Lower Limit (SS8)');
-
-line([26, 30], [mean_diff_SS43 + 1.96 * std_diff_SS43, mean_diff_SS43 + 1.96 * std_diff_SS43], 'Color', 'red', 'LineWidth', 2, 'LineStyle', '-',  'DisplayName', 'Upper Limit (SS43)');
-line([26, 30], [mean_diff_SS43 - 1.96 * std_diff_SS43, mean_diff_SS43 - 1.96 * std_diff_SS43], 'Color', 'red', 'LineWidth', 2, 'LineStyle', '-',  'DisplayName', 'Lower Limit (SS43)');
-
 ax = gca;
 set(gca, 'FontName', 'Arial','FontWeight','bold','FontSize', 18)
-ax.XLim = [16, 32];
+ax.XLim = [16, 24];
 ax.YLim = [-2.5, 2.5];
 ax.XAxis.LineWidth = 2;
 ax.YAxis.LineWidth = 2;
@@ -121,3 +113,24 @@ ax.PlotBoxAspectRatio = [1 1 1];
 xlabel('Mean of Session 1 and Session 2 Sensitivities (dB)');
 ylabel('Difference of Session 1 and Session 2 Sensitivities(dB)');
 saveas(gcf,fullfile(analysisDir,outputVariant,'Figure5b.pdf'),'pdf');
+%% Figure 5c
+
+figure('Position', plotSize);
+scatter(mean_b, diff_b, 150, 'red', 'filled', 'o', 'MarkerFaceAlpha', 0.6, 'DisplayName', 'SS43');
+hold on;
+line([26, 30], [mean_diff_SS43, mean_diff_SS43], 'Color', 'red', 'LineWidth', 4, 'LineStyle', '-', 'DisplayName', 'Mean Difference SS43');
+line([26, 30], [mean_diff_SS43 - 1.96 * std_diff_SS43, mean_diff_SS43 - 1.96 * std_diff_SS43], 'Color', 'red', 'LineWidth', 2, 'LineStyle', '-',  'DisplayName', 'Lower Limit (SS43)');
+line([26, 30], [mean_diff_SS43 + 1.96 * std_diff_SS43, mean_diff_SS43 + 1.96 * std_diff_SS43], 'Color', 'red', 'LineWidth', 2, 'LineStyle', '-',  'DisplayName', 'Upper Limit (SS43)');
+ax = gca;
+set(gca, 'FontName', 'Arial','FontWeight','bold','FontSize', 18)
+ax.XLim = [24, 32];
+ax.YLim = [-2.5, 2.5];
+ax.XAxis.LineWidth = 2;
+ax.YAxis.LineWidth = 2;
+ax.XAxis.FontSize = 18;
+ax.YAxis.FontSize = 18;
+ax.PlotBoxAspectRatio = [1 1 1]; 
+
+xlabel('Mean of Session 1 and Session 2 Sensitivities (dB)');
+ylabel('Difference of Session 1 and Session 2 Sensitivities(dB)');
+saveas(gcf,fullfile(analysisDir,outputVariant,'Figure5c.pdf'),'pdf');

@@ -148,7 +148,7 @@ line([18, 23], [mean_diff_Session1_8pixels + 1.96 * std_diff_Session1_8pixels, m
 line([18, 23], [mean_diff_Session1_8pixels - 1.96 * std_diff_Session1_8pixels, mean_diff_Session1_8pixels - 1.96 * std_diff_Session1_8pixels], 'Color', 'blue', 'LineWidth', 2, 'LineStyle', '-',  'DisplayName', 'Lower Limit (SS8, S1)');
 ax = gca;
 set(gca, 'FontName', 'Arial','FontWeight','bold','FontSize', 18)
-ax.XLim = [16, 32];
+ax.XLim = [16, 24];
 ax.YLim = [-2.5, 2.5];
 ax.XAxis.LineWidth = 2;
 ax.YAxis.LineWidth = 2;
@@ -167,7 +167,7 @@ line([18, 23], [mean_diff_Session2_8pixels + 1.96 * std_diff_Session2_8pixels, m
 line([18, 23], [mean_diff_Session2_8pixels - 1.96 * std_diff_Session2_8pixels, mean_diff_Session2_8pixels - 1.96 * std_diff_Session2_8pixels], 'Color', 'blue', 'LineWidth', 2, 'LineStyle', '--',  'DisplayName', 'Lower Limit (SS8, S2)');
 ax = gca;
 set(gca, 'FontName', 'Arial','FontWeight','bold','FontSize', 18)
-ax.XLim = [16, 32];
+ax.XLim = [16, 24];
 ax.YLim = [-2.5, 2.5];
 ax.XAxis.LineWidth = 2;
 ax.YAxis.LineWidth = 2;
@@ -186,7 +186,7 @@ line([26, 30], [mean_diff_Session1_43pixels - 1.96 * std_diff_Session1_43pixels,
 line([26, 30], [mean_diff_Session1_43pixels + 1.96 * std_diff_Session1_43pixels, mean_diff_Session1_43pixels + 1.96 * std_diff_Session1_43pixels], 'Color', 'red', 'LineWidth', 2, 'LineStyle', '-',  'DisplayName', 'Upper Limit (SS43, S1)');
 ax = gca;
 set(gca, 'FontName', 'Arial','FontWeight','bold','FontSize', 18)
-ax.XLim = [16, 32];
+ax.XLim = [24, 32];
 ax.YLim = [-2.5, 2.5];
 ax.XAxis.LineWidth = 2;
 ax.YAxis.LineWidth = 2;
@@ -205,7 +205,7 @@ line([26, 30], [mean_diff_Session2_43pixels + 1.96 * std_diff_Session2_43pixels,
 line([26, 30], [mean_diff_Session2_43pixels - 1.96 * std_diff_Session2_43pixels, mean_diff_Session2_43pixels - 1.96 * std_diff_Session2_43pixels], 'Color', 'red', 'LineWidth', 2, 'LineStyle', '--',  'DisplayName', 'Lower Limit (SS43, S2)');
 ax = gca;
 set(gca, 'FontName', 'Arial','FontWeight','bold','FontSize', 18)
-ax.XLim = [16, 32];
+ax.XLim = [24, 32];
 ax.YLim = [-2.5, 2.5];
 ax.XAxis.LineWidth = 2;
 ax.YAxis.LineWidth = 2;

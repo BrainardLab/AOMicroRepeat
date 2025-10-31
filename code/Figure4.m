@@ -128,41 +128,88 @@ std_diff_Session1_43pixels = std(diff_Session1_43pixels);
 mean_diff_Session2_43pixels = mean(diff_Session2_43pixels);
 std_diff_Session2_43pixels = std(diff_Session2_43pixels);
 
-figure('Position', plotSize);
+%% Figure 4b
 
 % Plot Bland-Altman data for each comparison
+figure('Position', plotSize);
 scatter(mean_Session1_8pixels, diff_Session1_8pixels, 150, 'blue', 'filled', 'o', 'MarkerFaceAlpha', 0.6, 'DisplayName', 'SS8S1');
 hold on;
-scatter(mean_Session2_8pixels, diff_Session2_8pixels, 150, 'blue', 'filled', '^', 'MarkerFaceAlpha', 0.6, 'DisplayName', 'SS8S2');
-scatter(mean_Session1_43pixels, diff_Session1_43pixels, 150, 'red', 'filled', 'o', 'MarkerFaceAlpha', 0.6, 'DisplayName', 'SS43S1');
-scatter(mean_Session2_43pixels, diff_Session2_43pixels, 150, 'red', 'filled', '^', 'MarkerFaceAlpha', 0.6, 'DisplayName', 'SS43S2');
-
-% Plot mean differences and limits of agreement
 line([18, 23], [mean_diff_Session1_8pixels, mean_diff_Session1_8pixels], 'Color', 'blue', 'LineWidth', 4, 'LineStyle', '-', 'DisplayName', 'Mean Difference (SS8, S1)');
-line([18, 23], [mean_diff_Session2_8pixels, mean_diff_Session2_8pixels], 'Color', 'blue', 'LineWidth', 4, 'LineStyle', '--', 'DisplayName', 'Mean Difference (SS8, S2)');
-line([26, 30], [mean_diff_Session1_43pixels, mean_diff_Session1_43pixels], 'Color', 'red', 'LineWidth', 4, 'LineStyle', '-', 'DisplayName', 'Mean Difference (SS43, S1)');
-line([26, 30], [mean_diff_Session2_43pixels, mean_diff_Session2_43pixels], 'Color', 'red', 'LineWidth', 4, 'LineStyle', '--', 'DisplayName', 'Mean Difference (SS43, S2)');
-
 line([18, 23], [mean_diff_Session1_8pixels + 1.96 * std_diff_Session1_8pixels, mean_diff_Session1_8pixels + 1.96 * std_diff_Session1_8pixels], 'Color', 'blue', 'LineWidth', 2, 'LineStyle', '-', 'DisplayName', 'Upper Limit (SS8, S1)');
 line([18, 23], [mean_diff_Session1_8pixels - 1.96 * std_diff_Session1_8pixels, mean_diff_Session1_8pixels - 1.96 * std_diff_Session1_8pixels], 'Color', 'blue', 'LineWidth', 2, 'LineStyle', '-',  'DisplayName', 'Lower Limit (SS8, S1)');
-line([18, 23], [mean_diff_Session2_8pixels + 1.96 * std_diff_Session2_8pixels, mean_diff_Session2_8pixels + 1.96 * std_diff_Session2_8pixels], 'Color', 'blue', 'LineWidth', 2, 'LineStyle', '--',  'DisplayName', 'Upper Limit (SS8, S2)');
-line([18, 23], [mean_diff_Session2_8pixels - 1.96 * std_diff_Session2_8pixels, mean_diff_Session2_8pixels - 1.96 * std_diff_Session2_8pixels], 'Color', 'blue', 'LineWidth', 2, 'LineStyle', '--',  'DisplayName', 'Lower Limit (SS8, S2)');
-
-line([26, 30], [mean_diff_Session1_43pixels + 1.96 * std_diff_Session1_43pixels, mean_diff_Session1_43pixels + 1.96 * std_diff_Session1_43pixels], 'Color', 'red', 'LineWidth', 2, 'LineStyle', '-',  'DisplayName', 'Upper Limit (SS43, S1)');
-line([26, 30], [mean_diff_Session1_43pixels - 1.96 * std_diff_Session1_43pixels, mean_diff_Session1_43pixels - 1.96 * std_diff_Session1_43pixels], 'Color', 'red', 'LineWidth', 2, 'LineStyle', '-',  'DisplayName', 'Lower Limit (SS43, S1)');
-line([26, 30], [mean_diff_Session2_43pixels + 1.96 * std_diff_Session2_43pixels, mean_diff_Session2_43pixels + 1.96 * std_diff_Session2_43pixels], 'Color', 'red', 'LineWidth', 2, 'LineStyle', '--',  'DisplayName', 'Upper Limit (SS43, S2)');
-line([26, 30], [mean_diff_Session2_43pixels - 1.96 * std_diff_Session2_43pixels, mean_diff_Session2_43pixels - 1.96 * std_diff_Session2_43pixels], 'Color', 'red', 'LineWidth', 2, 'LineStyle', '--',  'DisplayName', 'Lower Limit (SS43, S2)');
-
 ax = gca;
 set(gca, 'FontName', 'Arial','FontWeight','bold','FontSize', 18)
-ax.XLim = [16, 32];
+ax.XLim = [16, 24];
 ax.YLim = [-2.5, 2.5];
 ax.XAxis.LineWidth = 2;
 ax.YAxis.LineWidth = 2;
 ax.XAxis.FontSize = 18;
 ax.YAxis.FontSize = 18;
 ax.PlotBoxAspectRatio = [1 1 1]; % Maintain aspect ratio
+
+xlabel('Mean of Group 1 and Group 2 Sensitivities (dB)');
+ylabel('Difference of Group 1 and Group 2 Sensitivities (dB)');
 saveas(gcf,fullfile(analysisDir,outputVariant,'Figure4b.pdf'),'pdf');
+%% Figure 4c
+
+figure('Position', plotSize);
+scatter(mean_Session2_8pixels, diff_Session2_8pixels, 150, 'blue', 'filled', '^', 'MarkerFaceAlpha', 0.6, 'DisplayName', 'SS8S2');
+hold on;
+line([18, 23], [mean_diff_Session2_8pixels, mean_diff_Session2_8pixels], 'Color', 'blue', 'LineWidth', 4, 'LineStyle', '--', 'DisplayName', 'Mean Difference (SS8, S2)');
+line([18, 23], [mean_diff_Session2_8pixels + 1.96 * std_diff_Session2_8pixels, mean_diff_Session2_8pixels + 1.96 * std_diff_Session2_8pixels], 'Color', 'blue', 'LineWidth', 2, 'LineStyle', '--',  'DisplayName', 'Upper Limit (SS8, S2)');
+line([18, 23], [mean_diff_Session2_8pixels - 1.96 * std_diff_Session2_8pixels, mean_diff_Session2_8pixels - 1.96 * std_diff_Session2_8pixels], 'Color', 'blue', 'LineWidth', 2, 'LineStyle', '--',  'DisplayName', 'Lower Limit (SS8, S2)');
+ax = gca;
+set(gca, 'FontName', 'Arial','FontWeight','bold','FontSize', 18)
+ax.XLim = [16, 24];
+ax.YLim = [-2.5, 2.5];
+ax.XAxis.LineWidth = 2;
+ax.YAxis.LineWidth = 2;
+ax.XAxis.FontSize = 18;
+ax.YAxis.FontSize = 18;
+ax.PlotBoxAspectRatio = [1 1 1]; % Maintain aspect ratio
+
+xlabel('Mean of Group 1 and Group 2 Sensitivities (dB)');
+ylabel('Difference of Group 1 and Group 2 Sensitivities (dB)');
+saveas(gcf,fullfile(analysisDir,outputVariant,'Figure4c.pdf'),'pdf');
+%% Figure 4d
+figure('Position', plotSize);
+scatter(mean_Session1_43pixels, diff_Session1_43pixels, 150, 'red', 'filled', 'o', 'MarkerFaceAlpha', 0.6, 'DisplayName', 'SS43S1');
+hold on;
+line([26, 30], [mean_diff_Session1_43pixels, mean_diff_Session1_43pixels], 'Color', 'red', 'LineWidth', 4, 'LineStyle', '-', 'DisplayName', 'Mean Difference (SS43, S1)');
+line([26, 30], [mean_diff_Session1_43pixels - 1.96 * std_diff_Session1_43pixels, mean_diff_Session1_43pixels - 1.96 * std_diff_Session1_43pixels], 'Color', 'red', 'LineWidth', 2, 'LineStyle', '-',  'DisplayName', 'Lower Limit (SS43, S1)');
+line([26, 30], [mean_diff_Session1_43pixels + 1.96 * std_diff_Session1_43pixels, mean_diff_Session1_43pixels + 1.96 * std_diff_Session1_43pixels], 'Color', 'red', 'LineWidth', 2, 'LineStyle', '-',  'DisplayName', 'Upper Limit (SS43, S1)');
+
+ax = gca;
+set(gca, 'FontName', 'Arial','FontWeight','bold','FontSize', 18)
+ax.XLim = [24, 32];
+ax.YLim = [-2.5, 2.5];
+ax.XAxis.LineWidth = 2;
+ax.YAxis.LineWidth = 2;
+ax.XAxis.FontSize = 18;
+ax.YAxis.FontSize = 18;
+ax.PlotBoxAspectRatio = [1 1 1]; % Maintain aspect ratio
+saveas(gcf,fullfile(analysisDir,outputVariant,'Figure4d.pdf'),'pdf');
+xlabel('Mean of Group 1 and Group 2 Sensitivities (dB)');
+ylabel('Difference of Group 1 and Group 2 Sensitivities (dB)');
+%% Figure 4e
+
+figure('Position', plotSize);
+scatter(mean_Session2_43pixels, diff_Session2_43pixels, 150, 'red', 'filled', '^', 'MarkerFaceAlpha', 0.6, 'DisplayName', 'SS43S2');
+hold on;
+line([26, 30], [mean_diff_Session2_43pixels, mean_diff_Session2_43pixels], 'Color', 'red', 'LineWidth', 4, 'LineStyle', '--', 'DisplayName', 'Mean Difference (SS43, S2)');
+line([26, 30], [mean_diff_Session2_43pixels + 1.96 * std_diff_Session2_43pixels, mean_diff_Session2_43pixels + 1.96 * std_diff_Session2_43pixels], 'Color', 'red', 'LineWidth', 2, 'LineStyle', '--',  'DisplayName', 'Upper Limit (SS43, S2)');
+line([26, 30], [mean_diff_Session2_43pixels - 1.96 * std_diff_Session2_43pixels, mean_diff_Session2_43pixels - 1.96 * std_diff_Session2_43pixels], 'Color', 'red', 'LineWidth', 2, 'LineStyle', '--',  'DisplayName', 'Lower Limit (SS43, S2)');
+
+ax = gca;
+set(gca, 'FontName', 'Arial','FontWeight','bold','FontSize', 18)
+ax.XLim = [24, 32];
+ax.YLim = [-2.5, 2.5];
+ax.XAxis.LineWidth = 2;
+ax.YAxis.LineWidth = 2;
+ax.XAxis.FontSize = 18;
+ax.YAxis.FontSize = 18;
+ax.PlotBoxAspectRatio = [1 1 1]; % Maintain aspect ratio
+saveas(gcf,fullfile(analysisDir,outputVariant,'Figure4e.pdf'),'pdf');
 xlabel('Mean of Group 1 and Group 2 Sensitivities (dB)');
 ylabel('Difference of Group 1 and Group 2 Sensitivities (dB)');
 
