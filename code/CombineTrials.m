@@ -26,19 +26,17 @@ close all; clear all;
 %
 % Path to data tree on this machine
 %
-% This is set up by TbTb local hook file, but
-% you can also use
-%  setpath('AOMicroRepeat','dataDir',theDataDir)
-% to do this, where theDataDir is the path to the
-% files.
+% This is set up by TbTb local hook file, but you can also do it
+% by setting up the relevant preferences one time on your machine,
+% for example like this:
+%   setpref('AOMicroRepeat','setpref','dataDir','C:\Users\niveg\Aguirre-Brainard Lab Dropbox\Nivedhitha Govindasamy\AO-Microperimetry Repeatability Paper\Data_for_paper\David_code_analysis\New_analysis_20250912\dataDir');
+%   setpref('AOMicroRepeat','setpref','analysisDir','C:\Users\niveg\Aguirre-Brainard Lab Dropbox\Nivedhitha Govindasamy\AO-Microperimetry Repeatability Paper\Data_for_paper\David_code_analysis\New_analysis_20250912\analysisDir');
 %
-% In the code example I got, this was
-%  path = 'W:\Data\11125\20231103\AO_Psychophysics\MOCS\8\group2';
-% but that does not match the actuall data tree I received for 11002.
-dataDir = getpref('New_analysis_20250912','dataDir','C:\Users\niveg\Aguirre-Brainard Lab Dropbox\Nivedhitha Govindasamy\AO-Microperimetry Repeatability Paper\Data_for_paper\David_code_analysis\New_analysis_20250912\dataDir');
+% Do not hard code directories into this program.
+dataDir = getpref('AOMicroRepeat','dataDir');
 
 %% Also analysis output dir, same idea
-analysisDir = getpref('New_analysis_20250912','analysisDir','C:\Users\niveg\Aguirre-Brainard Lab Dropbox\Nivedhitha Govindasamy\AO-Microperimetry Repeatability Paper\Data_for_paper\David_code_analysis\New_analysis_20250912\analysisDir');
+analysisDir = getpref('AOMicroRepeat','analysisDir');
 
 %% Some parameters
 log0Value = -3.5;
@@ -224,11 +222,11 @@ for pp = 1:length(theParticipants)
                                 end
                             end
 
-                            % Concatenate across runs into one long pair of
-                            % vectors.
+                            % Concatenate across runs into one long pair of vectors.
                             all_trials_unpacked{pp,dd,ss,hh,mm} = [all_trials_unpacked{pp,dd,ss,hh,mm} ; [all_trials{pp,dd,ss,hh,mm}{i,1} all_trials{pp,dd,ss,hh,mm}{i,2}] ];
                         end
 
+                        % Checks
                         if (strcmp(theMethod{tableRow},'MOCS') & size(MOCSFileTimes,1) ~= 4)
                             error('Wrong number of MOCS files somewhere in data tree');
                         end
@@ -245,7 +243,7 @@ for pp = 1:length(theParticipants)
                             end
                         end
                     else
-
+                        
                         % Concatenate MOCS and QUEST data into COMBINED
                         all_trials_unpacked{pp,dd,ss,hh,mm} = [all_trials_unpacked{pp,dd,ss,hh,1} ; all_trials_unpacked{pp,dd,ss,hh,2}];
                     end
@@ -254,15 +252,28 @@ for pp = 1:length(theParticipants)
                     tableRow = tableRow + 1;
                 end
 
-                MOCS{pp,dd,ss,hh,1} = all_trials_unpacked{pp,dd,ss,hh,1}; % Get the MOCS data for each participant, from each session for each diameter (400x2 or 360x2)
-                QUEST{pp,dd,ss,hh,1} = all_trials_unpacked{pp,dd,ss,hh,2}; % Get the QUEST data for each participant, from each session for each diameter (176x2)
-                MOCS_split{pp,dd,ss,hh,1} = reshape(MOCS{pp,dd,ss,hh,1}, [],8); % Split the data into two halves (200x4 or 180x2)
-                QUEST_split{pp,dd,ss,hh,1} = reshape(QUEST{pp,dd,ss,hh,1}, [],8); % Split the data into two halves (88x4)
-                Grouped_data{pp,dd,ss,hh,1} = [MOCS_split{pp,dd,ss,1};QUEST_split{pp,dd,ss,hh,1}]; % Combined MOCS and QUEST(288x4 or 268x4)to make sure MOCS-QUEST combination is retained
+                % Get the MOCS data for each participant, from each session for each diameter (400x2 or 360x2)
+                MOCS{pp,dd,ss,hh,1} = all_trials_unpacked{pp,dd,ss,hh,1}; 
+
+                % Get the QUEST data for each participant, from each session for each diameter (176x2)
+                QUEST{pp,dd,ss,hh,1} = all_trials_unpacked{pp,dd,ss,hh,2}; 
+
+                % Split the data into two halves (200x4 or 180x2)
+                MOCS_split{pp,dd,ss,hh,1} = reshape(MOCS{pp,dd,ss,hh,1}, [],8); 
+
+                % Split the data into two halves (88x4)
+                QUEST_split{pp,dd,ss,hh,1} = reshape(QUEST{pp,dd,ss,hh,1}, [],8); 
+                
+                % Combined MOCS and QUEST (288x4 or 268x4) to make sure MOCS-QUEST combination is retained
+                Grouped_data{pp,dd,ss,hh,1} = [MOCS_split{pp,dd,ss,1};QUEST_split{pp,dd,ss,hh,1}]; 
                 Grouped_data_var=reshape(Grouped_data{pp,dd,ss,hh,1},[],8);
+
                 col_pairs = {[1 5], [2 6], [3 7], [4 8]}; % corresponding intensity and response pairs
-                pair_idx = randperm(4);% Assign random value for each MOCS-QUEST pair
+
+                % Assign random value for each MOCS-QUEST pair
+                pair_idx = randperm(4);
                 shuffled_cols = [col_pairs{pair_idx}]; % choose random colns
+
                 Grouped_data_shuffled = Grouped_data_var(:, shuffled_cols);% everytime the coloumns are shuffled
                 G1{pp,dd,ss,hh,1} = [Grouped_data_shuffled(:,[1,3]),Grouped_data_shuffled(:,[2,4])];%put first half of data in one group (these coloumns changes randomly)
                 G2{pp,dd,ss,hh,1} = [Grouped_data_shuffled(:,[5,7]),Grouped_data_shuffled(:,[6,8])];%put the next half in other group (these coloumns changes randomly)
