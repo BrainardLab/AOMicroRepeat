@@ -91,16 +91,31 @@ end
 figureVis = 'off';
 
 %% Read combined data produced by CombineData
-analysisDir = getpref('New_analysis_20250912','analysisDir','C:\Users\niveg\Aguirre-Brainard Lab Dropbox\Nivedhitha Govindasamy\AO-Microperimetry Repeatability Paper\Data_for_paper\David_code_analysis\New_analysis_20250912\analysisDir');
+%
+% See comments in CombineData about how to set preferences for where data and analsis 
+% directories live.  Do no hard code the paths.
+analysisDir = getpref('AOMicroRepeat','analysisDir');
 d = load(fullfile(analysisDir,'combinedData.mat'),'all_trials','all_trials_unpacked','log0Value','theParticipants','theDiameters','theSessions','theSplits','theMethods','AOM');
 all_trials_unpacked = d.all_trials_unpacked;
 log0Value = d.log0Value;
 theParticipants = d.theParticipants;
 theDiameters = d.theDiameters;
 theSessions = d.theSessions;
-theSplits = d.theSplits;
 theMethods = d.theMethods;
 AOM = d.AOM;
+
+% Check and handle how theSplits comes in and goes
+% out.  This is tricky handshaking between this routine
+% and CombineData.m.  Despite d.theSplits saying there
+% is just one split, there are 3, with the latter two being
+% the session based splits done according to the pre-registration.
+%
+% The way things are coded is a bit kluged up, but we check like
+% mad that our various assumptions hold.
+if (length(d.theSplits) > 1 | ~strcmp(d.theSplits,'All'))
+    error('Unexpected form of d.theSplits. Did you re-run CombineData?');
+end
+theSplits = {'All' 'Group1' 'Group2'};
 
 %% Freeze rng seed for repeatability
 rng(101);
@@ -140,8 +155,6 @@ for pp = 1:length(theParticipants)
                         end
 
                         % Get the nominal log intensity from the data
-                      
-                   
                         log_intensity_nominal(i) = all_trials_unpacked{pp,dd,ss,hh,mm}(i,1);
 
                         % Convert to nominal lin intensity
@@ -272,22 +285,8 @@ for pp = 1:length(theParticipants)
                     %  Column 2 - 1 = seen, 0 = not seen
                     %  Column 3 - lut corrected linear intensity
                     %  Column 4 - lut corrected log intensity
-                    %
-                    % Split the data
-                    %
-                    % This currently does not respect the details of the experimental
-                    % design (e.g. does not split the trials for each MOCS level).
-                    % It's possible this should be moved into CombineTrials.m
-                    fprintf('\tSplitting data as specified\n')
-                    nTrials = size(all_trials_unpacked{pp,dd,ss,hh,mm},1);
-                    dataIndex = 1:nTrials;
-                    all_trials_unpacked{pp,dd,ss,hh,mm} = all_trials_unpacked{pp,dd,ss,hh,mm}(dataIndex,:);
                     trial_log_intensities = all_trials_unpacked{pp,dd,ss,hh,mm}(:,4);
                     trial_responses = all_trials_unpacked{pp,dd,ss,hh,mm}(:,2);
-                 
-                    % Within-session repeatability split
-
-                    % Extract the core data to fit
 
                     % Convert to dB?
                     if (convertToDb)
