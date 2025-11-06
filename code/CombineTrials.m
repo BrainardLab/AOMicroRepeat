@@ -243,9 +243,14 @@ for pp = 1:length(theParticipants)
                             end
                         end
                     else
-                        
-                        % Concatenate MOCS and QUEST data into COMBINED
+                        % Concatenate MOCS and QUEST data into COMBINED.  If we're here,
+                        % mm indeices COMBINED and we know that indices 1 and 2 index MOCS
+                        % and QUEST.
+                        if (~strcmp(theMethods{mm},'COMBINED') | ~strcmp(theMethods{1},'MOCS') | ~strcmp(theMethods{2},'QUEST') )
+                            error('Code counts on specific order of methods in theMethods, and someone has changed that');
+                        end
                         all_trials_unpacked{pp,dd,ss,hh,mm} = [all_trials_unpacked{pp,dd,ss,hh,1} ; all_trials_unpacked{pp,dd,ss,hh,2}];
+
                     end
 
                     % Bump table row
@@ -253,19 +258,19 @@ for pp = 1:length(theParticipants)
                 end
 
                 % Get the MOCS data for each participant, from each session for each diameter (400x2 or 360x2)
-                MOCS{pp,dd,ss,hh,1} = all_trials_unpacked{pp,dd,ss,hh,1}; 
+                MOCS{pp,dd,ss,hh,1} = all_trials_unpacked{pp,dd,ss,hh,1};
 
                 % Get the QUEST data for each participant, from each session for each diameter (176x2)
-                QUEST{pp,dd,ss,hh,1} = all_trials_unpacked{pp,dd,ss,hh,2}; 
+                QUEST{pp,dd,ss,hh,1} = all_trials_unpacked{pp,dd,ss,hh,2};
 
                 % Split the data into two halves (200x4 or 180x2)
-                MOCS_split{pp,dd,ss,hh,1} = reshape(MOCS{pp,dd,ss,hh,1}, [],8); 
+                MOCS_split{pp,dd,ss,hh,1} = reshape(MOCS{pp,dd,ss,hh,1}, [],8);
 
                 % Split the data into two halves (88x4)
-                QUEST_split{pp,dd,ss,hh,1} = reshape(QUEST{pp,dd,ss,hh,1}, [],8); 
-                
+                QUEST_split{pp,dd,ss,hh,1} = reshape(QUEST{pp,dd,ss,hh,1}, [],8);
+
                 % Combined MOCS and QUEST (288x4 or 268x4) to make sure MOCS-QUEST combination is retained
-                Grouped_data{pp,dd,ss,hh,1} = [MOCS_split{pp,dd,ss,1};QUEST_split{pp,dd,ss,hh,1}]; 
+                Grouped_data{pp,dd,ss,hh,1} = [MOCS_split{pp,dd,ss,1};QUEST_split{pp,dd,ss,hh,1}];
                 Grouped_data_var=reshape(Grouped_data{pp,dd,ss,hh,1},[],8);
 
                 col_pairs = {[1 5], [2 6], [3 7], [4 8]}; % corresponding intensity and response pairs
