@@ -1,10 +1,9 @@
-
 %% CombineTrials
 %
 % Combine all of the psychophysical data files into one big .mat
 % file.  We do this to simplify the other programs, since the logic
 % here involves lots of checks that everything is as it should be.
-% 
+%
 % Also identify catch trials in QUEST runs, which are somewhat obscurely
 % indicated, and fix them up so later programs don't have to worry about
 % this.
@@ -57,14 +56,12 @@ theSessions = [1 2];
 % Define session splits
 theSplits = {'All','Group1','Group2'};
 
-
 % Define sizes (8 or 43)
 theDiameters = [8 43];
 
 % When we create COMBINED data below, we count
 % on this being as it is.  Don't change wihtout care.
 theMethods = {'MOCS' 'QUEST', 'COMBINED'};
-
 
 %% Get the AOM lookup table info.
 %
@@ -81,20 +78,15 @@ AOM = load('green_AOM_LUT_processing');
 %% Loop over everything
 tableRow = 1;
 for pp = 1:length(theParticipants)
-
     for dd = 1:length(theDiameters)
-     
-        for ss = 1:length(theSessions) 
-          
+        for ss = 1:length(theSessions)
             for hh = 1:length(theSplits)
-            
-        
                 checkSessionDate = [];
                 checkSessionTime = [];
                 MOCSFileTimes = [];
                 QUESTFileTimes = [];
                 for mm = 1:length(theMethods)
-                 
+
                     % Store info for what we are analyzing in this run
                     theMethod{tableRow,1} = theMethods{mm};
                     theSubject{tableRow,1} = theParticipants{pp};
@@ -118,7 +110,7 @@ for pp = 1:length(theParticipants)
 
                         % Read and concatenate the data
                         all_trials{pp,dd,ss,hh,mm} = {};
-                        all_trials_unpacked{pp,dd,ss,hh,mm} = [];                
+                        all_trials_unpacked{pp,dd,ss,hh,mm} = [];
                         fprintf('\tReadng videos\n');
                         for i = 1:num_trial_videos
                             % Get check date from filename.  This should be the
@@ -132,7 +124,7 @@ for pp = 1:length(theParticipants)
                                     error('Not all data files from same session are on the same date');
                                 end
                             end
-                            
+
                             % Check that QUEST file times are later than last
                             % MOCS time.  This code assumes that it runs to
                             % completion on the same calendar day on which it
@@ -193,7 +185,7 @@ for pp = 1:length(theParticipants)
                                 % within session, I think, but are not
                                 % always. This doesn't error out, but does
                                 % report the unexpected cases.
-                                for j = i-1:-1:1  
+                                for j = i-1:-1:1
                                     if (any(unique(loadedData{pp,dd,ss,hh,mm,j}.trial_vector) ~= unique(loadedData{pp,dd,ss,hh,mm,i}.trial_vector)))
                                         fprintf('\t\tMOCS mismatch in trial levels across runs\n')
                                         fprintf('\t\t%s, session %d, size %d, run loaded #%d vs run loaded #%d\n',theParticipants{pp},theSessions(ss), theDiameters(dd),i,j);
@@ -253,38 +245,33 @@ for pp = 1:length(theParticipants)
                             end
                         end
                     else
-                                
+
                         % Concatenate MOCS and QUEST data into COMBINED
                         all_trials_unpacked{pp,dd,ss,hh,mm} = [all_trials_unpacked{pp,dd,ss,hh,1} ; all_trials_unpacked{pp,dd,ss,hh,2}];
-        
-                    end        
-                      
+                    end
+
                     % Bump table row
                     tableRow = tableRow + 1;
                 end
-                
-                
 
-                        MOCS{pp,dd,ss,hh,1} = all_trials_unpacked{pp,dd,ss,hh,1}; % Get the MOCS data for each participant, from each session for each diameter (400x2 or 360x2)
-                        QUEST{pp,dd,ss,hh,1} = all_trials_unpacked{pp,dd,ss,hh,2}; % Get the QUEST data for each participant, from each session for each diameter (176x2)
-                        MOCS_split{pp,dd,ss,hh,1} = reshape( MOCS{pp,dd,ss,hh,1}, [],8); % Split the data into two halves (200x4 or 180x2)
-                        QUEST_split{pp,dd,ss,hh,1} = reshape(QUEST{pp,dd,ss,hh,1}, [],8); % Split the data into two halves (88x4)
-                        Grouped_data{pp,dd,ss,hh,1} = [MOCS_split{pp,dd,ss,1};QUEST_split{pp,dd,ss,hh,1}]; % Combined MOCS and QUEST(288x4 or 268x4)to make sure MOCS-QUEST combination is retained
-                        Grouped_data_var=reshape(Grouped_data{pp,dd,ss,hh,1},[],8);
-                        col_pairs = {[1 5], [2 6], [3 7], [4 8]}; % corresponding intensity and response pairs
-                        pair_idx = randperm(4);% Assign random value for each MOCS-QUEST pair
-                        shuffled_cols = [col_pairs{pair_idx}]; % choose random colns
-                        Grouped_data_shuffled = Grouped_data_var(:, shuffled_cols);% everytime the coloumns are shuffled
-                        G1{pp,dd,ss,hh,1} = [Grouped_data_shuffled(:,[1,3]),Grouped_data_shuffled(:,[2,4])];%put first half of data in one group (these coloumns changes randomly)
-                        G2{pp,dd,ss,hh,1} = [Grouped_data_shuffled(:,[5,7]),Grouped_data_shuffled(:,[6,8])];%put the next half in other group (these coloumns changes randomly)
-                        all_trials_unpacked{pp,dd,ss,2,3} = reshape(cell2mat(G1(pp,dd,ss,hh,1)),[],2); % Combine two of the randomly chosen MOCS - QUEST pair to group 1
-                        all_trials_unpacked{pp,dd,ss,3,3} = reshape(cell2mat(G2(pp,dd,ss,hh,1)),[],2); %Combine two of the randomly chosen MOCS - QUEST pair to group 2
-                 
+                MOCS{pp,dd,ss,hh,1} = all_trials_unpacked{pp,dd,ss,hh,1}; % Get the MOCS data for each participant, from each session for each diameter (400x2 or 360x2)
+                QUEST{pp,dd,ss,hh,1} = all_trials_unpacked{pp,dd,ss,hh,2}; % Get the QUEST data for each participant, from each session for each diameter (176x2)
+                MOCS_split{pp,dd,ss,hh,1} = reshape(MOCS{pp,dd,ss,hh,1}, [],8); % Split the data into two halves (200x4 or 180x2)
+                QUEST_split{pp,dd,ss,hh,1} = reshape(QUEST{pp,dd,ss,hh,1}, [],8); % Split the data into two halves (88x4)
+                Grouped_data{pp,dd,ss,hh,1} = [MOCS_split{pp,dd,ss,1};QUEST_split{pp,dd,ss,hh,1}]; % Combined MOCS and QUEST(288x4 or 268x4)to make sure MOCS-QUEST combination is retained
+                Grouped_data_var=reshape(Grouped_data{pp,dd,ss,hh,1},[],8);
+                col_pairs = {[1 5], [2 6], [3 7], [4 8]}; % corresponding intensity and response pairs
+                pair_idx = randperm(4);% Assign random value for each MOCS-QUEST pair
+                shuffled_cols = [col_pairs{pair_idx}]; % choose random colns
+                Grouped_data_shuffled = Grouped_data_var(:, shuffled_cols);% everytime the coloumns are shuffled
+                G1{pp,dd,ss,hh,1} = [Grouped_data_shuffled(:,[1,3]),Grouped_data_shuffled(:,[2,4])];%put first half of data in one group (these coloumns changes randomly)
+                G2{pp,dd,ss,hh,1} = [Grouped_data_shuffled(:,[5,7]),Grouped_data_shuffled(:,[6,8])];%put the next half in other group (these coloumns changes randomly)
+                all_trials_unpacked{pp,dd,ss,2,3} = reshape(cell2mat(G1(pp,dd,ss,hh,1)),[],2); % Combine two of the randomly chosen MOCS - QUEST pair to group 1
+                all_trials_unpacked{pp,dd,ss,3,3} = reshape(cell2mat(G2(pp,dd,ss,hh,1)),[],2); %Combine two of the randomly chosen MOCS - QUEST pair to group 2
+
             end
-        end       
-        
+        end
     end
-    
 end
 
 % Save out one nice big combined file
