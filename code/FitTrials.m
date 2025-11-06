@@ -90,9 +90,9 @@ end
 % They still get saved out so easy to look at later.
 figureVis = 'off';
 
-%% Read combined data produced by CombineData
+%% Read combined data produced by CombineTrials
 %
-% See comments in CombineData about how to set preferences for where data and analsis 
+% See comments in CombineTrials about how to set preferences for where data and analsis 
 % directories live.  Do no hard code the paths.
 analysisDir = getpref('AOMicroRepeat','analysisDir');
 d = load(fullfile(analysisDir,'combinedData.mat'),'all_trials','all_trials_unpacked','log0Value','theParticipants','theDiameters','theSessions','theSplits','theMethods','AOM');
@@ -106,7 +106,7 @@ AOM = d.AOM;
 
 % Check and handle how theSplits comes in and goes
 % out.  This is tricky handshaking between this routine
-% and CombineData.m.  Despite d.theSplits saying there
+% and CombineTrials.  Despite d.theSplits saying there
 % is just one split, there are 3, with the latter two being
 % the session based splits done according to the pre-registration.
 %
