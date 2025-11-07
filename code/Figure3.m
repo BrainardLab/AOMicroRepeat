@@ -57,7 +57,6 @@ end
 
 f = figure('Position',plotSize); clf; hold on
 
-
 errorbar(sensitivityMOCS(:,1,1),sensitivityQUEST(:,1,1),yneg(:,1,1),ypos(:,1,1),xneg(:,1,1),xpos(:,1,1),'bo','MarkerFaceColor','b','MarkerSize',markerSize);
 errorbar(sensitivityMOCS(:,1,2),sensitivityQUEST(:,1,2),yneg(:,1,2),ypos(:,1,2),xneg(:,1,2),xpos(:,1,2),'b^','MarkerFaceColor','b','MarkerSize',markerSize);
 errorbar(sensitivityMOCS(:,2,1),sensitivityQUEST(:,2,1),yneg(:,2,1),ypos(:,2,1),xneg(:,2,1),xpos(:,2,1),'ro','MarkerFaceColor','r','MarkerSize',markerSize);
@@ -72,7 +71,7 @@ legend( ...
     sprintf('Session %d, %d pixels',theSessions(1),theDiameters(2)) ; ...
     sprintf('Session %d, %d pixels',theSessions(2),theDiameters(2)) ; ...
     sprintf('Line of Equality')
-    ''}, ...
+    }, ...
     'Location','SouthEast');
 axis('square');
 
@@ -85,7 +84,7 @@ ax.YAxis.LineWidth = 2;
 ax.XAxis.FontSize = 18;
 ax.YAxis.FontSize = 18;
 axis([limMin limMax limMin limMax]);
-saveas(gcf,fullfile(analysisDir,outputVariant,'Figure3a.pdf'),'pdf');
+print(gcf,fullfile(analysisDir,outputVariant,'Figure3a.pdf'),'-dpdf','-fillpage','-r600');
 
 %% t-tests
 [~,p(1,1)] = ttest(sensitivityMOCS(:,1,1),sensitivityQUEST(:,1,1));
@@ -98,6 +97,7 @@ for dd = 1:length(theDiameters)
         fprintf('\t%d pixels, session %d, p = %0.3f\n',theDiameters(dd),theSessions(ss),p(dd,ss));
     end
 end
+
 %% Wilcoxon test% Wilcoxon signed-rank test
 [p(1,1),h,~] = signrank(sensitivityMOCS(:,1,1),sensitivityQUEST(:,1,1));
 [p(1,2),h,~] = signrank(sensitivityMOCS(:,1,2),sensitivityQUEST(:,1,2));
@@ -158,7 +158,8 @@ ax.PlotBoxAspectRatio = [1 1 1]; % Maintain aspect ratio
 
 xlabel('Mean of MOCS and QUEST Sensitivity (dB)');
 ylabel('Difference of MOCS and QUEST Sensitivities (dB)');
-saveas(gcf,fullfile(analysisDir,outputVariant,'Figure3b.pdf'),'pdf');
+print(gcf,fullfile(analysisDir,outputVariant,'Figure3b.pdf'),'-dpdf');
+
 %% (3c) Session 2 8 pixels
 figure('Position', plotSize);
 scatter(mean_Session2_8pixels, diff_Session2_8pixels, 150, 'blue', 'filled', '^', 'MarkerFaceAlpha', 0.6, 'DisplayName', 'SS8S2');
