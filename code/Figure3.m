@@ -85,8 +85,9 @@ ax.YAxis.LineWidth = 2;
 ax.XAxis.FontSize = 18;
 ax.YAxis.FontSize = 18;
 axis([limMin limMax limMin limMax]);
-saveas(gcf,fullfile(analysisDir,outputVariant,'Figure3a.pdf'),'pdf');
-
+% saveas(gcf,fullfile(analysisDir,outputVariant,'Figure3a.pdf'),'pdf');
+set(gcf, 'PaperPositionMode', 'auto');
+print(gcf, 'figure3a.png', '-dpng', '-r600');
 %% t-tests
 [~,p(1,1)] = ttest(sensitivityMOCS(:,1,1),sensitivityQUEST(:,1,1));
 [~,p(1,2)] = ttest(sensitivityMOCS(:,1,2),sensitivityQUEST(:,1,2));
@@ -158,7 +159,9 @@ ax.PlotBoxAspectRatio = [1 1 1]; % Maintain aspect ratio
 
 xlabel('Mean of MOCS and QUEST Sensitivity (dB)');
 ylabel('Difference of MOCS and QUEST Sensitivities (dB)');
-saveas(gcf,fullfile(analysisDir,outputVariant,'Figure3b.pdf'),'pdf');
+% saveas(gcf,fullfile(analysisDir,outputVariant,'Figure3b.pdf'),'pdf');
+set(gcf, 'PaperPositionMode', 'auto');
+print(gcf, 'figure3b.png', '-dpng', '-r600');
 %% (3c) Session 2 8 pixels
 figure('Position', plotSize);
 scatter(mean_Session2_8pixels, diff_Session2_8pixels, 150, 'blue', 'filled', '^', 'MarkerFaceAlpha', 0.6, 'DisplayName', 'SS8S2');
@@ -177,7 +180,9 @@ ax.PlotBoxAspectRatio = [1 1 1]; % Maintain aspect ratio
 
 xlabel('Mean of MOCS and QUEST Sensitivity (dB)');
 ylabel('Difference of MOCS and QUEST Sensitivities(dB)');
-saveas(gcf,fullfile(analysisDir,outputVariant,'Figure3c.pdf'),'pdf');
+% saveas(gcf,fullfile(analysisDir,outputVariant,'Figure3c.pdf'),'pdf');
+set(gcf, 'PaperPositionMode', 'auto');
+print(gcf, 'figure3c.png', '-dpng', '-r600');
 %% (3d) Session 1 43 pixels
 figure('Position', plotSize);
 scatter(mean_Session1_43pixels, diff_Session1_43pixels, 150, 'red', 'filled', 'o', 'MarkerFaceAlpha', 0.6, 'DisplayName', 'SS43S1');
@@ -196,7 +201,9 @@ ax.PlotBoxAspectRatio = [1 1 1]; % Maintain aspect ratio
 
 xlabel('Mean of MOCS and QUEST Sensitivities (dB)');
 ylabel('Difference of MOCS and QUEST Sensitivities(dB)');
-saveas(gcf,fullfile(analysisDir,outputVariant,'Figure3d.pdf'),'pdf');
+% saveas(gcf,fullfile(analysisDir,outputVariant,'Figure3d.pdf'),'pdf');
+set(gcf, 'PaperPositionMode', 'auto');
+print(gcf, 'figure3d.png', '-dpng', '-r600');
 %% (3e) Session 2 43 pixels
 figure('Position', plotSize);
 scatter(mean_Session2_43pixels, diff_Session2_43pixels, 150, 'red', 'filled', '^', 'MarkerFaceAlpha', 0.6, 'DisplayName', 'SS43S2');
@@ -215,8 +222,9 @@ ax.PlotBoxAspectRatio = [1 1 1]; % Maintain aspect ratio
 
 xlabel('Mean of MOCS and QUEST Sensitivity (dB)');
 ylabel('Difference of MOCS and QUEST Sensitivities (dB)');
-saveas(gcf,fullfile(analysisDir,outputVariant,'Figure3e.pdf'),'pdf');
-
+% saveas(gcf,fullfile(analysisDir,outputVariant,'Figure3e.pdf'),'pdf');
+set(gcf, 'PaperPositionMode', 'auto');
+print(gcf, 'figure3e.png', '-dpng', '-r600');
 
 
 

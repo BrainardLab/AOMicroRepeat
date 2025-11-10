@@ -50,7 +50,9 @@ ax.YAxis.FontSize = 18;
 lgd = legend('show');
 lgd.FontSize = 12; 
 axis([limMin limMax limMin limMax]);
-saveas(gcf,fullfile(analysisDir,outputVariant,'Figure5a.pdf'),'pdf');
+% saveas(gcf,fullfile(analysisDir,outputVariant,'Figure5a.pdf'),'pdf');
+set(gcf, 'PaperPositionMode', 'auto');
+print(gcf, 'figure5a.png', '-dpng', '-r600');
  %% t-tests for between session comparision
 [~,p(1,1)] = ttest(sensitivitySessionwise(:,1,1),sensitivitySessionwise(:,1,2));
 [~,p(1,2)] = ttest(sensitivitySessionwise(:,2,1),sensitivitySessionwise(:,2,2));
@@ -112,7 +114,9 @@ ax.PlotBoxAspectRatio = [1 1 1];
 
 xlabel('Mean of Session 1 and Session 2 Sensitivities (dB)');
 ylabel('Difference of Session 1 and Session 2 Sensitivities(dB)');
-saveas(gcf,fullfile(analysisDir,outputVariant,'Figure5b.pdf'),'pdf');
+% saveas(gcf,fullfile(analysisDir,outputVariant,'Figure5b.pdf'),'pdf');
+set(gcf, 'PaperPositionMode', 'auto');
+print(gcf, 'figure5b.png', '-dpng', '-r600');
 %% Figure 5c
 
 figure('Position', plotSize);
@@ -133,4 +137,6 @@ ax.PlotBoxAspectRatio = [1 1 1];
 
 xlabel('Mean of Session 1 and Session 2 Sensitivities (dB)');
 ylabel('Difference of Session 1 and Session 2 Sensitivities(dB)');
-saveas(gcf,fullfile(analysisDir,outputVariant,'Figure5c.pdf'),'pdf');
+% saveas(gcf,fullfile(analysisDir,outputVariant,'Figure5c.pdf'),'pdf');
+set(gcf, 'PaperPositionMode', 'auto');
+print(gcf, 'figure5c.png', '-dpng', '-r600');

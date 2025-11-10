@@ -77,8 +77,9 @@ ax.YAxis.LineWidth = 2;
 ax.XAxis.FontSize = 18;
 ax.YAxis.FontSize = 18;
 axis([limMin limMax limMin limMax]);
-saveas(gcf,fullfile(analysisDir,outputVariant,'Figure4a.pdf'),'pdf');
-
+% saveas(gcf,fullfile(analysisDir,outputVariant,'Figure4a.pdf'),'pdf');
+set(gcf, 'PaperPositionMode', 'auto');
+print(gcf, 'figure4a.png', '-dpng', '-r600');
 
 %% %% t-tests
 [~,p(1,1)] = ttest(sensitivityGroup1(:,1,1),sensitivityGroup2(:,1,1));
@@ -149,7 +150,9 @@ ax.PlotBoxAspectRatio = [1 1 1]; % Maintain aspect ratio
 
 xlabel('Mean of Group 1 and Group 2 Sensitivities (dB)');
 ylabel('Difference of Group 1 and Group 2 Sensitivities (dB)');
-saveas(gcf,fullfile(analysisDir,outputVariant,'Figure4b.pdf'),'pdf');
+% saveas(gcf,fullfile(analysisDir,outputVariant,'Figure4b.pdf'),'pdf');
+set(gcf, 'PaperPositionMode', 'auto');
+print(gcf, 'figure4b.png', '-dpng', '-r600');
 %% Figure 4c
 
 figure('Position', plotSize);
@@ -170,7 +173,9 @@ ax.PlotBoxAspectRatio = [1 1 1]; % Maintain aspect ratio
 
 xlabel('Mean of Group 1 and Group 2 Sensitivities (dB)');
 ylabel('Difference of Group 1 and Group 2 Sensitivities (dB)');
-saveas(gcf,fullfile(analysisDir,outputVariant,'Figure4c.pdf'),'pdf');
+% saveas(gcf,fullfile(analysisDir,outputVariant,'Figure4c.pdf'),'pdf');
+set(gcf, 'PaperPositionMode', 'auto');
+print(gcf, 'figure4c.png', '-dpng', '-r600');
 %% Figure 4d
 figure('Position', plotSize);
 scatter(mean_Session1_43pixels, diff_Session1_43pixels, 150, 'red', 'filled', 'o', 'MarkerFaceAlpha', 0.6, 'DisplayName', 'SS43S1');
@@ -188,9 +193,12 @@ ax.YAxis.LineWidth = 2;
 ax.XAxis.FontSize = 18;
 ax.YAxis.FontSize = 18;
 ax.PlotBoxAspectRatio = [1 1 1]; % Maintain aspect ratio
-saveas(gcf,fullfile(analysisDir,outputVariant,'Figure4d.pdf'),'pdf');
+% saveas(gcf,fullfile(analysisDir,outputVariant,'Figure4d.pdf'),'pdf');
 xlabel('Mean of Group 1 and Group 2 Sensitivities (dB)');
 ylabel('Difference of Group 1 and Group 2 Sensitivities (dB)');
+set(gcf, 'PaperPositionMode', 'auto');
+print(gcf, 'figure4d.png', '-dpng', '-r600');
+
 %% Figure 4e
 
 figure('Position', plotSize);
@@ -209,8 +217,11 @@ ax.YAxis.LineWidth = 2;
 ax.XAxis.FontSize = 18;
 ax.YAxis.FontSize = 18;
 ax.PlotBoxAspectRatio = [1 1 1]; % Maintain aspect ratio
-saveas(gcf,fullfile(analysisDir,outputVariant,'Figure4e.pdf'),'pdf');
+% saveas(gcf,fullfile(analysisDir,outputVariant,'Figure4e.pdf'),'pdf');
 xlabel('Mean of Group 1 and Group 2 Sensitivities (dB)');
 ylabel('Difference of Group 1 and Group 2 Sensitivities (dB)');
+set(gcf, 'PaperPositionMode', 'auto');
+print(gcf, 'figure4e.png', '-dpng', '-r600');
+
 
 
