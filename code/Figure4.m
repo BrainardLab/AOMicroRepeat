@@ -86,7 +86,7 @@ print(gcf, 'figure4a.png', '-dpng', '-r600');
 [~,p(1,2)] = ttest(sensitivityGroup1(:,1,2),sensitivityGroup2(:,1,2));
 [~,p(2,1)] = ttest(sensitivityGroup1(:,2,1),sensitivityGroup2(:,2,1));
 [~,p(2,2)] = ttest(sensitivityGroup1(:,2,2),sensitivityGroup2(:,2,2));
-fprintf('MOCS vs QUEST t-test p values\n');
+fprintf('Within-Session t-test p values\n');
 for dd = 1:length(theDiameters)
     for ss = 1:length(theSessions)
         fprintf('\t%d pixels, session %d, p = %0.3f\n',theDiameters(dd),theSessions(ss),p(dd,ss));
@@ -98,7 +98,7 @@ end
 [p(2,1),h,~] = signrank(sensitivityGroup1(:,2,1),sensitivityGroup2(:,2,1));
 [p(2,2),h,~] = signrank(sensitivityGroup1(:,2,2),sensitivityGroup2(:,2,2));
 % Results
-fprintf('MOCS vs QUEST t-test p values-Wilcoxon Test\n');
+fprintf('Within-Session t-test p values-Wilcoxon Test\n');
 for dd = 1:length(theDiameters)
     for ss = 1:length(theSessions)
         fprintf('\t%d pixels, session %d, p = %0.3f\n',theDiameters(dd),theSessions(ss),p(dd,ss));
