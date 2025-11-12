@@ -1,4 +1,4 @@
-    %% FitTrials
+%% FitTrials
 %
 % Read in the combined data file and fit it all.
 
