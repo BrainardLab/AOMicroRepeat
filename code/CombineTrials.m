@@ -1,10 +1,9 @@
-
 %% CombineTrials
 %
 % Combine all of the psychophysical data files into one big .mat
 % file.  We do this to simplify the other programs, since the logic
 % here involves lots of checks that everything is as it should be.
-% 
+%
 % Also identify catch trials in QUEST runs, which are somewhat obscurely
 % indicated, and fix them up so later programs don't have to worry about
 % this.
@@ -27,19 +26,17 @@ close all; clear all;
 %
 % Path to data tree on this machine
 %
-% This is set up by TbTb local hook file, but
-% you can also use
-%  setpath('AOMicroRepeat','dataDir',theDataDir)
-% to do this, where theDataDir is the path to the
-% files.
+% This is set up by TbTb local hook file, but you can also do it
+% by setting up the relevant preferences one time on your machine,
+% for example like this:
+%   setpref('AOMicroRepeat','setpref','dataDir','C:\Users\niveg\Aguirre-Brainard Lab Dropbox\Nivedhitha Govindasamy\AO-Microperimetry Repeatability Paper\Data_for_paper\David_code_analysis\New_analysis_20250912\dataDir');
+%   setpref('AOMicroRepeat','setpref','analysisDir','C:\Users\niveg\Aguirre-Brainard Lab Dropbox\Nivedhitha Govindasamy\AO-Microperimetry Repeatability Paper\Data_for_paper\David_code_analysis\New_analysis_20250912\analysisDir');
 %
-% In the code example I got, this was
-%  path = 'W:\Data\11125\20231103\AO_Psychophysics\MOCS\8\group2';
-% but that does not match the actuall data tree I received for 11002.
-dataDir = getpref('New_analysis_20250912','dataDir','C:\Users\niveg\Aguirre-Brainard Lab Dropbox\Nivedhitha Govindasamy\AO-Microperimetry Repeatability Paper\Data_for_paper\David_code_analysis\New_analysis_20250912\dataDir');
+% Do not hard code directories into this program.
+dataDir = getpref('AOMicroRepeat','dataDir');
 
 %% Also analysis output dir, same idea
-analysisDir = getpref('New_analysis_20250912','analysisDir','C:\Users\niveg\Aguirre-Brainard Lab Dropbox\Nivedhitha Govindasamy\AO-Microperimetry Repeatability Paper\Data_for_paper\David_code_analysis\New_analysis_20250912\analysisDir');
+analysisDir = getpref('AOMicroRepeat','analysisDir');
 
 %% Some parameters
 log0Value = -3.5;
@@ -55,8 +52,12 @@ theParticipants = {'11002' '11108' '11118' '11119' '11125'};
 theSessions = [1 2];
 
 % Define session splits
-theSplits = {'All','Group1','Group2'};
-
+%
+% We just do 'All' in the loop, and then hand code in the 'Group1' and 'Group2' splits,
+% because the way the code is structured makes that easier to write clearly. Be sure not
+% to change this order because it is used in FitTrials.m
+% theSplits = {'All','Group1','Group2'};
+theSplits = {'All'};
 
 % Define sizes (8 or 43)
 theDiameters = [8 43];
@@ -64,7 +65,6 @@ theDiameters = [8 43];
 % When we create COMBINED data below, we count
 % on this being as it is.  Don't change wihtout care.
 theMethods = {'MOCS' 'QUEST', 'COMBINED'};
-
 
 %% Get the AOM lookup table info.
 %
@@ -78,23 +78,22 @@ theMethods = {'MOCS' 'QUEST', 'COMBINED'};
 %   Column 4: looks like a non-linear mapping from 10 to 8 bits
 AOM = load('green_AOM_LUT_processing');
 
+%% Lock the rng
+rng(0);
+
 %% Loop over everything
 tableRow = 1;
 for pp = 1:length(theParticipants)
-
     for dd = 1:length(theDiameters)
-     
-        for ss = 1:length(theSessions) 
-          
+        for ss = 1:length(theSessions)
             for hh = 1:length(theSplits)
-            
-        
                 checkSessionDate = [];
                 checkSessionTime = [];
                 MOCSFileTimes = [];
                 QUESTFileTimes = [];
+                runOrderSplitThisSessionForBothMethods = Shuffle([1 1 2 2]);
                 for mm = 1:length(theMethods)
-                 
+
                     % Store info for what we are analyzing in this run
                     theMethod{tableRow,1} = theMethods{mm};
                     theSubject{tableRow,1} = theParticipants{pp};
@@ -118,7 +117,7 @@ for pp = 1:length(theParticipants)
 
                         % Read and concatenate the data
                         all_trials{pp,dd,ss,hh,mm} = {};
-                        all_trials_unpacked{pp,dd,ss,hh,mm} = [];                
+                        all_trials_unpacked{pp,dd,ss,hh,mm} = [];
                         fprintf('\tReadng videos\n');
                         for i = 1:num_trial_videos
                             % Get check date from filename.  This should be the
@@ -132,7 +131,7 @@ for pp = 1:length(theParticipants)
                                     error('Not all data files from same session are on the same date');
                                 end
                             end
-                            
+
                             % Check that QUEST file times are later than last
                             % MOCS time.  This code assumes that it runs to
                             % completion on the same calendar day on which it
@@ -193,7 +192,7 @@ for pp = 1:length(theParticipants)
                                 % within session, I think, but are not
                                 % always. This doesn't error out, but does
                                 % report the unexpected cases.
-                                for j = i-1:-1:1  
+                                for j = i-1:-1:1
                                     if (any(unique(loadedData{pp,dd,ss,hh,mm,j}.trial_vector) ~= unique(loadedData{pp,dd,ss,hh,mm,i}.trial_vector)))
                                         fprintf('\t\tMOCS mismatch in trial levels across runs\n')
                                         fprintf('\t\t%s, session %d, size %d, run loaded #%d vs run loaded #%d\n',theParticipants{pp},theSessions(ss), theDiameters(dd),i,j);
@@ -232,11 +231,35 @@ for pp = 1:length(theParticipants)
                                 end
                             end
 
-                            % Concatenate across runs into one long pair of
-                            % vectors.
+                            % Concatenate across runs into one long pair of vectors.
                             all_trials_unpacked{pp,dd,ss,hh,mm} = [all_trials_unpacked{pp,dd,ss,hh,mm} ; [all_trials{pp,dd,ss,hh,mm}{i,1} all_trials{pp,dd,ss,hh,mm}{i,2}] ];
+
+                            % Do the splits for this session.  Half the runs go into one
+                            % split, half into the other.  Here's what the
+                            % pre-registration says about how we'll do: What the
+                            % pre-registration says we'll do is: "To measure intra-session
+                            % variation in sensitivity threshold, the data from each
+                            % session will be randomly split in half by experimental run,
+                            % psychometric functions will be fit to each half of the data
+                            % and thresholds will be estimated and compared for each
+                            % condition." This is not completely clear about whether we
+                            % should keep MOCS and QUEST paired runs together, but we
+                            % decided that is most sensible.
+
+                            % Make sure hh == 1 here, because logic now depends on it
+                            % never being bigger than 1.
+                            if (hh ~= 1)
+                                error('Someone added splits, but the logic does not support that anymore here');
+                            end
+                            if (runOrderSplitThisSessionForBothMethods(i) == 1)
+                                all_trials_unpacked{pp,dd,ss,2,mm} = [all_trials_unpacked{pp,dd,ss,hh,mm} ; [all_trials{pp,dd,ss,hh,mm}{i,1} all_trials{pp,dd,ss,hh,mm}{i,2}] ];
+                            else
+                                all_trials_unpacked{pp,dd,ss,3,mm} = [all_trials_unpacked{pp,dd,ss,hh,mm} ; [all_trials{pp,dd,ss,hh,mm}{i,1} all_trials{pp,dd,ss,hh,mm}{i,2}] ];
+                            end
+                        
                         end
 
+                        % Checks
                         if (strcmp(theMethod{tableRow},'MOCS') & size(MOCSFileTimes,1) ~= 4)
                             error('Wrong number of MOCS files somewhere in data tree');
                         end
@@ -253,38 +276,34 @@ for pp = 1:length(theParticipants)
                             end
                         end
                     else
-                                
-                        % Concatenate MOCS and QUEST data into COMBINED
+                        % Concatenate MOCS and QUEST data into COMBINED.  If we're here,
+                        % mm indeices COMBINED and we know that indices 1 and 2 index MOCS
+                        % and QUEST.
+                        if (~strcmp(theMethods{mm},'COMBINED') | ~strcmp(theMethods{1},'MOCS') | ~strcmp(theMethods{2},'QUEST') )
+                            error('Code counts on specific order of methods in theMethods, and someone has changed that');
+                        end
+                        if (~strcmp(theSplits{hh},'All'))
+                            error('In this program, the only split explicitly specified should be ''All''');
+                        end
+
+                        % Check that hh never exceeds 1
+                        if (hh ~= 1)
+                            error('Someone added splits, but the logic does not support that anymore here');
+                        end
+
+                        % Combine across methods for 'All' and the two groups.
                         all_trials_unpacked{pp,dd,ss,hh,mm} = [all_trials_unpacked{pp,dd,ss,hh,1} ; all_trials_unpacked{pp,dd,ss,hh,2}];
-        
-                    end        
-                      
+                        all_trials_unpacked{pp,dd,ss,2,mm} = [all_trials_unpacked{pp,dd,ss,2,1} ; all_trials_unpacked{pp,dd,ss,hh,2}];
+                        all_trials_unpacked{pp,dd,ss,3,mm} = [all_trials_unpacked{pp,dd,ss,3,1} ; all_trials_unpacked{pp,dd,ss,hh,2}];
+
+                    end
+
                     % Bump table row
                     tableRow = tableRow + 1;
-                end
-                
-                
-
-                        MOCS{pp,dd,ss,hh,1} = all_trials_unpacked{pp,dd,ss,hh,1}; % Get the MOCS data for each participant, from each session for each diameter (400x2 or 360x2)
-                        QUEST{pp,dd,ss,hh,1} = all_trials_unpacked{pp,dd,ss,hh,2}; % Get the QUEST data for each participant, from each session for each diameter (176x2)
-                        MOCS_split{pp,dd,ss,hh,1} = reshape( MOCS{pp,dd,ss,hh,1}, [],8); % Split the data into two halves (200x4 or 180x2)
-                        QUEST_split{pp,dd,ss,hh,1} = reshape(QUEST{pp,dd,ss,hh,1}, [],8); % Split the data into two halves (88x4)
-                        Grouped_data{pp,dd,ss,hh,1} = [MOCS_split{pp,dd,ss,1};QUEST_split{pp,dd,ss,hh,1}]; % Combined MOCS and QUEST(288x4 or 268x4)to make sure MOCS-QUEST combination is retained
-                        Grouped_data_var=reshape(Grouped_data{pp,dd,ss,hh,1},[],8);
-                        col_pairs = {[1 5], [2 6], [3 7], [4 8]}; % corresponding intensity and response pairs
-                        pair_idx = randperm(4);% Assign random value for each MOCS-QUEST pair
-                        shuffled_cols = [col_pairs{pair_idx}]; % choose random colns
-                        Grouped_data_shuffled = Grouped_data_var(:, shuffled_cols);% everytime the coloumns are shuffled
-                        G1{pp,dd,ss,hh,1} = [Grouped_data_shuffled(:,[1,3]),Grouped_data_shuffled(:,[2,4])];%put first half of data in one group (these coloumns changes randomly)
-                        G2{pp,dd,ss,hh,1} = [Grouped_data_shuffled(:,[5,7]),Grouped_data_shuffled(:,[6,8])];%put the next half in other group (these coloumns changes randomly)
-                        all_trials_unpacked{pp,dd,ss,2,3} = reshape(cell2mat(G1(pp,dd,ss,hh,1)),[],2); % Combine two of the randomly chosen MOCS - QUEST pair to group 1
-                        all_trials_unpacked{pp,dd,ss,3,3} = reshape(cell2mat(G2(pp,dd,ss,hh,1)),[],2); %Combine two of the randomly chosen MOCS - QUEST pair to group 2
-                 
+                end 
             end
-        end       
-        
+        end
     end
-    
 end
 
 % Save out one nice big combined file
