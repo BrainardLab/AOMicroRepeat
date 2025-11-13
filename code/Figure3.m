@@ -57,7 +57,6 @@ end
 
 f = figure('Position',plotSize); clf; hold on
 
-
 errorbar(sensitivityMOCS(:,1,1),sensitivityQUEST(:,1,1),yneg(:,1,1),ypos(:,1,1),xneg(:,1,1),xpos(:,1,1),'bo','MarkerFaceColor','b','MarkerSize',markerSize);
 errorbar(sensitivityMOCS(:,1,2),sensitivityQUEST(:,1,2),yneg(:,1,2),ypos(:,1,2),xneg(:,1,2),xpos(:,1,2),'b^','MarkerFaceColor','b','MarkerSize',markerSize);
 errorbar(sensitivityMOCS(:,2,1),sensitivityQUEST(:,2,1),yneg(:,2,1),ypos(:,2,1),xneg(:,2,1),xpos(:,2,1),'ro','MarkerFaceColor','r','MarkerSize',markerSize);
@@ -72,7 +71,6 @@ legend( ...
     sprintf('Session %d, %d pixels',theSessions(1),theDiameters(2)) ; ...
     sprintf('Session %d, %d pixels',theSessions(2),theDiameters(2)) ; ...
     sprintf('Line of Equality')
-    ''}, ...
     'Location','SouthEast');
 axis('square');
 
