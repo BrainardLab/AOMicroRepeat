@@ -5,17 +5,16 @@
 
 %% Parameters
 plotFont = 'Times';
-axisFontSize = 14;
-labelFontSize = 18;
+axisFontSize = 12;
+labelFontSize = 12;
 titleFontSize = 20;
-legendFontSize = 14;
-markerSize = 12;
-plotSize = [100, 100,800,800];
+legendFontSize = 12;
+markerSize = 5;
+% plotSize = [100, 100,600,600];
 limMin = 16; limMax = 32;
 
 %% Path to analysis output dir
-analysisDir = getpref('AOMicroRepeat','analysisDir');
-
+  analysisDir = getpref('New_analysis_20250912','analysisDir');
 %% Read table of fit information
 wState = warning('off','MATLAB:table:ModifiedAndSavedVarnames');
 dataTable = readtable(fullfile(analysisDir,outputVariant,'fitTable.xlsx'),'FileType','spreadsheet'); %,'VariableNamingRule','preserve');
