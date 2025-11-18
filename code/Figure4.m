@@ -9,7 +9,7 @@ FigureSetup;
 theSubjects = unique(dataTable.Subject);
 theDiameters = unique(dataTable.Diameter);
 theSessions = unique(dataTable.Session);
-theSplits= [1,2];
+
 for pp = 1:length(theSubjects)
     for dd = 1:length(theDiameters)
         for ss = 1:length(theSessions)
@@ -235,6 +235,7 @@ print(gcf, 'figure4e.png', '-dpng', '-r600');
 [~,p(1,2)] = ttest(Session1_8pixels_G2,Session1_43pixels_G2);
 [~,p(2,1)] = ttest(Session2_8pixels_G1,Session2_43pixels_G1);
 [~,p(2,2)] = ttest(Session2_8pixels_G2,Session2_43pixels_G2);
+theSplits= [1,2]; %Group 1 and Group 2 to compare between stimulus sizes for two sessions
 fprintf('Within-Session (8 Vs 43 pixels) t-test p values\n');
 for dd = 1:length(theSplits)
     for ss = 1:length(theSessions)
