@@ -94,6 +94,8 @@ figureVis = 'off';
 %
 % See comments in CombineTrials about how to set preferences for where data and analsis 
 % directories live.  Do no hard code the paths.
+setpref('AOMicroRepeat','dataDir','C:\Users\niveg\Aguirre-Brainard Lab Dropbox\Nivedhitha Govindasamy\AO-Microperimetry Repeatability Paper\Data_for_paper\David_code_analysis\New_analysis_20250912\dataDir');
+setpref('AOMicroRepeat','analysisDir','C:\Users\niveg\Aguirre-Brainard Lab Dropbox\Nivedhitha Govindasamy\AO-Microperimetry Repeatability Paper\Data_for_paper\David_code_analysis\figure-rerun');
 analysisDir = getpref('AOMicroRepeat','analysisDir');
 d = load(fullfile(analysisDir,'combinedData.mat'),'all_trials','all_trials_unpacked','log0Value','theParticipants','theDiameters','theSessions','theSplits','theMethods','AOM');
 all_trials_unpacked = d.all_trials_unpacked;
@@ -273,7 +275,8 @@ for pp = 1:length(theParticipants)
                         ''},'FontSize',10);
                     axis('square');
                     drawnow;
-                    saveas(h2,fullfile(pathToAnalysis,'quantizationLogFig.tif'),'tif');
+%                     saveas(h2,fullfile(pathToAnalysis,'quantizationLogFig.tif'),'tif');
+                    print(gcf,fullfile(pathToAnalysis,'quantizationLogFig.tif'), '-dpng', '-r600'); % saves current figure as PNG at 600 dpi
 
                     % Here is the format of all_trials_unpacked
                     %
@@ -311,20 +314,23 @@ for pp = 1:length(theParticipants)
                                 for zz = 1:nRuns
                                     run_log_intensities = trial_log_intensities((zz-1)*nTrialsPerRun+1:zz*nTrialsPerRun);
                                     run_responses = trial_responses((zz-1)*nTrialsPerRun+1:zz*nTrialsPerRun);
-                                    hs = figure('Visible',figureVis); hold on
-                                    set(gca,'FontName','Helvetica','FontSize',14);
+                                    fontsize = 14; fwidth = 3; fheight = 3;
+                                    hs = figure('Units', 'inches','Position', [400 200 fwidth fheight]); hold on;
+                                    set(gca,'FontName','Arial','FontSize',14);
+                                    ax.LineWidth = 2;
+                                    ax.LineWidth = 2;
                                     runIndicator = 1:nTrialsPerRun;
                                     plot(runIndicator,run_log_intensities,'r','LineWidth',2);
                                     index = find(run_responses == 1);
-                                    plot(runIndicator(index),run_log_intensities(index),'o','MarkerSize',8,'Color',[0.5 1 0.5],'MarkerFaceColor',[0.5 1 0.5]);
+                                    plot(runIndicator(index),run_log_intensities(index),'o','MarkerSize',4,'Color',[0.5 1 0.5],'MarkerFaceColor',[0.5 1 0.5]);
                                     index = find(run_responses == 0);
-                                    plot(runIndicator(index),run_log_intensities(index),'^','MarkerSize',8,'Color',[0.5 0.5 1],'MarkerFaceColor',[0.5 0.5 1]);
-                                    xlabel('Trial number','FontSize',18)
+                                    plot(runIndicator(index),run_log_intensities(index),'^','MarkerSize',4,'Color',[0.5 0.5 1],'MarkerFaceColor',[0.5 0.5 1]);
+                                    xlabel('Trial number','FontSize',14)
                                     if (convertToDb)
-                                        ylabel('Trial intensity (dB)','FontSize',18);
-                                        ylim([-36 1]);
+                                        ylabel('Trial intensity (dB)','FontSize',14);
+                                        ylim([-35 -15]);
                                     else
-                                        ylabel('Log trial intensity (au)','FontSize',18);
+                                        ylabel('Log trial intensity (au)','FontSize',14);
                                         ylim([-3.6 0.1]);
                                     end
                                     xlim(([0 100]));
@@ -334,7 +340,9 @@ for pp = 1:length(theParticipants)
                                     saveas(hs,fullfile(pathToAnalysis,sprintf('staircasePlot_run%d.tif',zz)),'tif');
                                     title('');
                                     drawnow;
-                                    saveas(hs,fullfile(pathToAnalysis,sprintf('staircasePlotNoTitle_run%d.tif',zz)),'tif');
+%                                     saveas(hs,fullfile(pathToAnalysis,sprintf('staircasePlotNoTitle_run%d.tif',zz)),'tif');
+                                    print(gcf, fullfile(pathToAnalysis,sprintf('staircasePlotNoTitle_run%d.tif',zz)), '-dpng', '-r600'); % saves current figure as PNG at 600 dpi
+
                                 end
                             end
                     end
@@ -464,7 +472,8 @@ for pp = 1:length(theParticipants)
                     % Save a version without our informative title, for
                     % paper figures
                     title('');
-                    saveas(h,fullfile(pathToAnalysis,'psychometricFcnCINoTitle.tif'),'tif');
+%                     saveas(h,fullfile(pathToAnalysis,'psychometricFcnCINoTitle.tif'),'tif');
+                    print(gcf,fullfile(pathToAnalysis,'psychometricFcnCINoTitle.tif'), '-dpng', '-r600'); % saves current figure as PNG at 600 dpi
 
                     % Save what we learned
                     fprintf('\tSaving ... ');
