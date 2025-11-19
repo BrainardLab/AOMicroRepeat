@@ -115,7 +115,7 @@ ax.XAxis.LineWidth = 2;
 ax.YAxis.LineWidth = 2;
 ax.XAxis.FontSize = 12;
 ax.YAxis.FontSize = 12;
-
+LOA_8pixels = [mean_diff_SS8 - 1.96 * std_diff_SS8,mean_diff_SS8 + 1.96 * std_diff_SS8];
 xlabel({'Mean (Session 1, Session 2)'; 'Sensitivity (dB)'});
 ylabel('(Session 1 - Session 2) Sensitivity(dB)');
 % saveas(gcf,fullfile(analysisDir,outputVariant,'Figure5b.pdf'),'pdf');
@@ -139,7 +139,7 @@ ax.XAxis.FontSize = 12;
 ax.YAxis.FontSize = 12;
 ticks = 24:2:32; 
 xticks(ticks);
-
+LOA_43pixels = [mean_diff_SS43 - 1.96 * std_diff_SS43,mean_diff_SS43 + 1.96 * std_diff_SS43];
 xlabel({'Mean (Session 1, Session 2)'; 'Sensitivity (dB)'});
 ylabel('(Session 1 - Session 2) Sensitivity(dB)');
 % saveas(gcf,fullfile(analysisDir,outputVariant,'Figure5c.pdf'),'pdf');
@@ -155,3 +155,6 @@ for ss = 1:length(theSessions)
         fprintf('\t Session %d, p = %0.3f\n',theSessions(ss),p(ss));
     
 end
+%% %% Print limits of agreement
+fprintf('Session 1 Vs Session 2 : 8 pixels, LoA: %.2f, %.2f\n', LOA_8pixels);
+fprintf('Session 1 Vs Session 2 : 43 pixels, LoA: %.2f, %.2f\n', LOA_43pixels);

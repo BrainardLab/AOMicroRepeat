@@ -151,6 +151,7 @@ std_diff_Session2_43pixels = std(diff_Session2_43pixels);
 plotSize = [100 100 200 400];
 figure('Position', plotSize);
 scatter(mean_Session1_8pixels, diff_Session1_8pixels, 25, 'blue', 'filled', 'o', 'MarkerFaceAlpha', 0.6, 'DisplayName', 'SS8S1');% Plot Bland-Altman data for each comparison
+LoA_Session1_8pixels = [mean_diff_Session1_8pixels - 1.96 * std_diff_Session1_8pixels, mean_diff_Session1_8pixels + 1.96 * std_diff_Session1_8pixels];
 line([18, 23], [mean_diff_Session1_8pixels, mean_diff_Session1_8pixels], 'Color', 'blue', 'LineWidth', 4, 'LineStyle', '-', 'DisplayName', 'Mean Difference (SS8, S1)');% Plot mean differences and limits of agreement
 line([18, 23], [mean_diff_Session1_8pixels + 1.96 * std_diff_Session1_8pixels, mean_diff_Session1_8pixels + 1.96 * std_diff_Session1_8pixels], 'Color', 'blue', 'LineWidth', 2, 'LineStyle', '-', 'DisplayName', 'Upper Limit (SS8, S1)');
 line([18, 23], [mean_diff_Session1_8pixels - 1.96 * std_diff_Session1_8pixels, mean_diff_Session1_8pixels - 1.96 * std_diff_Session1_8pixels], 'Color', 'blue', 'LineWidth', 2, 'LineStyle', '-',  'DisplayName', 'Lower Limit (SS8, S1)');
@@ -162,7 +163,6 @@ ax.XAxis.LineWidth = 2;
 ax.YAxis.LineWidth = 2;
 ax.XAxis.FontSize = 12;
 ax.YAxis.FontSize = 12;
-
 
 xlabel({'Mean (MOCS,';'QUEST) Sensitivity(dB)'}'');
 ylabel('(MOCS - QUEST) Sensitivitity (dB)');
@@ -187,8 +187,7 @@ ax.XAxis.LineWidth = 2;
 ax.YAxis.LineWidth = 2;
 ax.XAxis.FontSize = 12;
 ax.YAxis.FontSize = 12;
-
-
+LoA_Session2_8pixels = [mean_diff_Session2_8pixels - 1.96 * std_diff_Session2_8pixels,mean_diff_Session2_8pixels + 1.96 * std_diff_Session2_8pixels];
 xlabel({'Mean (MOCS,';'QUEST) Sensitivity(dB)'}'');
 ylabel('(MOCS - QUEST) Sensitivitity (dB)');
 % saveas(gcf,fullfile(analysisDir,outputVariant,'Figure3c.pdf'),'pdf');
@@ -210,6 +209,7 @@ ax.XAxis.FontSize = 12;
 ax.YAxis.FontSize = 12;
 ticks = 24:2:32; 
 xticks(ticks);
+LOA_Session1_43ppixels = [mean_diff_Session1_43pixels - 1.96 * std_diff_Session1_43pixels,mean_diff_Session1_43pixels + 1.96 * std_diff_Session1_43pixels];
 
 xlabel({'Mean (MOCS,';'QUEST) Sensitivity(dB)'}'');
 ylabel('(MOCS - QUEST) Sensitivitity (dB)');
@@ -232,7 +232,7 @@ ax.XAxis.FontSize = 12;
 ax.YAxis.FontSize = 12;
 ticks = 24:2:32; 
 xticks(ticks);
-
+LOA_Session2_43ppixels = [mean_diff_Session2_43pixels - 1.96 * std_diff_Session2_43pixels,mean_diff_Session2_43pixels + 1.96 * std_diff_Session2_43pixels];
 xlabel({'Mean (MOCS,';'QUEST) Sensitivity(dB)'}'');
 ylabel('(MOCS - QUEST) Sensitivitity (dB)');
 % saveas(gcf,fullfile(analysisDir,outputVariant,'Figure3e.pdf'),'pdf');
@@ -251,4 +251,8 @@ for dd = 1:length(theSplits)
         fprintf('\t%s , session %d, p = %0.3f\n',theSplits{dd},theSessions(ss),p(dd,ss));
     end
 end
-
+%% Print limits of agreement
+fprintf('MOCS Vs QUEST : Session1, 8 pixels, LoA: %.2f, %.2f\n', LoA_Session1_8pixels);
+fprintf('MOCS Vs QUEST : Session1, 43 pixels, LoA: %.2f, %.2f\n', LOA_Session1_43ppixels);
+fprintf('MOCS Vs QUEST : Session2, 8 pixels, LoA: %.2f, %.2f\n', LoA_Session2_8pixels);
+fprintf('MOCS Vs QUEST : Session2, 43 pixels, LoA: %.2f, %.2f\n', LOA_Session2_43ppixels);

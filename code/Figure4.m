@@ -157,7 +157,7 @@ ax.XAxis.LineWidth = 2;
 ax.YAxis.LineWidth = 2;
 ax.XAxis.FontSize = 12;
 ax.YAxis.FontSize = 12;
-
+LoA_Session1_8pixels = [mean_diff_Session1_8pixels - 1.96 * std_diff_Session1_8pixels,mean_diff_Session1_8pixels + 1.96 * std_diff_Session1_8pixels];
 xlabel({'Mean (Groups 1, 2)';' Sensitivity (dB)'}');
 ylabel('Group 1 - Group 2 Sensitivity (dB)');
 % saveas(gcf,fullfile(analysisDir,outputVariant,'Figure4b.pdf'),'pdf');
@@ -179,6 +179,7 @@ ax.XAxis.LineWidth = 2;
 ax.YAxis.LineWidth = 2;
 ax.XAxis.FontSize = 12;
 ax.YAxis.FontSize = 12;
+LoA_Session2_8pixels = [mean_diff_Session2_8pixels - 1.96 * std_diff_Session2_8pixels,mean_diff_Session2_8pixels + 1.96 * std_diff_Session2_8pixels];
 xlabel({'Mean (Groups 1, 2)';' Sensitivity (dB)'}');
 ylabel('Group 1 - Group 2 Sensitivity (dB)');
 % saveas(gcf,fullfile(analysisDir,outputVariant,'Figure4c.pdf'),'pdf');
@@ -191,7 +192,7 @@ hold on;
 line([24, 32], [mean_diff_Session1_43pixels, mean_diff_Session1_43pixels], 'Color', 'red', 'LineWidth', 4, 'LineStyle', '-', 'DisplayName', 'Mean Difference (SS43, S1)');
 line([24, 32], [mean_diff_Session1_43pixels - 1.96 * std_diff_Session1_43pixels, mean_diff_Session1_43pixels - 1.96 * std_diff_Session1_43pixels], 'Color', 'red', 'LineWidth', 2, 'LineStyle', '-',  'DisplayName', 'Lower Limit (SS43, S1)');
 line([24, 32], [mean_diff_Session1_43pixels + 1.96 * std_diff_Session1_43pixels, mean_diff_Session1_43pixels + 1.96 * std_diff_Session1_43pixels], 'Color', 'red', 'LineWidth', 2, 'LineStyle', '-',  'DisplayName', 'Upper Limit (SS43, S1)');
-
+LoA_Session1_43pixels = [mean_diff_Session1_43pixels - 1.96 * std_diff_Session1_43pixels,mean_diff_Session1_43pixels + 1.96 * std_diff_Session1_43pixels];
 ax = gca;
 set(gca, 'FontName', 'Arial','FontWeight','bold','FontSize', 18)
 ax.XLim = [22, 32];
@@ -214,7 +215,7 @@ hold on;
 line([24, 32], [mean_diff_Session2_43pixels, mean_diff_Session2_43pixels], 'Color', 'red', 'LineWidth', 4, 'LineStyle', '--', 'DisplayName', 'Mean Difference (SS43, S2)');
 line([24, 32], [mean_diff_Session2_43pixels + 1.96 * std_diff_Session2_43pixels, mean_diff_Session2_43pixels + 1.96 * std_diff_Session2_43pixels], 'Color', 'red', 'LineWidth', 2, 'LineStyle', '--',  'DisplayName', 'Upper Limit (SS43, S2)');
 line([24, 32], [mean_diff_Session2_43pixels - 1.96 * std_diff_Session2_43pixels, mean_diff_Session2_43pixels - 1.96 * std_diff_Session2_43pixels], 'Color', 'red', 'LineWidth', 2, 'LineStyle', '--',  'DisplayName', 'Lower Limit (SS43, S2)');
-
+LoA_Session2_43pixels = [mean_diff_Session2_43pixels - 1.96 * std_diff_Session2_43pixels,mean_diff_Session2_43pixels + 1.96 * std_diff_Session2_43pixels];
 ax = gca;
 set(gca, 'FontName', 'Arial','FontWeight','bold','FontSize', 18)
 ax.XLim = [22, 32];
@@ -242,4 +243,9 @@ for dd = 1:length(theSplits)
         fprintf('\t Group %d, session %d, p = %0.3f\n',theSplits(dd),theSessions(ss),p(dd,ss));
     end
 end
+%% Print limits of agreement
+fprintf('Group1 Vs Group2 : Session1, 8 pixels, LoA: %.2f, %.2f\n', LoA_Session1_8pixels);
+fprintf('Group1 Vs Group2 : Session1, 43 pixels, LoA: %.2f, %.2f\n', LoA_Session1_43pixels);
+fprintf('Group1 Vs Group2 : Session2, 8 pixels, LoA: %.2f, %.2f\n', LoA_Session2_8pixels);
+fprintf('Group1 Vs Group2 : Session2, 43 pixels, LoA: %.2f, %.2f\n', LoA_Session2_43pixels);
 
