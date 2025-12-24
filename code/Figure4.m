@@ -3,8 +3,10 @@ clear; close all;
 
 %% Output variant
 outputVariant = 'SlopeFree1';
+
 %% Set up for the figures and read data
 FigureSetup;
+
 %%  Get Group1 data for combined trial (all participants, 2 sessions, and 2 stimulus sizes)
 theSubjects = unique(dataTable.Subject);
 theDiameters = unique(dataTable.Diameter);
@@ -20,9 +22,9 @@ for pp = 1:length(theSubjects)
             end
             sensitivityGroup1(pp,dd,ss) = -dataTable.CorrectedThreshold_dB_(index);
             CILower_Group1(pp,dd,ss)= -dataTable.CIHigh(index); %negative sensitivity, so high value corresonds to lower CI
-            CIUpper_Group1(pp,dd,ss)= -dataTable.CILow(index);%negative sensitivity, so low value corresonds to higher CI
+            CIUpper_Group1(pp,dd,ss)= -dataTable.CILow(index);  %negative sensitivity, so low value corresonds to higher CI
             xneg(pp,dd,ss) = sensitivityGroup1(pp,dd,ss) - CIUpper_Group1(pp,dd,ss);
-            xpos(pp,dd,ss) = sensitivityGroup1(pp,dd,ss)- CILower_Group1(pp,dd,ss);
+            xpos(pp,dd,ss) = sensitivityGroup1(pp,dd,ss) - CILower_Group1(pp,dd,ss);
         end
     end
 end
@@ -43,10 +45,11 @@ for pp = 1:length(theSubjects)
             CILower_Group2(pp,dd,ss)= -dataTable.CIHigh(index); %negative sensitivity, so high value corresonds to lower CI
             CIUpper_Group2(pp,dd,ss)= -dataTable.CILow(index);%negative sensitivity, so low value corresonds to higher CI
             yneg(pp,dd,ss) = sensitivityGroup1(pp,dd,ss) - CIUpper_Group2(pp,dd,ss);
-            ypos(pp,dd,ss) = sensitivityGroup1(pp,dd,ss)- CILower_Group2(pp,dd,ss);
+            ypos(pp,dd,ss) = sensitivityGroup1(pp,dd,ss) - CILower_Group2(pp,dd,ss);
         end
     end
 end
+
 %% Make figure 4a
 plotSize = [100, 100,400,400];
 f = figure('Position',plotSize); clf; hold on
@@ -55,7 +58,6 @@ errorbar(sensitivityGroup1(:,1,1),sensitivityGroup2(:,1,1),yneg(:,1,1),ypos(:,1,
 errorbar(sensitivityGroup1(:,1,2),sensitivityGroup2(:,1,2),yneg(:,1,2),ypos(:,1,2),xneg(:,1,2),xpos(:,1,2),'b^','MarkerFaceColor','b','MarkerSize',markerSize);
 errorbar(sensitivityGroup1(:,2,1),sensitivityGroup2(:,2,1),yneg(:,2,1),ypos(:,2,1),xneg(:,2,1),xpos(:,2,1),'ro','MarkerFaceColor','r','MarkerSize',markerSize);
 errorbar(sensitivityGroup1(:,2,2),sensitivityGroup2(:,2,2),yneg(:,2,2),ypos(:,2,2),xneg(:,2,2),xpos(:,2,2),'r^','MarkerFaceColor','r','MarkerSize',markerSize);
-
 
 plot([limMin limMax],[limMin limMax],'k:','LineWidth',2);
 set(gca, 'FontName', 'Arial')
@@ -86,11 +88,10 @@ ax.YAxis.LineWidth = 2;
 ax.XAxis.FontSize = 12;
 ax.YAxis.FontSize = 12;
 axis([limMin limMax limMin limMax]);
-% saveas(gcf,fullfile(analysisDir,outputVariant,'Figure4a.pdf'),'pdf');
 set(gcf, 'PaperPositionMode', 'auto');
 print(gcf, 'figure4a.png', '-dpng', '-r600');
 
-%% %% t-tests
+%% t-tests
 [~,p(1,1)] = ttest(sensitivityGroup1(:,1,1),sensitivityGroup2(:,1,1));
 [~,p(1,2)] = ttest(sensitivityGroup1(:,1,2),sensitivityGroup2(:,1,2));
 [~,p(2,1)] = ttest(sensitivityGroup1(:,2,1),sensitivityGroup2(:,2,1));
@@ -102,11 +103,12 @@ for dd = 1:length(theDiameters)
     end
 end
 
-%% %% Wilcoxon test% Wilcoxon signed-rank test
+%% Wilcoxon test% Wilcoxon signed-rank test
 [p(1,1),h,~] = signrank(sensitivityGroup1(:,1,1),sensitivityGroup2(:,1,1));
 [p(1,2),h,~] = signrank(sensitivityGroup1(:,1,2),sensitivityGroup2(:,1,2));
 [p(2,1),h,~] = signrank(sensitivityGroup1(:,2,1),sensitivityGroup2(:,2,1));
 [p(2,2),h,~] = signrank(sensitivityGroup1(:,2,2),sensitivityGroup2(:,2,2));
+
 % Results
 fprintf('Within-Session p values-Wilcoxon Test\n');
 for dd = 1:length(theDiameters)
@@ -114,6 +116,7 @@ for dd = 1:length(theDiameters)
         fprintf('\t%d pixels, session %d, p = %0.3f\n',theDiameters(dd),theSessions(ss),p(dd,ss));
     end
 end
+
 %% Figure 4b (Bland Altman plot) %% Group1 Vs Group2
 % Recall that indices are subject, size (8 and 43), session (1 and 2)
 Session1_8pixels_G1 = sensitivityGroup1(:,1,1);
@@ -160,11 +163,10 @@ ax.YAxis.FontSize = 12;
 LoA_Session1_8pixels = [mean_diff_Session1_8pixels - 1.96 * std_diff_Session1_8pixels,mean_diff_Session1_8pixels + 1.96 * std_diff_Session1_8pixels];
 xlabel({'Mean (Groups 1, 2)';' Sensitivity (dB)'}');
 ylabel('Group 1 - Group 2 Sensitivity (dB)');
-% saveas(gcf,fullfile(analysisDir,outputVariant,'Figure4b.pdf'),'pdf');
 set(gcf, 'PaperPositionMode', 'auto');
 print(gcf, 'figure4b.png', '-dpng', '-r600');
-%% Figure 4c
 
+%% Figure 4c
 figure('Position', plotSize);
 scatter(mean_Session2_8pixels, diff_Session2_8pixels, 25, 'blue', 'filled', '^', 'MarkerFaceAlpha', 0.6, 'DisplayName', 'SS8S2');
 hold on;
@@ -182,9 +184,9 @@ ax.YAxis.FontSize = 12;
 LoA_Session2_8pixels = [mean_diff_Session2_8pixels - 1.96 * std_diff_Session2_8pixels,mean_diff_Session2_8pixels + 1.96 * std_diff_Session2_8pixels];
 xlabel({'Mean (Groups 1, 2)';' Sensitivity (dB)'}');
 ylabel('Group 1 - Group 2 Sensitivity (dB)');
-% saveas(gcf,fullfile(analysisDir,outputVariant,'Figure4c.pdf'),'pdf');
 set(gcf, 'PaperPositionMode', 'auto');
 print(gcf, 'figure4c.png', '-dpng', '-r600');
+
 %% Figure 4d
 figure('Position', plotSize);
 scatter(mean_Session1_43pixels, diff_Session1_43pixels, 25, 'red', 'filled', 'o', 'MarkerFaceAlpha', 0.6, 'DisplayName', 'SS43S1');
@@ -208,7 +210,6 @@ set(gcf, 'PaperPositionMode', 'auto');
 print(gcf, 'figure4d.png', '-dpng', '-r600');
 
 %% Figure 4e
-
 figure('Position', plotSize);
 scatter(mean_Session2_43pixels, diff_Session2_43pixels, 25, 'red', 'filled', '^', 'MarkerFaceAlpha', 0.6, 'DisplayName', 'SS43S2');
 hold on;
@@ -224,12 +225,10 @@ ax.XAxis.LineWidth = 2;
 ax.YAxis.LineWidth = 2;
 ax.XAxis.FontSize = 12;
 ax.YAxis.FontSize = 12;
-% saveas(gcf,fullfile(analysisDir,outputVariant,'Figure4e.pdf'),'pdf');
 xlabel({'Mean (Groups 1, 2)';' Sensitivity (dB)'}');
 ylabel('Group 1 - Group 2 Sensitivity (dB)');
 set(gcf, 'PaperPositionMode', 'auto');
 print(gcf, 'figure4e.png', '-dpng', '-r600');
-
 
 %% t-test for 8 Vs 43 pixel stimulus
 [~,p(1,1)] = ttest(Session1_8pixels_G1,Session1_43pixels_G1);
@@ -243,6 +242,7 @@ for dd = 1:length(theSplits)
         fprintf('\t Group %d, session %d, p = %0.3f\n',theSplits(dd),theSessions(ss),p(dd,ss));
     end
 end
+
 %% Print limits of agreement
 fprintf('Group1 Vs Group2 : Session1, 8 pixels, LoA: %.2f, %.2f\n', LoA_Session1_8pixels);
 fprintf('Group1 Vs Group2 : Session1, 43 pixels, LoA: %.2f, %.2f\n', LoA_Session1_43pixels);

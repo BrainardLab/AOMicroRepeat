@@ -1,7 +1,4 @@
 %% Make Figure 3 for the paper
-%
-% TODO
-%    a) Make 3a and 3b match in terms of size, fonts, etc.
 
 %% Clear
 clear; close all;
@@ -28,8 +25,7 @@ for pp = 1:length(theSubjects)
             CILower_MOCS(pp,dd,ss)= -dataTable.CIHigh(index); %negative sensitivity, so high value corresonds to lower CI)
             CIUpper_MOCS(pp,dd,ss)= -dataTable.CILow(index);%negative sensitivity, so low value corresonds to higher CI)
             xneg(pp,dd,ss) = sensitivityMOCS(pp,dd,ss) - CIUpper_MOCS(pp,dd,ss);
-            xpos(pp,dd,ss) = sensitivityMOCS(pp,dd,ss)- CILower_MOCS(pp,dd,ss);
-            
+            xpos(pp,dd,ss) = sensitivityMOCS(pp,dd,ss)- CILower_MOCS(pp,dd,ss);    
         end
     end
 end
@@ -48,7 +44,6 @@ for pp = 1:length(theSubjects)
             CIUpper_QUEST(pp,dd,ss)= -dataTable.CILow(index);%negative sensitivity, so low value corresonds to higher CI
             yneg(pp,dd,ss) = sensitivityQUEST(pp,dd,ss) - CIUpper_QUEST(pp,dd,ss);
             ypos(pp,dd,ss) = sensitivityQUEST(pp,dd,ss)- CILower_QUEST(pp,dd,ss);
-          
         end
     end
 end
@@ -87,10 +82,7 @@ axis([limMin limMax limMin limMax]);
 ticks = 16:2:32; 
 xticks(ticks);
 yticks(ticks);
-% saveas(gcf,fullfile(analysisDir,outputVariant,'Figure3a.pdf'),'pdf');
 set(gcf, 'PaperPositionMode', 'auto');
-print(gcf, 'figure3a.png', '-dpng', '-r600');
-
 print(gcf,fullfile(analysisDir,outputVariant,'Figure3a.pdf'),'-dpdf','-fillpage','-r600');
 
 %% t-tests
@@ -110,6 +102,7 @@ end
 [p(1,2),h,~] = signrank(sensitivityMOCS(:,1,2),sensitivityQUEST(:,1,2));
 [p(2,1),h,~] = signrank(sensitivityMOCS(:,2,1),sensitivityQUEST(:,2,1));
 [p(2,2),h,~] = signrank(sensitivityMOCS(:,2,2),sensitivityQUEST(:,2,2));
+
 % Results
 fprintf('MOCS vs QUEST t-test p values-Wilcoxon Test\n');
 for dd = 1:length(theDiameters)
@@ -143,11 +136,9 @@ std_diff_Session1_43pixels = std(diff_Session1_43pixels);
 mean_diff_Session2_43pixels = mean(diff_Session2_43pixels);
 std_diff_Session2_43pixels = std(diff_Session2_43pixels);
 
-
 %% Plotting seperately 
-%% 
 
-%%(3b) Session1 8 Pixels 
+% (3b) Session1 8 Pixels 
 plotSize = [100 100 200 400];
 figure('Position', plotSize);
 scatter(mean_Session1_8pixels, diff_Session1_8pixels, 25, 'blue', 'filled', 'o', 'MarkerFaceAlpha', 0.6, 'DisplayName', 'SS8S1');% Plot Bland-Altman data for each comparison
@@ -166,12 +157,8 @@ ax.YAxis.FontSize = 12;
 
 xlabel({'Mean (MOCS,';'QUEST) Sensitivity(dB)'}'');
 ylabel('(MOCS - QUEST) Sensitivitity (dB)');
-
-% saveas(gcf,fullfile(analysisDir,outputVariant,'Figure3b.pdf'),'pdf');
 set(gcf, 'PaperPositionMode', 'auto');
-print(gcf, 'figure3b.png', '-dpng', '-r600');
 print(gcf,fullfile(analysisDir,outputVariant,'Figure3b.pdf'),'-dpdf');
-
 
 %% (3c) Session 2 8 pixels
 figure('Position', plotSize);
@@ -190,9 +177,9 @@ ax.YAxis.FontSize = 12;
 LoA_Session2_8pixels = [mean_diff_Session2_8pixels - 1.96 * std_diff_Session2_8pixels,mean_diff_Session2_8pixels + 1.96 * std_diff_Session2_8pixels];
 xlabel({'Mean (MOCS,';'QUEST) Sensitivity(dB)'}'');
 ylabel('(MOCS - QUEST) Sensitivitity (dB)');
-% saveas(gcf,fullfile(analysisDir,outputVariant,'Figure3c.pdf'),'pdf');
 set(gcf, 'PaperPositionMode', 'auto');
-print(gcf, 'figure3c.png', '-dpng', '-r600');
+print(gcf,'figure3c.png', '-dpng', '-r600');
+
 %% (3d) Session 1 43 pixels
 figure('Position', plotSize);
 scatter(mean_Session1_43pixels, diff_Session1_43pixels, 25, 'red', 'filled', 'o', 'MarkerFaceAlpha', 0.6, 'DisplayName', 'SS43S1');
@@ -213,10 +200,10 @@ LOA_Session1_43ppixels = [mean_diff_Session1_43pixels - 1.96 * std_diff_Session1
 
 xlabel({'Mean (MOCS,';'QUEST) Sensitivity(dB)'}'');
 ylabel('(MOCS - QUEST) Sensitivitity (dB)');
-% saveas(gcf,fullfile(analysisDir,outputVariant,'Figure3d.pdf'),'pdf');
 set(gcf, 'PaperPositionMode', 'auto');
-print(gcf, 'figure3d.png', '-dpng', '-r600');
-%% (3e) Session 2 43 pixels
+print(gcf,fullfile(analysisDir,outputVariant,'figure3d.png'), '-dpng', '-r600');
+
+% (3e) Session 2 43 pixels
 figure('Position', plotSize);
 scatter(mean_Session2_43pixels, diff_Session2_43pixels, 25, 'red', 'filled', '^', 'MarkerFaceAlpha', 0.6, 'DisplayName', 'SS43S2');
 line([26, 30], [mean_diff_Session2_43pixels, mean_diff_Session2_43pixels], 'Color', 'red', 'LineWidth', 4, 'LineStyle', '--', 'DisplayName', 'Mean Difference (SS43, S2)');
@@ -235,7 +222,6 @@ xticks(ticks);
 LOA_Session2_43ppixels = [mean_diff_Session2_43pixels - 1.96 * std_diff_Session2_43pixels,mean_diff_Session2_43pixels + 1.96 * std_diff_Session2_43pixels];
 xlabel({'Mean (MOCS,';'QUEST) Sensitivity(dB)'}'');
 ylabel('(MOCS - QUEST) Sensitivitity (dB)');
-% saveas(gcf,fullfile(analysisDir,outputVariant,'Figure3e.pdf'),'pdf');
 set(gcf, 'PaperPositionMode', 'auto');
 print(gcf, 'figure3e.png', '-dpng', '-r600');
 
@@ -251,6 +237,7 @@ for dd = 1:length(theSplits)
         fprintf('\t%s , session %d, p = %0.3f\n',theSplits{dd},theSessions(ss),p(dd,ss));
     end
 end
+
 %% Print limits of agreement
 fprintf('MOCS Vs QUEST : Session1, 8 pixels, LoA: %.2f, %.2f\n', LoA_Session1_8pixels);
 fprintf('MOCS Vs QUEST : Session1, 43 pixels, LoA: %.2f, %.2f\n', LOA_Session1_43ppixels);
