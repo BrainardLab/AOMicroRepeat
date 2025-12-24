@@ -90,12 +90,7 @@ end
 % They still get saved out so easy to look at later.
 figureVis = 'off';
 
-%% Read combined data produced by CombineTrials
-%
-% See comments in CombineTrials about how to set preferences for where data and analsis 
-% directories live.  Do no hard code the paths.
-setpref('AOMicroRepeat','dataDir','C:\Users\niveg\Aguirre-Brainard Lab Dropbox\Nivedhitha Govindasamy\AO-Microperimetry Repeatability Paper\Data_for_paper\David_code_analysis\New_analysis_20250912\dataDir');
-setpref('AOMicroRepeat','analysisDir','C:\Users\niveg\Aguirre-Brainard Lab Dropbox\Nivedhitha Govindasamy\AO-Microperimetry Repeatability Paper\Data_for_paper\David_code_analysis\figure-rerun');
+%% Read combined data produced by CombineData
 analysisDir = getpref('AOMicroRepeat','analysisDir');
 d = load(fullfile(analysisDir,'combinedData.mat'),'all_trials','all_trials_unpacked','log0Value','theParticipants','theDiameters','theSessions','theSplits','theMethods','AOM');
 all_trials_unpacked = d.all_trials_unpacked;
@@ -103,21 +98,9 @@ log0Value = d.log0Value;
 theParticipants = d.theParticipants;
 theDiameters = d.theDiameters;
 theSessions = d.theSessions;
+theSplits = d.theSplits;
 theMethods = d.theMethods;
 AOM = d.AOM;
-
-% Check and handle how theSplits comes in and goes
-% out.  This is tricky handshaking between this routine
-% and CombineTrials.  Despite d.theSplits saying there
-% is just one split, there are 3, with the latter two being
-% the session based splits done according to the pre-registration.
-%
-% The way things are coded is a bit kluged up, but we check like
-% mad that our various assumptions hold.
-if (length(d.theSplits) > 1 | ~strcmp(d.theSplits,'All'))
-    error('Unexpected form of d.theSplits. Did you re-run CombineData?');
-end
-theSplits = {'All' 'Group1' 'Group2'};
 
 %% Freeze rng seed for repeatability
 rng(101);
@@ -228,7 +211,6 @@ for pp = 1:length(theParticipants)
                     end
                     fprintf('\tdone\n');
 
-      
                     % Figure to make sure LUT conversion is basically
                     % the identity.  Uncomment if you want to look at
                     % this.
@@ -275,8 +257,7 @@ for pp = 1:length(theParticipants)
                         ''},'FontSize',10);
                     axis('square');
                     drawnow;
-%                     saveas(h2,fullfile(pathToAnalysis,'quantizationLogFig.tif'),'tif');
-                    print(gcf,fullfile(pathToAnalysis,'quantizationLogFig.tif'), '-dpng', '-r600'); % saves current figure as PNG at 600 dpi
+                    saveas(h2,fullfile(pathToAnalysis,'quantizationLogFig.tif'),'tif');
 
                     % Here is the format of all_trials_unpacked
                     %
@@ -288,6 +269,29 @@ for pp = 1:length(theParticipants)
                     %  Column 2 - 1 = seen, 0 = not seen
                     %  Column 3 - lut corrected linear intensity
                     %  Column 4 - lut corrected log intensity
+                    %
+                    % Split the data
+                    %
+                    % This currently does not respect the details of the experimental
+                    % design (e.g. does not split the trials for each MOCS level).
+                    % It's possible this should be moved into CombineTrials.m
+                    fprintf('\tSplitting data as specified\n')
+                    nTrials = size(all_trials_unpacked{pp,dd,ss,hh,mm},1);
+                    shuffleIndex = Shuffle(1:nTrials);
+                    switch (theSplit{tableRow})
+                        case 'All'
+                            dataIndex = 1:nTrials;
+                        case 'FirstHalf'
+                            dataIndex = shuffleIndex(1:round(nTrials/2));
+                        case 'SecondHalf'
+                            dataIndex = shuffleIndex(round(nTrials/2)+1:nTrials);
+                        otherwise
+                            error('Unknown split specified');
+                    end
+                    all_trials_unpacked{pp,dd,ss,hh,mm} = all_trials_unpacked{pp,dd,ss,hh,mm}(dataIndex,:);
+                    nTrials = size(all_trials_unpacked{pp,dd,ss,hh,mm},1);
+
+                    % Extract the core data to fit
                     trial_log_intensities = all_trials_unpacked{pp,dd,ss,hh,mm}(:,4);
                     trial_responses = all_trials_unpacked{pp,dd,ss,hh,mm}(:,2);
 
@@ -314,23 +318,20 @@ for pp = 1:length(theParticipants)
                                 for zz = 1:nRuns
                                     run_log_intensities = trial_log_intensities((zz-1)*nTrialsPerRun+1:zz*nTrialsPerRun);
                                     run_responses = trial_responses((zz-1)*nTrialsPerRun+1:zz*nTrialsPerRun);
-                                    fontsize = 14; fwidth = 3; fheight = 3;
-                                    hs = figure('Units', 'inches','Position', [400 200 fwidth fheight]); hold on;
-                                    set(gca,'FontName','Arial','FontSize',14);
-                                    ax.LineWidth = 2;
-                                    ax.LineWidth = 2;
+                                    hs = figure('Visible',figureVis); hold on
+                                    set(gca,'FontName','Helvetica','FontSize',14);
                                     runIndicator = 1:nTrialsPerRun;
                                     plot(runIndicator,run_log_intensities,'r','LineWidth',2);
                                     index = find(run_responses == 1);
-                                    plot(runIndicator(index),run_log_intensities(index),'o','MarkerSize',4,'Color',[0.5 1 0.5],'MarkerFaceColor',[0.5 1 0.5]);
+                                    plot(runIndicator(index),run_log_intensities(index),'o','MarkerSize',8,'Color',[0.5 1 0.5],'MarkerFaceColor',[0.5 1 0.5]);
                                     index = find(run_responses == 0);
-                                    plot(runIndicator(index),run_log_intensities(index),'^','MarkerSize',4,'Color',[0.5 0.5 1],'MarkerFaceColor',[0.5 0.5 1]);
-                                    xlabel('Trial number','FontSize',14)
+                                    plot(runIndicator(index),run_log_intensities(index),'^','MarkerSize',8,'Color',[0.5 0.5 1],'MarkerFaceColor',[0.5 0.5 1]);
+                                    xlabel('Trial number','FontSize',18)
                                     if (convertToDb)
-                                        ylabel('Trial intensity (dB)','FontSize',14);
-                                        ylim([-35 -15]);
+                                        ylabel('Trial intensity (dB)','FontSize',18);
+                                        ylim([-36 1]);
                                     else
-                                        ylabel('Log trial intensity (au)','FontSize',14);
+                                        ylabel('Log trial intensity (au)','FontSize',18);
                                         ylim([-3.6 0.1]);
                                     end
                                     xlim(([0 100]));
@@ -340,9 +341,7 @@ for pp = 1:length(theParticipants)
                                     saveas(hs,fullfile(pathToAnalysis,sprintf('staircasePlot_run%d.tif',zz)),'tif');
                                     title('');
                                     drawnow;
-%                                     saveas(hs,fullfile(pathToAnalysis,sprintf('staircasePlotNoTitle_run%d.tif',zz)),'tif');
-                                    print(gcf, fullfile(pathToAnalysis,sprintf('staircasePlotNoTitle_run%d.tif',zz)), '-dpng', '-r600'); % saves current figure as PNG at 600 dpi
-
+                                    saveas(hs,fullfile(pathToAnalysis,sprintf('staircasePlotNoTitle_run%d.tif',zz)),'tif');
                                 end
                             end
                     end
@@ -472,8 +471,7 @@ for pp = 1:length(theParticipants)
                     % Save a version without our informative title, for
                     % paper figures
                     title('');
-%                     saveas(h,fullfile(pathToAnalysis,'psychometricFcnCINoTitle.tif'),'tif');
-                    print(gcf,fullfile(pathToAnalysis,'psychometricFcnCINoTitle.tif'), '-dpng', '-r600'); % saves current figure as PNG at 600 dpi
+                    saveas(h,fullfile(pathToAnalysis,'psychometricFcnCINoTitle.tif'),'tif');
 
                     % Save what we learned
                     fprintf('\tSaving ... ');

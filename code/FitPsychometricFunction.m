@@ -43,10 +43,12 @@ if (make_plot)
         maxIntensityLog= 0.1;
         minIntensityLog=-3.6;
     end
-    fontsize = 18; fwidth = 600; fheight = 600;
-    h = figure('Position', [400 200 fwidth fheight],'visible',figure_vis); hold on;
+    
+    fontsize = 14; fwidth = 3; fheight = 3;
+    h = figure('Units', 'inches','Position', [400 200 fwidth fheight],'visible',figure_vis); hold on;
     a0 = gca;
-    set(a0,'FontName','Helvetica','FontSize',14);
+    ax.LineWidth = 2;ax.LineWidth = 2;
+    set(a0,'FontName','Arial','FontSize',14);
     if (convert_to_db)
         xlabel('Trial intensity (dB)','FontSize',fontsize);
     else
@@ -61,16 +63,18 @@ if (make_plot)
     set(h,'Color',[1 1 1]);
     set(h,'PaperPositionMode','auto');
     set(h, 'renderer', 'painters');
-    baseMarkerSize = 10;
+    baseMarkerSize = 5;
     sizeNormalizer = 40;
     for tt = 1:length(unique_log_intensities)
         markerSize = 4+round(baseMarkerSize*num_presented(tt)/sizeNormalizer);
         plot(unique_log_intensities(tt), num_seen(tt)' ./ num_presented(tt)','ro','MarkerSize',markerSize,'MarkerFaceColor','r');
     end
-    plot(plot_log_intensities,corrected_psychometric,'k-','LineWidth',3);
-    plot(plot_log_intensities,plot_psychometric,'r:','LineWidth',2);
-    plot([minIntensityLog corrected_log_threshold],[thresholdCriterion thresholdCriterion],'k:','LineWidth',2);
-    plot([corrected_log_threshold corrected_log_threshold],[0 thresholdCriterion],'k:','LineWidth',2);
+
+    plot(plot_log_intensities,corrected_psychometric,'k-','LineWidth',3,'HandleVisibility', 'off');
+    plot(plot_log_intensities,plot_psychometric,'r:','LineWidth',2,'HandleVisibility', 'off');
+    plot([minIntensityLog corrected_log_threshold],[thresholdCriterion thresholdCriterion],'k:','LineWidth',2,'HandleVisibility', 'off');
+    plot([corrected_log_threshold corrected_log_threshold],[0 thresholdCriterion],'k:','LineWidth',2,'HandleVisibility', 'off');
+   
 else
     h  = [];
 end

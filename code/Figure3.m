@@ -54,7 +54,7 @@ for pp = 1:length(theSubjects)
 end
 
 %% Make Figure 3a
-
+plotSize = [100 100 400 400];
 f = figure('Position',plotSize); clf; hold on
 
 errorbar(sensitivityMOCS(:,1,1),sensitivityQUEST(:,1,1),yneg(:,1,1),ypos(:,1,1),xneg(:,1,1),xpos(:,1,1),'bo','MarkerFaceColor','b','MarkerSize',markerSize);
@@ -63,8 +63,8 @@ errorbar(sensitivityMOCS(:,2,1),sensitivityQUEST(:,2,1),yneg(:,2,1),ypos(:,2,1),
 errorbar(sensitivityMOCS(:,2,2),sensitivityQUEST(:,2,2),yneg(:,2,2),ypos(:,2,2),xneg(:,2,2),xpos(:,2,2),'r^','MarkerFaceColor','r','MarkerSize',markerSize);
 
 plot([limMin limMax],[limMin limMax],'k:','LineWidth',2);
-xlabel('MOCS sensitivity (dB)', 'FontWeight','bold', 'FontSize', 18, 'FontName', 'Times New Roman');
-ylabel('QUEST sensitivity (dB)','FontWeight','bold', 'FontSize', 18, 'FontName', 'Times New Roman');
+xlabel('MOCS Sensitivity (dB)', 'FontWeight','bold', 'FontSize', 12, 'FontName', 'Times New Roman');
+ylabel('QUEST Sensitivity (dB)','FontWeight','bold', 'FontSize', 12, 'FontName', 'Times New Roman');
 legend( ...
     {sprintf('Session %d, %d pixels',theSessions(1),theDiameters(1)) ; ...
     sprintf('Session %d, %d pixels',theSessions(2),theDiameters(1)) ; ...
@@ -76,14 +76,21 @@ legend( ...
 axis('square');
 
 lgd = legend('show');
-lgd.FontSize = 12; 
+lgd.FontSize = 8; 
 ax=gca;
 set(gca, 'FontName', 'Arial','FontWeight','bold')
 ax.XAxis.LineWidth = 2;
 ax.YAxis.LineWidth = 2;
-ax.XAxis.FontSize = 18;
-ax.YAxis.FontSize = 18;
+ax.XAxis.FontSize = 12;
+ax.YAxis.FontSize = 12;
 axis([limMin limMax limMin limMax]);
+ticks = 16:2:32; 
+xticks(ticks);
+yticks(ticks);
+% saveas(gcf,fullfile(analysisDir,outputVariant,'Figure3a.pdf'),'pdf');
+set(gcf, 'PaperPositionMode', 'auto');
+print(gcf, 'figure3a.png', '-dpng', '-r600');
+
 print(gcf,fullfile(analysisDir,outputVariant,'Figure3a.pdf'),'-dpdf','-fillpage','-r600');
 
 %% t-tests
@@ -141,83 +148,111 @@ std_diff_Session2_43pixels = std(diff_Session2_43pixels);
 %% 
 
 %%(3b) Session1 8 Pixels 
+plotSize = [100 100 200 400];
 figure('Position', plotSize);
-scatter(mean_Session1_8pixels, diff_Session1_8pixels, 150, 'blue', 'filled', 'o', 'MarkerFaceAlpha', 0.6, 'DisplayName', 'SS8S1');% Plot Bland-Altman data for each comparison
+scatter(mean_Session1_8pixels, diff_Session1_8pixels, 25, 'blue', 'filled', 'o', 'MarkerFaceAlpha', 0.6, 'DisplayName', 'SS8S1');% Plot Bland-Altman data for each comparison
+LoA_Session1_8pixels = [mean_diff_Session1_8pixels - 1.96 * std_diff_Session1_8pixels, mean_diff_Session1_8pixels + 1.96 * std_diff_Session1_8pixels];
 line([18, 23], [mean_diff_Session1_8pixels, mean_diff_Session1_8pixels], 'Color', 'blue', 'LineWidth', 4, 'LineStyle', '-', 'DisplayName', 'Mean Difference (SS8, S1)');% Plot mean differences and limits of agreement
 line([18, 23], [mean_diff_Session1_8pixels + 1.96 * std_diff_Session1_8pixels, mean_diff_Session1_8pixels + 1.96 * std_diff_Session1_8pixels], 'Color', 'blue', 'LineWidth', 2, 'LineStyle', '-', 'DisplayName', 'Upper Limit (SS8, S1)');
 line([18, 23], [mean_diff_Session1_8pixels - 1.96 * std_diff_Session1_8pixels, mean_diff_Session1_8pixels - 1.96 * std_diff_Session1_8pixels], 'Color', 'blue', 'LineWidth', 2, 'LineStyle', '-',  'DisplayName', 'Lower Limit (SS8, S1)');
 ax = gca;
-set(gca, 'FontName', 'Arial','FontWeight','bold','FontSize', 18)
+set(gca, 'FontName', 'Arial','FontWeight','bold','FontSize', 12)
 ax.XLim = [16, 24];
 ax.YLim = [-2.5, 2.5];
 ax.XAxis.LineWidth = 2;
 ax.YAxis.LineWidth = 2;
-ax.XAxis.FontSize = 18;
-ax.YAxis.FontSize = 18;
-ax.PlotBoxAspectRatio = [1 1 1]; % Maintain aspect ratio
+ax.XAxis.FontSize = 12;
+ax.YAxis.FontSize = 12;
 
-xlabel('Mean of MOCS and QUEST Sensitivity (dB)');
-ylabel('Difference of MOCS and QUEST Sensitivities (dB)');
+xlabel({'Mean (MOCS,';'QUEST) Sensitivity(dB)'}'');
+ylabel('(MOCS - QUEST) Sensitivitity (dB)');
+
+% saveas(gcf,fullfile(analysisDir,outputVariant,'Figure3b.pdf'),'pdf');
+set(gcf, 'PaperPositionMode', 'auto');
+print(gcf, 'figure3b.png', '-dpng', '-r600');
 print(gcf,fullfile(analysisDir,outputVariant,'Figure3b.pdf'),'-dpdf');
+
 
 %% (3c) Session 2 8 pixels
 figure('Position', plotSize);
-scatter(mean_Session2_8pixels, diff_Session2_8pixels, 150, 'blue', 'filled', '^', 'MarkerFaceAlpha', 0.6, 'DisplayName', 'SS8S2');
+scatter(mean_Session2_8pixels, diff_Session2_8pixels, 25, 'blue', 'filled', '^', 'MarkerFaceAlpha', 0.6, 'DisplayName', 'SS8S2');
 line([18, 23], [mean_diff_Session2_8pixels, mean_diff_Session2_8pixels], 'Color', 'blue', 'LineWidth', 4, 'LineStyle', '--', 'DisplayName', 'Mean Difference (SS8, S2)');
 line([18, 23], [mean_diff_Session2_8pixels + 1.96 * std_diff_Session2_8pixels, mean_diff_Session2_8pixels + 1.96 * std_diff_Session2_8pixels], 'Color', 'blue', 'LineWidth', 2, 'LineStyle', '--',  'DisplayName', 'Upper Limit (SS8, S2)');
 line([18, 23], [mean_diff_Session2_8pixels - 1.96 * std_diff_Session2_8pixels, mean_diff_Session2_8pixels - 1.96 * std_diff_Session2_8pixels], 'Color', 'blue', 'LineWidth', 2, 'LineStyle', '--',  'DisplayName', 'Lower Limit (SS8, S2)');
 ax = gca;
-set(gca, 'FontName', 'Arial','FontWeight','bold','FontSize', 18)
+set(gca, 'FontName', 'Arial','FontWeight','bold','FontSize', 12)
 ax.XLim = [16, 24];
 ax.YLim = [-2.5, 2.5];
 ax.XAxis.LineWidth = 2;
 ax.YAxis.LineWidth = 2;
-ax.XAxis.FontSize = 18;
-ax.YAxis.FontSize = 18;
-ax.PlotBoxAspectRatio = [1 1 1]; % Maintain aspect ratio
-
-xlabel('Mean of MOCS and QUEST Sensitivity (dB)');
-ylabel('Difference of MOCS and QUEST Sensitivities(dB)');
-saveas(gcf,fullfile(analysisDir,outputVariant,'Figure3c.pdf'),'pdf');
+ax.XAxis.FontSize = 12;
+ax.YAxis.FontSize = 12;
+LoA_Session2_8pixels = [mean_diff_Session2_8pixels - 1.96 * std_diff_Session2_8pixels,mean_diff_Session2_8pixels + 1.96 * std_diff_Session2_8pixels];
+xlabel({'Mean (MOCS,';'QUEST) Sensitivity(dB)'}'');
+ylabel('(MOCS - QUEST) Sensitivitity (dB)');
+% saveas(gcf,fullfile(analysisDir,outputVariant,'Figure3c.pdf'),'pdf');
+set(gcf, 'PaperPositionMode', 'auto');
+print(gcf, 'figure3c.png', '-dpng', '-r600');
 %% (3d) Session 1 43 pixels
 figure('Position', plotSize);
-scatter(mean_Session1_43pixels, diff_Session1_43pixels, 150, 'red', 'filled', 'o', 'MarkerFaceAlpha', 0.6, 'DisplayName', 'SS43S1');
+scatter(mean_Session1_43pixels, diff_Session1_43pixels, 25, 'red', 'filled', 'o', 'MarkerFaceAlpha', 0.6, 'DisplayName', 'SS43S1');
 line([26, 30], [mean_diff_Session1_43pixels, mean_diff_Session1_43pixels], 'Color', 'red', 'LineWidth', 4, 'LineStyle', '-', 'DisplayName', 'Mean Difference (SS43, S1)');
 line([26, 30], [mean_diff_Session1_43pixels - 1.96 * std_diff_Session1_43pixels, mean_diff_Session1_43pixels - 1.96 * std_diff_Session1_43pixels], 'Color', 'red', 'LineWidth', 2, 'LineStyle', '-',  'DisplayName', 'Lower Limit (SS43, S1)');
 line([26, 30], [mean_diff_Session1_43pixels + 1.96 * std_diff_Session1_43pixels, mean_diff_Session1_43pixels + 1.96 * std_diff_Session1_43pixels], 'Color', 'red', 'LineWidth', 2, 'LineStyle', '-',  'DisplayName', 'Upper Limit (SS43, S1)');
 ax = gca;
-set(gca, 'FontName', 'Arial','FontWeight','bold','FontSize', 18)
+set(gca, 'FontName', 'Arial','FontWeight','bold','FontSize', 12)
 ax.XLim = [24, 32];
 ax.YLim = [-2.5, 2.5];
 ax.XAxis.LineWidth = 2;
 ax.YAxis.LineWidth = 2;
-ax.XAxis.FontSize = 18;
-ax.YAxis.FontSize = 18;
-ax.PlotBoxAspectRatio = [1 1 1]; % Maintain aspect ratio
+ax.XAxis.FontSize = 12;
+ax.YAxis.FontSize = 12;
+ticks = 24:2:32; 
+xticks(ticks);
+LOA_Session1_43ppixels = [mean_diff_Session1_43pixels - 1.96 * std_diff_Session1_43pixels,mean_diff_Session1_43pixels + 1.96 * std_diff_Session1_43pixels];
 
-xlabel('Mean of MOCS and QUEST Sensitivities (dB)');
-ylabel('Difference of MOCS and QUEST Sensitivities(dB)');
-saveas(gcf,fullfile(analysisDir,outputVariant,'Figure3d.pdf'),'pdf');
+xlabel({'Mean (MOCS,';'QUEST) Sensitivity(dB)'}'');
+ylabel('(MOCS - QUEST) Sensitivitity (dB)');
+% saveas(gcf,fullfile(analysisDir,outputVariant,'Figure3d.pdf'),'pdf');
+set(gcf, 'PaperPositionMode', 'auto');
+print(gcf, 'figure3d.png', '-dpng', '-r600');
 %% (3e) Session 2 43 pixels
 figure('Position', plotSize);
-scatter(mean_Session2_43pixels, diff_Session2_43pixels, 150, 'red', 'filled', '^', 'MarkerFaceAlpha', 0.6, 'DisplayName', 'SS43S2');
+scatter(mean_Session2_43pixels, diff_Session2_43pixels, 25, 'red', 'filled', '^', 'MarkerFaceAlpha', 0.6, 'DisplayName', 'SS43S2');
 line([26, 30], [mean_diff_Session2_43pixels, mean_diff_Session2_43pixels], 'Color', 'red', 'LineWidth', 4, 'LineStyle', '--', 'DisplayName', 'Mean Difference (SS43, S2)');
 line([26, 30], [mean_diff_Session2_43pixels + 1.96 * std_diff_Session2_43pixels, mean_diff_Session2_43pixels + 1.96 * std_diff_Session2_43pixels], 'Color', 'red', 'LineWidth', 2, 'LineStyle', '--',  'DisplayName', 'Upper Limit (SS43, S2)');
 line([26, 30], [mean_diff_Session2_43pixels - 1.96 * std_diff_Session2_43pixels, mean_diff_Session2_43pixels - 1.96 * std_diff_Session2_43pixels], 'Color', 'red', 'LineWidth', 2, 'LineStyle', '--',  'DisplayName', 'Lower Limit (SS43, S2)');
 ax = gca;
-set(gca, 'FontName', 'Arial','FontWeight','bold','FontSize', 18)
+set(gca, 'FontName', 'Arial','FontWeight','bold','FontSize', 12)
 ax.XLim = [24, 32];
 ax.YLim = [-2.5, 2.5];
 ax.XAxis.LineWidth = 2;
 ax.YAxis.LineWidth = 2;
-ax.XAxis.FontSize = 18;
-ax.YAxis.FontSize = 18;
-ax.PlotBoxAspectRatio = [1 1 1]; % Maintain aspect ratio
+ax.XAxis.FontSize = 12;
+ax.YAxis.FontSize = 12;
+ticks = 24:2:32; 
+xticks(ticks);
+LOA_Session2_43ppixels = [mean_diff_Session2_43pixels - 1.96 * std_diff_Session2_43pixels,mean_diff_Session2_43pixels + 1.96 * std_diff_Session2_43pixels];
+xlabel({'Mean (MOCS,';'QUEST) Sensitivity(dB)'}'');
+ylabel('(MOCS - QUEST) Sensitivitity (dB)');
+% saveas(gcf,fullfile(analysisDir,outputVariant,'Figure3e.pdf'),'pdf');
+set(gcf, 'PaperPositionMode', 'auto');
+print(gcf, 'figure3e.png', '-dpng', '-r600');
 
-xlabel('Mean of MOCS and QUEST Sensitivity (dB)');
-ylabel('Difference of MOCS and QUEST Sensitivities (dB)');
-saveas(gcf,fullfile(analysisDir,outputVariant,'Figure3e.pdf'),'pdf');
-
-
-
-
+%% t-test for 8 Vs 43 pixel stimulus
+[~,p(1,1)] = ttest(Session1_8pixels_M,Session1_43pixels_M);
+[~,p(1,2)] = ttest(Session1_8pixels_Q,Session1_43pixels_Q);
+[~,p(2,1)] = ttest(Session2_8pixels_M,Session2_43pixels_M);
+[~,p(2,2)] = ttest(Session2_8pixels_Q,Session2_43pixels_Q);
+theSplits= {'MOCS','QUEST'}; % to compare 43 Vs 8 stimulus sizes for two testing paradigms for two sessions
+fprintf('Within-Session (8 Vs 43 pixels) t-test p values\n');
+for dd = 1:length(theSplits)
+    for ss = 1:length(theSessions)
+        fprintf('\t%s , session %d, p = %0.3f\n',theSplits{dd},theSessions(ss),p(dd,ss));
+    end
+end
+%% Print limits of agreement
+fprintf('MOCS Vs QUEST : Session1, 8 pixels, LoA: %.2f, %.2f\n', LoA_Session1_8pixels);
+fprintf('MOCS Vs QUEST : Session1, 43 pixels, LoA: %.2f, %.2f\n', LOA_Session1_43ppixels);
+fprintf('MOCS Vs QUEST : Session2, 8 pixels, LoA: %.2f, %.2f\n', LoA_Session2_8pixels);
+fprintf('MOCS Vs QUEST : Session2, 43 pixels, LoA: %.2f, %.2f\n', LOA_Session2_43ppixels);
