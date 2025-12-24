@@ -4,8 +4,10 @@ clear; close all;
 
 %% Output variant
 outputVariant = 'SlopeFree1';
+
 %% Set up for the figures and read data
 FigureSetup;
+
 %% %% Get all Session 1 and Session 2 data for combined trials
 theSubjects = unique(dataTable.Subject);
 theDiameters = unique(dataTable.Diameter);
@@ -137,7 +139,6 @@ xticks(ticks);
 LOA_43pixels = [mean_diff_SS43 - 1.96 * std_diff_SS43,mean_diff_SS43 + 1.96 * std_diff_SS43];
 xlabel({'Mean (Session 1, Session 2)'; 'Sensitivity (dB)'});
 ylabel('(Session 1 - Session 2) Sensitivity(dB)');
-% saveas(gcf,fullfile(analysisDir,outputVariant,'Figure5c.pdf'),'pdf');
 set(gcf, 'PaperPositionMode', 'auto');
 print(gcf,fullfile(analysisDir,outputVariant,'figure5c.png'),'-dpng','-r600');
 
