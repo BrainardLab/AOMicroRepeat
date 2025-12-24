@@ -83,7 +83,7 @@ ticks = 16:2:32;
 xticks(ticks);
 yticks(ticks);
 set(gcf, 'PaperPositionMode', 'auto');
-print(gcf,fullfile(analysisDir,outputVariant,'Figure3a.pdf'),'-dpdf','-fillpage','-r600');
+print(gcf,fullfile(analysisDir,outputVariant,'figure3a.png'),'-dpng','-r600');
 
 %% t-tests
 [~,p(1,1)] = ttest(sensitivityMOCS(:,1,1),sensitivityQUEST(:,1,1));
@@ -158,7 +158,7 @@ ax.YAxis.FontSize = 12;
 xlabel({'Mean (MOCS,';'QUEST) Sensitivity(dB)'}'');
 ylabel('(MOCS - QUEST) Sensitivitity (dB)');
 set(gcf, 'PaperPositionMode', 'auto');
-print(gcf,fullfile(analysisDir,outputVariant,'Figure3b.pdf'),'-dpdf');
+print(gcf,fullfile(analysisDir,outputVariant,'figure3b.png'),'-dpdf','-r600');
 
 %% (3c) Session 2 8 pixels
 figure('Position', plotSize);
@@ -178,7 +178,7 @@ LoA_Session2_8pixels = [mean_diff_Session2_8pixels - 1.96 * std_diff_Session2_8p
 xlabel({'Mean (MOCS,';'QUEST) Sensitivity(dB)'}'');
 ylabel('(MOCS - QUEST) Sensitivitity (dB)');
 set(gcf, 'PaperPositionMode', 'auto');
-print(gcf,'figure3c.png', '-dpng', '-r600');
+print(gcf,fullfile(analysisDir,outputVariant,'figure3c.png'),'-dpng','-r600');
 
 %% (3d) Session 1 43 pixels
 figure('Position', plotSize);
@@ -222,8 +222,8 @@ xticks(ticks);
 LOA_Session2_43ppixels = [mean_diff_Session2_43pixels - 1.96 * std_diff_Session2_43pixels,mean_diff_Session2_43pixels + 1.96 * std_diff_Session2_43pixels];
 xlabel({'Mean (MOCS,';'QUEST) Sensitivity(dB)'}'');
 ylabel('(MOCS - QUEST) Sensitivitity (dB)');
-set(gcf, 'PaperPositionMode', 'auto');
-print(gcf, 'figure3e.png', '-dpng', '-r600');
+set(gcf,'PaperPositionMode', 'auto');
+print(gcf,fullfile(analysisDir,outputVariant,'figure3e.png'),'-dpng','-r600');
 
 %% t-test for 8 Vs 43 pixel stimulus
 [~,p(1,1)] = ttest(Session1_8pixels_M,Session1_43pixels_M);

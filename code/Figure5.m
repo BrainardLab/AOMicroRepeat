@@ -38,8 +38,7 @@ ylabel('Session 2 Sensitivity (dB)');
 legend( ...
     {sprintf('%d arcmin',theDiameters(1)) ; ...
     sprintf('%d arcmin',theDiameters(2)) ; ...
-    sprintf('Line of Equality')
-    ''}, ...
+    sprintf('Line of Equality')}, ...
     'Location','SouthEast');
 axis('square');
 ax=gca;
@@ -56,16 +55,15 @@ lgd.FontSize = 12;
 axis([limMin limMax limMin limMax]);
 % saveas(gcf,fullfile(analysisDir,outputVariant,'Figure5a.pdf'),'pdf');
 set(gcf, 'PaperPositionMode', 'auto');
-print(gcf, 'figure5a.png', '-dpng', '-r600');
+print(gcf,fullfile(analysisDir,outputVariant,'figure5a.png'),'-dpng','-r600');
+
  %% t-tests for between session comparision
 [~,p(1,1)] = ttest(sensitivitySessionwise(:,1,1),sensitivitySessionwise(:,1,2));
 [~,p(1,2)] = ttest(sensitivitySessionwise(:,2,1),sensitivitySessionwise(:,2,2));
 
 fprintf('Session 1 vs Session 2 t-test p values\n');
 for dd = 1:length(theDiameters)
-   
-        fprintf('\t%d arcmin, p = %0.3f\n',theDiameters(dd),p(dd));
-    
+    fprintf('\t%d arcmin, p = %0.3f\n',theDiameters(dd),p(dd));
 end
 
 %% Wilcoxon test% Wilcoxon signed-rank test
@@ -75,11 +73,8 @@ end
 % Results
 fprintf('Session 1 vs Session 2 t-test p values (Wilcoxon-test)\n');
 for dd = 1:length(theDiameters)
-   
-        fprintf('\t%d arcmin, p = %0.3f\n',theDiameters(dd),p(dd));
-    
+    fprintf('\t%d arcmin, p = %0.3f\n',theDiameters(dd),p(dd));
 end
-
 
 %% Figure 5b (Bland Altman plot) 
 Session1_8arcmin = sensitivitySessionwise(:,1,1);
@@ -120,9 +115,9 @@ xlabel({'Mean (Session 1, Session 2)'; 'Sensitivity (dB)'});
 ylabel('(Session 1 - Session 2) Sensitivity(dB)');
 % saveas(gcf,fullfile(analysisDir,outputVariant,'Figure5b.pdf'),'pdf');
 set(gcf, 'PaperPositionMode', 'auto');
-print(gcf, 'figure5b.png', '-dpng', '-r600');
-%% Figure 5c
+print(gcf,fullfile(analysisDir,outputVariant,'figure5b.png'),'-dpng','-r600');
 
+%% Figure 5c
 figure('Position', plotSize);
 scatter(mean_b, diff_b, 25, 'red', 'filled', 'o', 'MarkerFaceAlpha', 0.6, 'DisplayName', 'SS43');
 hold on;
@@ -144,17 +139,15 @@ xlabel({'Mean (Session 1, Session 2)'; 'Sensitivity (dB)'});
 ylabel('(Session 1 - Session 2) Sensitivity(dB)');
 % saveas(gcf,fullfile(analysisDir,outputVariant,'Figure5c.pdf'),'pdf');
 set(gcf, 'PaperPositionMode', 'auto');
-print(gcf, 'figure5c.png', '-dpng', '-r600');
+print(gcf,fullfile(analysisDir,outputVariant,'figure5c.png'),'-dpng','-r600');
 
 %% %% t-test for 8 Vs 43 pixel stimulus
 [~,p(1,1)] = ttest(Session1_8arcmin,Session1_43arcmin);
 [~,p(1,2)] = ttest(Session2_8arcmin,Session2_43arcmin);
-
 for ss = 1:length(theSessions)
-   
-        fprintf('\t Session %d, p = %0.3f\n',theSessions(ss),p(ss));
-    
+    fprintf('\t Session %d, p = %0.3f\n',theSessions(ss),p(ss));
 end
+
 %% %% Print limits of agreement
 fprintf('Session 1 Vs Session 2 : 8 pixels, LoA: %.2f, %.2f\n', LOA_8pixels);
 fprintf('Session 1 Vs Session 2 : 43 pixels, LoA: %.2f, %.2f\n', LOA_43pixels);

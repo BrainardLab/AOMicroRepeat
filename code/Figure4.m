@@ -44,8 +44,8 @@ for pp = 1:length(theSubjects)
             sensitivityGroup2(pp,dd,ss) = -dataTable.CorrectedThreshold_dB_(index);
             CILower_Group2(pp,dd,ss)= -dataTable.CIHigh(index); %negative sensitivity, so high value corresonds to lower CI
             CIUpper_Group2(pp,dd,ss)= -dataTable.CILow(index);%negative sensitivity, so low value corresonds to higher CI
-            yneg(pp,dd,ss) = sensitivityGroup1(pp,dd,ss) - CIUpper_Group2(pp,dd,ss);
-            ypos(pp,dd,ss) = sensitivityGroup1(pp,dd,ss) - CILower_Group2(pp,dd,ss);
+            yneg(pp,dd,ss) = sensitivityGroup2(pp,dd,ss) - CIUpper_Group2(pp,dd,ss);
+            ypos(pp,dd,ss) = sensitivityGroup2(pp,dd,ss) - CILower_Group2(pp,dd,ss);
         end
     end
 end
@@ -66,8 +66,8 @@ legend( ...
     sprintf('Session %d, %d pixels',theSessions(2),theDiameters(1)) ; ...
     sprintf('Session %d, %d pixels',theSessions(1),theDiameters(2)) ; ...
     sprintf('Session %d, %d pixels',theSessions(2),theDiameters(2)) ; ...
-    sprintf('Line of Equality')
-    ''}, ...
+    sprintf('Line of Equality') ...
+    }, ...
     'Location','SouthEast');
 axis('square');
 lgd = legend('show');
@@ -89,7 +89,7 @@ ax.XAxis.FontSize = 12;
 ax.YAxis.FontSize = 12;
 axis([limMin limMax limMin limMax]);
 set(gcf, 'PaperPositionMode', 'auto');
-print(gcf, 'figure4a.png', '-dpng', '-r600');
+print(gcf,fullfile(analysisDir,outputVariant,'figure4a.png'),'-dpng','-r600');
 
 %% t-tests
 [~,p(1,1)] = ttest(sensitivityGroup1(:,1,1),sensitivityGroup2(:,1,1));
@@ -164,7 +164,7 @@ LoA_Session1_8pixels = [mean_diff_Session1_8pixels - 1.96 * std_diff_Session1_8p
 xlabel({'Mean (Groups 1, 2)';' Sensitivity (dB)'}');
 ylabel('Group 1 - Group 2 Sensitivity (dB)');
 set(gcf, 'PaperPositionMode', 'auto');
-print(gcf, 'figure4b.png', '-dpng', '-r600');
+print(gcf,fullfile(analysisDir,outputVariant,'figure4b.png'),'-dpng','-r600');
 
 %% Figure 4c
 figure('Position', plotSize);
@@ -185,7 +185,7 @@ LoA_Session2_8pixels = [mean_diff_Session2_8pixels - 1.96 * std_diff_Session2_8p
 xlabel({'Mean (Groups 1, 2)';' Sensitivity (dB)'}');
 ylabel('Group 1 - Group 2 Sensitivity (dB)');
 set(gcf, 'PaperPositionMode', 'auto');
-print(gcf, 'figure4c.png', '-dpng', '-r600');
+print(gcf,fullfile(analysisDir,outputVariant,'figure4c.png'),'-dpng','-r600');
 
 %% Figure 4d
 figure('Position', plotSize);
@@ -207,7 +207,7 @@ ax.YAxis.FontSize = 12;
 xlabel({'Mean (Groups 1, 2)';' Sensitivity (dB)'}');
 ylabel('Group 1 - Group 2 Sensitivity (dB)');
 set(gcf, 'PaperPositionMode', 'auto');
-print(gcf, 'figure4d.png', '-dpng', '-r600');
+print(gcf,fullfile(analysisDir,outputVariant,'figure4d.png'),'-dpng','-r600');
 
 %% Figure 4e
 figure('Position', plotSize);
@@ -228,7 +228,7 @@ ax.YAxis.FontSize = 12;
 xlabel({'Mean (Groups 1, 2)';' Sensitivity (dB)'}');
 ylabel('Group 1 - Group 2 Sensitivity (dB)');
 set(gcf, 'PaperPositionMode', 'auto');
-print(gcf, 'figure4e.png', '-dpng', '-r600');
+print(gcf,fullfile(analysisDir,outputVariant,'figure4e.png'),'-dpng','-r600');
 
 %% t-test for 8 Vs 43 pixel stimulus
 [~,p(1,1)] = ttest(Session1_8pixels_G1,Session1_43pixels_G1);
