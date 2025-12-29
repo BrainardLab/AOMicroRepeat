@@ -122,6 +122,16 @@ for dd = 1:length(theDiameters)
     end
 end
 
+fprintf('\n');
+fprintf('Session1, Group 1, 8 pixels, mean +/- stderr %0.1f +/- %0.1f\n', mean(sensitivityGroup1(:,1,1)),std(sensitivityGroup1(:,1,1))/sqrt(length(sensitivityGroup1(:,1,1))));
+fprintf('Session1, Group2, 8 pixels, mean +/- stderr %0.1f +/- %0.1f\n', mean(sensitivityGroup2(:,1,1)),std(sensitivityGroup2(:,1,1))/sqrt(length(sensitivityGroup2(:,1,1))));
+fprintf('Session1, Group 1, 43 pixels, mean +/- stderr %0.1f +/- %0.1f\n', mean(sensitivityGroup1(:,2,1)),std(sensitivityGroup1(:,2,1))/sqrt(length(sensitivityGroup1(:,2,1))));
+fprintf('Session1, Group2, 43 pixels, mean +/- stderr %0.1f +/- %0.1f\n', mean(sensitivityGroup2(:,2,1)),std(sensitivityGroup2(:,2,1))/sqrt(length(sensitivityGroup2(:,2,1))));
+fprintf('Session2, Group 1, 8 pixels, mean +/- stderr %0.1f +/- %0.1f\n', mean(sensitivityGroup1(:,1,2)),std(sensitivityGroup1(:,1,2))/sqrt(length(sensitivityGroup1(:,1,2))));
+fprintf('Session2, Group2, 8 pixels, mean +/- stderr %0.1f +/- %0.1f\n', mean(sensitivityGroup2(:,1,2)),std(sensitivityGroup2(:,1,2))/sqrt(length(sensitivityGroup2(:,1,2))));
+fprintf('Session2, Group 1, 43 pixels, mean +/- stderr %0.1f +/- %0.1f\n', mean(sensitivityGroup1(:,2,2)),std(sensitivityGroup1(:,2,2))/sqrt(length(sensitivityGroup1(:,2,2))));
+fprintf('Session2, Group2, 43 pixels, mean +/- stderr %0.1f +/- %0.1f\n', mean(sensitivityGroup2(:,2,2)),std(sensitivityGroup2(:,2,2))/sqrt(length(sensitivityGroup2(:,2,2))));
+
 %% Figure 4b (Bland Altman plot), Group1 Vs Group2
 % Recall that indices are subject, size (8 and 43), session (1 and 2)
 Session1_8pixels_G1 = sensitivityGroup1(:,1,1);
