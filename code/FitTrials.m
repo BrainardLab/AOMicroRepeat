@@ -93,7 +93,7 @@ figureVis = 'off';
 %% Read combined data produced by CombineTrials
 %
 % See comments in CombineTrials about how to set preferences for where data and analsis 
-% directories live.  Do no hard code the paths.
+% directories live.  Do not hard code the paths.
 % setpref('AOMicroRepeat','dataDir','C:\Users\niveg\Aguirre-Brainard Lab Dropbox\Nivedhitha Govindasamy\AO-Microperimetry Repeatability Paper\Data_for_paper\David_code_analysis\New_analysis_20250912\dataDir');
 % setpref('AOMicroRepeat','analysisDir','C:\Users\niveg\Aguirre-Brainard Lab Dropbox\Nivedhitha Govindasamy\AO-Microperimetry Repeatability Paper\Data_for_paper\David_code_analysis\figure-rerun');
 analysisDir = getpref('AOMicroRepeat','analysisDir');

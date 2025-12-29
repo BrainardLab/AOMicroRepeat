@@ -106,7 +106,7 @@ print(gcf,fullfile(analysisDir,outputVariant,'figure4a.png'),'-dpng','-r600');
 fprintf('Within-Session t-test p values\n');
 for dd = 1:length(theDiameters)
     for ss = 1:length(theSessions)
-        fprintf('\t%d pixels, session %d, p = %0.3f\n',theDiameters(dd),theSessions(ss),p(dd,ss));
+        fprintf('\t%d pixels, session %d, p = %0.2f\n',theDiameters(dd),theSessions(ss),p(dd,ss));
     end
 end
 
@@ -118,7 +118,7 @@ end
 fprintf('Within-Session p values-Wilcoxon Test\n');
 for dd = 1:length(theDiameters)
     for ss = 1:length(theSessions)
-        fprintf('\t%d pixels, session %d, p = %0.3f\n',theDiameters(dd),theSessions(ss),p(dd,ss));
+        fprintf('\t%d pixels, session %d, p = %0.2f\n',theDiameters(dd),theSessions(ss),p(dd,ss));
     end
 end
 
@@ -242,7 +242,7 @@ theSplits= [1,2];
 fprintf('Within-Session (8 Vs 43 pixels) t-test p values\n');
 for dd = 1:length(theSplits)
     for ss = 1:length(theSessions)
-        fprintf('\t Group %d, session %d, p = %0.3f\n',theSplits(dd),theSessions(ss),p(dd,ss));
+        fprintf('\t Group %d, session %d, p = %0.2f\n',theSplits(dd),theSessions(ss),p(dd,ss));
     end
 end
 

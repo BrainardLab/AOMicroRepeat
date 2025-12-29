@@ -127,7 +127,7 @@ print(gcf,fullfile(analysisDir,outputVariant,'figure3a.png'),'-dpng','-r600');
 fprintf('MOCS vs QUEST t-test p values\n');
 for dd = 1:length(theDiameters)
     for ss = 1:length(theSessions)
-        fprintf('\t%d pixels, session %d, p = %0.3f\n',theDiameters(dd),theSessions(ss),p(dd,ss));
+        fprintf('\t%d pixels, session %d, p = %0.2f\n',theDiameters(dd),theSessions(ss),p(dd,ss));
     end
 end
 
@@ -139,7 +139,7 @@ end
 fprintf('MOCS vs QUEST t-test p values-Wilcoxon Test\n');
 for dd = 1:length(theDiameters)
     for ss = 1:length(theSessions)
-        fprintf('\t%d pixels, session %d, p = %0.3f\n',theDiameters(dd),theSessions(ss),p(dd,ss));
+        fprintf('\t%d pixels, session %d, p = %0.2f\n',theDiameters(dd),theSessions(ss),p(dd,ss));
     end
 end
 
@@ -154,7 +154,19 @@ Session1_8pixels_Q = sensitivityQUEST(:,1,1);
 Session2_8pixels_Q = sensitivityQUEST(:,1,2);
 Session1_43pixels_Q = sensitivityQUEST(:,2,1);
 Session2_43pixels_Q = sensitivityQUEST(:,2,2);
-    
+
+% Print out mean and standard errors by session/method/size for reporting in the paper
+fprintf('\n');
+fprintf('MOCS : Session1, 8 pixels, mean +/- stderr %0.1f +/- %0.1f\n', mean(Session1_8pixels_M),std(Session1_8pixels_M)/sqrt(length(Session1_8pixels_M)));
+fprintf('QUEST : Session1, 8 pixels, mean +/- stderr %0.1f +/- %0.1f\n', mean(Session1_8pixels_Q),std(Session1_8pixels_Q)/sqrt(length(Session1_8pixels_Q)));
+fprintf('MOCS : Session2, 8 pixels, mean +/- stderr %0.1f +/- %0.1f\n', mean(Session2_8pixels_M),std(Session2_8pixels_M)/sqrt(length(Session2_8pixels_M)));
+fprintf('QUEST : Session2, 8 pixels, mean +/- stderr %0.1f +/- %0.1f\n', mean(Session2_8pixels_Q),std(Session2_8pixels_Q)/sqrt(length(Session2_8pixels_Q)));
+fprintf('MOCS : Session1, 43 pixels, mean +/- stderr %0.1f +/- %0.1f\n', mean(Session1_43pixels_M),std(Session1_43pixels_M)/sqrt(length(Session1_43pixels_M)));
+fprintf('QUEST : Session1, 43 pixels, mean +/- stderr %0.1f +/- %0.1f\n', mean(Session1_43pixels_Q),std(Session1_43pixels_Q)/sqrt(length(Session1_43pixels_Q)));
+fprintf('MOCS : Session2, 43 pixels, mean +/- stderr %0.1f +/- %0.1f\n', mean(Session2_43pixels_M),std(Session2_43pixels_M)/sqrt(length(Session2_43pixels_M)));
+fprintf('QUEST : Session2, 43 pixels, mean +/- stderr %0.1f +/- %0.1f\n', mean(Session2_43pixels_Q),std(Session2_43pixels_Q)/sqrt(length(Session2_43pixels_Q)));
+
+% Calcs for Bland-Altmann 
 [mean_Session1_8pixels, diff_Session1_8pixels] = calculate_bland_altman(Session1_8pixels_M, Session1_8pixels_Q);
 [mean_Session2_8pixels, diff_Session2_8pixels] = calculate_bland_altman(Session2_8pixels_M, Session2_8pixels_Q);
 [mean_Session1_43pixels, diff_Session1_43pixels] = calculate_bland_altman(Session1_43pixels_M, Session1_43pixels_Q);
@@ -260,7 +272,7 @@ print(gcf,fullfile(analysisDir,outputVariant,'figure3e.png'),'-dpng','-r600');
 [~,p(2,1)] = ttest(Session2_8pixels_M,Session2_43pixels_M);
 [~,p(2,2)] = ttest(Session2_8pixels_Q,Session2_43pixels_Q);
 theSplits= {'MOCS','QUEST'}; % to compare 43 Vs 8 stimulus sizes for two testing paradigms for two sessions
-fprintf('Within-Session (8 Vs 43 pixels) t-test p values\n');
+fprintf('\nWithin-Session (8 Vs 43 pixels) t-test p values\n');
 for dd = 1:length(theSplits)
     for ss = 1:length(theSessions)
         fprintf('\t%s , session %d, p = %0.4f\n',theSplits{dd},theSessions(ss),p(dd,ss));
