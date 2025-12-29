@@ -275,7 +275,7 @@ for pp = 1:length(theParticipants)
                         ''},'FontSize',10);
                     axis('square');
                     drawnow;
-                    print(gcf,fullfile(pathToAnalysis,'quantizationLogFig.tif'), '-dpng', '-r600'); % saves current figure as PNG at 600 dpi
+                    print(gcf,fullfile(pathToAnalysis,'quantizationLogFig.png'), '-dpng', '-r600'); % saves current figure as PNG at 600 dpi
 
                     % Here is the format of all_trials_unpacked
                     %
@@ -472,8 +472,7 @@ for pp = 1:length(theParticipants)
                     % Save a version without our informative title, for
                     % paper figures
                     title('');
-%                     saveas(h,fullfile(pathToAnalysis,'psychometricFcnCINoTitle.tif'),'tif');
-                    print(gcf,fullfile(pathToAnalysis,'psychometricFcnCINoTitle.tif'), '-dpng', '-r600'); % saves current figure as PNG at 600 dpi
+                    print(gcf,fullfile(pathToAnalysis,'psychometricFcnCINoTitle.png'), '-dpng', '-r600'); % saves current figure as PNG at 600 dpi
 
                     % Save what we learned
                     fprintf('\tSaving ... ');
