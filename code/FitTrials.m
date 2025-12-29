@@ -327,7 +327,7 @@ for pp = 1:length(theParticipants)
                                     xlabel('Trial number','FontSize',14)
                                     if (convertToDb)
                                         ylabel('Trial intensity (dB)','FontSize',14);
-                                        ylim([-35 -15]);
+                                        ylim([-35 0]);
                                     else
                                         ylabel('Log trial intensity (au)','FontSize',14);
                                         ylim([-3.6 0.1]);
