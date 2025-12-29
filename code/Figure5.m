@@ -65,7 +65,7 @@ print(gcf,fullfile(analysisDir,outputVariant,'figure5a.png'),'-dpng','-r600');
 [~,p(1,2)] = ttest(sensitivitySessionwise(:,2,1),sensitivitySessionwise(:,2,2));
 fprintf('Session 1 vs Session 2 t-test p values\n');
 for dd = 1:length(theDiameters)
-    fprintf('\t%d pixels, p = %0.3f\n',theDiameters(dd),p(dd));
+    fprintf('\t%d pixels, p = %0.2f\n',theDiameters(dd),p(dd));
 end
 
 %% Wilcoxon signed-rank test
@@ -73,7 +73,7 @@ end
 [p(1,2),h,~] = signrank(sensitivitySessionwise(:,2,1),sensitivitySessionwise(:,2,2));
 fprintf('Session 1 vs Session 2 t-test p values (Wilcoxon-test)\n');
 for dd = 1:length(theDiameters)
-    fprintf('\t%d pixels, p = %0.3f\n',theDiameters(dd),p(dd));
+    fprintf('\t%d pixels, p = %0.2f\n',theDiameters(dd),p(dd));
 end
 
 %% Figure 5b (Bland Altman plot) 
@@ -82,13 +82,13 @@ Session2_8pixels = sensitivitySessionwise(:,1,2);
 Session1_43pixels = sensitivitySessionwise(:,2,1);
 Session2_43pixels = sensitivitySessionwise(:,2,2);
 
-[mean_a, diff_a] = calculate_bland_altman(Session1_8pixels, Session2_8pixels);
-[mean_b, diff_b] = calculate_bland_altman(Session1_43pixels, Session2_43pixels);
+[mean_SS8, diff_SS8] = calculate_bland_altman(Session1_8pixels, Session2_8pixels);
+[mean_SS43, diff_SS43] = calculate_bland_altman(Session1_43pixels, Session2_43pixels);
 
-mean_diff_SS8 = mean(diff_a);
-std_diff_SS8 = std(diff_a);
-mean_diff_SS43 = mean(diff_b);
-std_diff_SS43 = std(diff_b);
+mean_diff_SS8 = mean(diff_SS8);
+std_diff_SS8 = std(diff_SS8);
+mean_diff_SS43 = mean(diff_SS43);
+std_diff_SS43 = std(diff_SS43);
 
 % Figure 5b
 plotSize = [100 100 200 400];
@@ -96,7 +96,7 @@ figure('Position', plotSize);
 
 % Plot Bland-Altman data for each comparison
 LOA_8pixels = [mean_diff_SS8 - 1.96 * std_diff_SS8,mean_diff_SS8 + 1.96 * std_diff_SS8];
-scatter(mean_a, diff_a, 25, 'blue', 'filled', 'o', 'MarkerFaceAlpha', 0.6, 'DisplayName', 'SS8');
+scatter(mean_SS8, diff_SS8, 25, 'blue', 'filled', 'o', 'MarkerFaceAlpha', 0.6, 'DisplayName', 'SS8');
 hold on;
 line([18, 23], [mean_diff_SS8, mean_diff_SS8], 'Color', 'blue', 'LineWidth', 4, 'LineStyle', '-', 'DisplayName', 'Mean Difference SS8');
 line([18, 23], [LOA_8pixels(2), LOA_8pixels(2)], 'Color', 'blue', 'LineWidth', 2, 'LineStyle', '-', 'DisplayName', 'Upper Limit (SS8)');
@@ -118,7 +118,7 @@ print(gcf,fullfile(analysisDir,outputVariant,'figure5b.png'),'-dpng','-r600');
 % Figure 5c
 LOA_43pixels = [mean_diff_SS43 - 1.96 * std_diff_SS43,mean_diff_SS43 + 1.96 * std_diff_SS43];
 figure('Position', plotSize);
-scatter(mean_b, diff_b, 25, 'red', 'filled', 'o', 'MarkerFaceAlpha', 0.6, 'DisplayName', 'SS43');
+scatter(mean_SS43, diff_SS43, 25, 'red', 'filled', 'o', 'MarkerFaceAlpha', 0.6, 'DisplayName', 'SS43');
 hold on;
 line([26, 30], [mean_diff_SS43, mean_diff_SS43], 'Color', 'red', 'LineWidth', 4, 'LineStyle', '-', 'DisplayName', 'Mean Difference SS43');
 line([26, 30], [LOA_43pixels(2) LOA_43pixels(2)], 'Color', 'red', 'LineWidth', 2, 'LineStyle', '-',  'DisplayName', 'Lower Limit (SS43)');
@@ -148,5 +148,7 @@ end
 
 %% %% Print limits of agreement
 fprintf('\n');
-fprintf('Session 1 Vs Session 2 : 8 pixels, LoA: %.2f, %.2f\n', LOA_8pixels);
-fprintf('Session 1 Vs Session 2 : 43 pixels, LoA: %.2f, %.2f\n', LOA_43pixels);
+fprintf('Session 1 Vs Session 2 : 8 pixels, LoA: %.1f, %.1f\n', LOA_8pixels);
+fprintf('Session 1 Vs Session 2 : 43 pixels, LoA: %.1f, %.1f\n', LOA_43pixels);
+fprintf('Session 1 Vs Session 2 : 8 pixels, CoR: %.1f\n', 1.96 * std_diff_SS8);
+fprintf('Session 1 Vs Session 2 : 43 pixels, CoR: %.1f\n', 1.96 * std_diff_SS43);

@@ -93,7 +93,7 @@ figureVis = 'off';
 %% Read combined data produced by CombineTrials
 %
 % See comments in CombineTrials about how to set preferences for where data and analsis 
-% directories live.  Do no hard code the paths.
+% directories live.  Do not hard code the paths.
 % setpref('AOMicroRepeat','dataDir','C:\Users\niveg\Aguirre-Brainard Lab Dropbox\Nivedhitha Govindasamy\AO-Microperimetry Repeatability Paper\Data_for_paper\David_code_analysis\New_analysis_20250912\dataDir');
 % setpref('AOMicroRepeat','analysisDir','C:\Users\niveg\Aguirre-Brainard Lab Dropbox\Nivedhitha Govindasamy\AO-Microperimetry Repeatability Paper\Data_for_paper\David_code_analysis\figure-rerun');
 analysisDir = getpref('AOMicroRepeat','analysisDir');
@@ -275,7 +275,6 @@ for pp = 1:length(theParticipants)
                         ''},'FontSize',10);
                     axis('square');
                     drawnow;
-%                     saveas(h2,fullfile(pathToAnalysis,'quantizationLogFig.tif'),'tif');
                     print(gcf,fullfile(pathToAnalysis,'quantizationLogFig.tif'), '-dpng', '-r600'); % saves current figure as PNG at 600 dpi
 
                     % Here is the format of all_trials_unpacked
@@ -340,8 +339,7 @@ for pp = 1:length(theParticipants)
                                     saveas(hs,fullfile(pathToAnalysis,sprintf('staircasePlot_run%d.tif',zz)),'tif');
                                     title('');
                                     drawnow;
-%                                     saveas(hs,fullfile(pathToAnalysis,sprintf('staircasePlotNoTitle_run%d.tif',zz)),'tif');
-                                    print(gcf, fullfile(pathToAnalysis,sprintf('staircasePlotNoTitle_run%d.tif',zz)), '-dpng', '-r600'); % saves current figure as PNG at 600 dpi
+                                    print(hs, fullfile(pathToAnalysis,sprintf('staircasePlotNoTitle_run%d.png',zz)), '-dpng', '-r600'); % saves current figure as PNG at 600 dpi
 
                                 end
                             end
@@ -379,6 +377,8 @@ for pp = 1:length(theParticipants)
                     end
                     drawnow;
                     saveas(h,fullfile(pathToAnalysis,'psychometricFcn.tif'),'tif');
+                    title('');
+                    print(h, fullfile(pathToAnalysis,sprintf('psychometricFcn_NoTitle.png',zz)), '-dpng', '-r600'); 
 
                     % Estimate guess and lapse rates from the data
                     index = find(trial_log_intensities == log0ValueUse);
