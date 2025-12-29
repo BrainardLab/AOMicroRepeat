@@ -197,8 +197,8 @@ ax.XAxis.LineWidth = 2;
 ax.YAxis.LineWidth = 2;
 ax.XAxis.FontSize = 12;
 ax.YAxis.FontSize = 12;
-xlabel({'Mean (MOCS,';'QUEST) Sensitivity(dB)'}'');
-ylabel('(MOCS - QUEST) Sensitivitity (dB)');
+xlabel({'Mean Sensitivity(dB)'}'');
+ylabel('MOCS - QUEST Sensitivitity (dB)');
 set(gcf, 'PaperPositionMode', 'auto');
 print(gcf,fullfile(analysisDir,outputVariant,'figure3b.png'),'-dpdf','-r600');
 
@@ -217,8 +217,8 @@ ax.XAxis.LineWidth = 2;
 ax.YAxis.LineWidth = 2;
 ax.XAxis.FontSize = 12;
 ax.YAxis.FontSize = 12;
-xlabel({'Mean (MOCS,';'QUEST) Sensitivity(dB)'}'');
-ylabel('(MOCS - QUEST) Sensitivitity (dB)');
+xlabel({'Mean Sensitivity(dB)'}'');
+ylabel('MOCS - QUEST Sensitivitity (dB)');
 set(gcf, 'PaperPositionMode', 'auto');
 print(gcf,fullfile(analysisDir,outputVariant,'figure3c.png'),'-dpng','-r600');
 
@@ -239,8 +239,8 @@ ax.XAxis.FontSize = 12;
 ax.YAxis.FontSize = 12;
 ticks = 24:2:32; 
 xticks(ticks);
-xlabel({'Mean (MOCS,';'QUEST) Sensitivity(dB)'}'');
-ylabel('(MOCS - QUEST) Sensitivitity (dB)');
+xlabel({'Mean Sensitivity(dB)'}'');
+ylabel('MOCS - QUEST Sensitivitity (dB)');
 set(gcf, 'PaperPositionMode', 'auto');
 print(gcf,fullfile(analysisDir,outputVariant,'figure3d.png'), '-dpng', '-r600');
 
@@ -261,8 +261,8 @@ ax.XAxis.FontSize = 12;
 ax.YAxis.FontSize = 12;
 ticks = 24:2:32; 
 xticks(ticks);
-xlabel({'Mean (MOCS,';'QUEST) Sensitivity(dB)'}'');
-ylabel('(MOCS - QUEST) Sensitivitity (dB)');
+xlabel({'Mean Sensitivity(dB)'}'');
+ylabel('MOCS - QUEST Sensitivitity (dB)');
 set(gcf,'PaperPositionMode', 'auto');
 print(gcf,fullfile(analysisDir,outputVariant,'figure3e.png'),'-dpng','-r600');
 
