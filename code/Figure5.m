@@ -76,6 +76,12 @@ for dd = 1:length(theDiameters)
     fprintf('\t%d pixels, p = %0.2f\n',theDiameters(dd),p(dd));
 end
 
+fprintf('\n');
+fprintf('Session1, 8 pixels, mean +/- stderr %0.1f +/- %0.1f\n', mean(sensitivitySessionwise(:,1,1)),std(sensitivitySessionwise(:,1,1))/sqrt(length(sensitivitySessionwise(:,1,1))));
+fprintf('Session2, 8 pixels, mean +/- stderr %0.1f +/- %0.1f\n', mean(sensitivitySessionwise(:,1,2)),std(sensitivitySessionwise(:,1,2))/sqrt(length(sensitivitySessionwise(:,1,2))));
+fprintf('Session1, 43 pixels, mean +/- stderr %0.1f +/- %0.1f\n', mean(sensitivitySessionwise(:,2,1)),std(sensitivitySessionwise(:,2,1))/sqrt(length(sensitivitySessionwise(:,2,1))));
+fprintf('Session2, 43 pixels, mean +/- stderr %0.1f +/- %0.1f\n', mean(sensitivitySessionwise(:,2,2)),std(sensitivitySessionwise(:,2,2))/sqrt(length(sensitivitySessionwise(:,2,2))));
+
 %% Figure 5b (Bland Altman plot) 
 Session1_8pixels = sensitivitySessionwise(:,1,1);
 Session2_8pixels = sensitivitySessionwise(:,1,2);
@@ -141,7 +147,7 @@ print(gcf,fullfile(analysisDir,outputVariant,'figure5c.png'),'-dpng','-r600');
 %% t-test for 8 Vs 43 pixel stimulus
 [~,p(1,1)] = ttest(Session1_8pixels,Session1_43pixels);
 [~,p(1,2)] = ttest(Session2_8pixels,Session2_43pixels);
-fprintf('Between-Session (8 Vs 43 pixels) t-test p values\n');
+fprintf('\nBetween-Session (8 Vs 43 pixels) t-test p values\n');
 for ss = 1:length(theSessions)
     fprintf('\t Session %d, p = %0.4f\n',theSessions(ss),p(ss));
 end
