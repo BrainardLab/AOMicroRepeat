@@ -256,10 +256,14 @@ for dd = 1:length(theSplits)
     end
 end
 
-%% Print limits of agreement
+%% Print limits of agreement and CoR
 fprintf('\n');
 fprintf('Group1 Vs Group2 : Session1, 8 pixels, LoA: %.2f, %.2f\n', LoA_Session1_8pixels);
 fprintf('Group1 Vs Group2 : Session1, 43 pixels, LoA: %.2f, %.2f\n', LoA_Session1_43pixels);
 fprintf('Group1 Vs Group2 : Session2, 8 pixels, LoA: %.2f, %.2f\n', LoA_Session2_8pixels);
 fprintf('Group1 Vs Group2 : Session2, 43 pixels, LoA: %.2f, %.2f\n', LoA_Session2_43pixels);
 
+fprintf('Session 1, Group 1 Vs Group 2 : 8 pixels, CoR: %.1f\n', 1.96 * std_diff_Session1_8pixels);
+fprintf('Session 1, Group 1 Vs Group 2 : 43 pixels, CoR: %.1f\n', 1.96 * std_diff_Session1_43pixels);
+fprintf('Session 2, Group 1 Vs Group 2 : 8 pixels, CoR: %.1f\n', 1.96 * std_diff_Session2_8pixels);
+fprintf('Session 2, Group 1 Vs Group 2 : 43 pixels, CoR: %.1f\n', 1.96 * std_diff_Session2_43pixels);
