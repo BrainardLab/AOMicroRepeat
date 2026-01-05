@@ -200,7 +200,7 @@ ax.YAxis.FontSize = 12;
 xlabel({'Mean Sensitivity(dB)'}'');
 ylabel('MOCS - QUEST Sensitivitity (dB)');
 set(gcf, 'PaperPositionMode', 'auto');
-print(gcf,fullfile(analysisDir,outputVariant,'figure3b.png'),'-dpdf','-r600');
+print(gcf,fullfile(analysisDir,outputVariant,'figure3b.png'),'-dpng','-r600');
 
 % (3c) Session 2 8 pixels
 LoA_Session2_8pixels = [mean_diff_Session2_8pixels - 1.96 * std_diff_Session2_8pixels,mean_diff_Session2_8pixels + 1.96 * std_diff_Session2_8pixels];
