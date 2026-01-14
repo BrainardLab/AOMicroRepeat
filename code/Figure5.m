@@ -32,6 +32,8 @@ for pp = 1:length(theSubjects)
 end
 
 %% Figure 5a
+%% For Paper figure convert the diameters to arcmin^2 in label because we used arcmin^2 for stimulus size throughout the paper
+theDiameters = [1.05,30.4]; % 8 pixels corrrespond to 1.05arcmin^2 and 43 pixels correspond to 30.4arcmin^2
 plotSize = [100 100 400 400];
 f = figure('Position',plotSize); clf; hold on
 errorbar(sensitivitySessionwise(:,1,1),sensitivitySessionwise(:,1,2),neg(:,1,1),pos(:,1,1),neg(:,1,2),pos(:,1,2),'bo','MarkerFaceColor','b','MarkerSize',markerSize);
@@ -40,13 +42,15 @@ plot([limMin limMax],[limMin limMax],'k:','LineWidth',2);
 xlabel('Session 1 Sensitivity (dB)');
 ylabel('Session 2 Sensitivity (dB)');
 legend( ...
-    {sprintf('%d pixels',theDiameters(1)) ; ...
-    sprintf('%d pixels',theDiameters(2)) ; ...
+    {sprintf('%.2f arcmin^2',theDiameters(1)) ; ...
+    sprintf('%.1f arcmin^2',theDiameters(2)) ; ...
     sprintf('Line of Equality')}, ...
     'Location','SouthEast');
 axis('square');
 ax=gca;
-set(gca, 'FontName', 'Arial','FontWeight','bold')
+ax.XAxis.FontWeight = 'bold'; % Make x-axis tick labels bold
+ax.YAxis.FontWeight = 'bold'; % Make y-axis tick labels bold
+% set(gca, 'FontName', 'Arial','FontWeight','bold')
 ax.XAxis.LineWidth = 2;
 ax.YAxis.LineWidth = 2;
 ax.XAxis.FontSize = 12;
@@ -55,6 +59,7 @@ ticks = 16:2:32;
 xticks(ticks);
 yticks(ticks);
 lgd = legend('show');
+legend boxoff
 lgd.FontSize = 12; 
 axis([limMin limMax limMin limMax]);
 set(gcf, 'PaperPositionMode', 'auto');

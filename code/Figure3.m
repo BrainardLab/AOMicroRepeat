@@ -83,6 +83,9 @@ for pp = 1:length(theSubjects)
 end
 
 %% Make Figure 3a
+
+%% For Paper figure convert the diameters to arcmin^2 in label because we used arcmin^2 for stimulus size throughout the paper
+theDiameters = [1.05,30.4]; % 8 pixels corrrespond to 1.05arcmin^2 and 43 pixels correspond to 30.4arcmin^2
 plotSize = [100 100 400 400];
 f = figure('Position',plotSize); clf; hold on
 
@@ -94,20 +97,24 @@ errorbar(sensitivityMOCS(:,2,2),sensitivityQUEST(:,2,2),yneg(:,2,2),ypos(:,2,2),
 plot([limMin limMax],[limMin limMax],'k:','LineWidth',2);
 xlabel('MOCS Sensitivity (dB)', 'FontWeight','bold', 'FontSize', 12, 'FontName', 'Times New Roman');
 ylabel('QUEST Sensitivity (dB)','FontWeight','bold', 'FontSize', 12, 'FontName', 'Times New Roman');
+set(gca, 'FontName', 'Arial')
 legend( ...
-    {sprintf('Session %d, %d pixels',theSessions(1),theDiameters(1)) ; ...
-    sprintf('Session %d, %d pixels',theSessions(2),theDiameters(1)) ; ...
-    sprintf('Session %d, %d pixels',theSessions(1),theDiameters(2)) ; ...
-    sprintf('Session %d, %d pixels',theSessions(2),theDiameters(2)) ; ...
+    {sprintf('Session %d, %.2f arcmin^2',theSessions(1),theDiameters(1)) ; ...
+    sprintf('Session %d, %.2f arcmin^2',theSessions(2),theDiameters(1)) ; ...
+    sprintf('Session %d, %.1f arcmin^2',theSessions(1),theDiameters(2)) ; ...
+    sprintf('Session %d, %.1f arcmin^2',theSessions(2),theDiameters(2)) ; ...
     sprintf('Line of Equality')
     }, ...
     'Location','SouthEast');
 axis('square');
 
 lgd = legend('show');
+legend boxoff
 lgd.FontSize = 8; 
 ax=gca;
-set(gca, 'FontName', 'Arial','FontWeight','bold')
+ax.XAxis.FontWeight = 'bold'; % Make x-axis tick labels bold
+ax.YAxis.FontWeight = 'bold'; % Make y-axis tick labels bold
+% set(gca, 'FontName', 'Arial','FontWeight','bold')
 ax.XAxis.LineWidth = 2;
 ax.YAxis.LineWidth = 2;
 ax.XAxis.FontSize = 12;
