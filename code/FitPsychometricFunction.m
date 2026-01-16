@@ -44,7 +44,7 @@ if (make_plot)
         minIntensityLog=-3.6;
     end
     
-    fontsize = 14; fwidth = 3; fheight = 3;
+    fontsize = 14; fwidth = 3.5; fheight = 3.5;
     h = figure('Units', 'inches','Position', [400 200 fwidth fheight],'visible',figure_vis); hold on;
     a0 = gca;
     ax.LineWidth = 2;ax.LineWidth = 2;
@@ -74,7 +74,46 @@ if (make_plot)
     plot(plot_log_intensities,plot_psychometric,'r:','LineWidth',2,'HandleVisibility', 'off');
     plot([minIntensityLog corrected_log_threshold],[thresholdCriterion thresholdCriterion],'k:','LineWidth',2,'HandleVisibility', 'off');
     plot([corrected_log_threshold corrected_log_threshold],[0 thresholdCriterion],'k:','LineWidth',2,'HandleVisibility', 'off');
-   
+    
+    
+[minVal, ~] = min(num_presented);
+[maxVal, ~] = max(num_presented);
+
+% Calculate the marker sizes 
+szMin = 4+round(baseMarkerSize*minVal/sizeNormalizer);
+szMax = 4+round(baseMarkerSize*maxVal/sizeNormalizer);
+
+% Create dummy points for legend 
+% These are invisible on the plot but appear in the legend
+hMin = plot(NaN, NaN, 'ro', 'MarkerSize', szMin, 'MarkerFaceColor', 'r', ...
+    'DisplayName', [num2str(minVal) ' Trials']);
+
+hMax = plot(NaN, NaN, 'ro', 'MarkerSize', szMax, 'MarkerFaceColor', 'r', ...
+    'DisplayName', [num2str(maxVal) ' Trials']);
+
+% Define pluralization for the legend 
+if minVal == 1
+    minTrialSuffix = 'Trial';
+else
+    minTrialSuffix = 'Trials';
+end
+
+% Build the legend only with trial markers
+
+if minVal == maxVal
+    % Only one handle (hMin) and one label
+    hArray = [hMin];
+    labels = {[num2str(minVal) ' ' minTrialSuffix]};
+else
+    % Two handles (hMin, hMax) and two labels
+    hArray = [hMin, hMax];
+    labels = {[num2str(minVal) ' ' minTrialSuffix], [num2str(maxVal) ' Trials']};
+end
+
+% Legend 
+% This will now only show the red circle(s) with trial counts
+lgd = legend(hArray, labels, 'Location', 'southeast', 'FontSize',12);
+legend boxoff;
 else
     h  = [];
 end

@@ -313,7 +313,7 @@ for pp = 1:length(theParticipants)
                                 for zz = 1:nRuns
                                     run_log_intensities = trial_log_intensities((zz-1)*nTrialsPerRun+1:zz*nTrialsPerRun);
                                     run_responses = trial_responses((zz-1)*nTrialsPerRun+1:zz*nTrialsPerRun);
-                                    fontsize = 14; fwidth = 3; fheight = 3;
+                                    fontsize = 14; fwidth = 3.5; fheight = 3.5;
                                     hs = figure('Units', 'inches','Position', [400 200 fwidth fheight]); hold on;
                                     set(gca,'FontName','Arial','FontSize',14);
                                     ax.LineWidth = 2;
@@ -465,8 +465,9 @@ for pp = 1:length(theParticipants)
                     end
                     fprintf('\tDone fitting bootstrapped data\n');
                     boot_quantiles = quantile(boot_corrected_threshold,[0.025 0.5 0.975]);
-                    % figure(h);
-                    plot([boot_quantiles(1) boot_quantiles(3)],[thresholdCriterion thresholdCriterion],'b','LineWidth',4);
+%                     figure(h);set(h, 'Units', 'inches');
+                    set(h, 'Position', [1, 1, 3.5, 3.5]);
+                    plot([boot_quantiles(1) boot_quantiles(3)],[thresholdCriterion thresholdCriterion],'b','LineWidth',4,'HandleVisibility', 'off');
                     saveas(h,fullfile(pathToAnalysis,'psychometricFcnCI.tif'),'tif');
 
                     % Save a version without our informative title, for
