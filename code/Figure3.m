@@ -95,8 +95,8 @@ errorbar(sensitivityMOCS(:,2,1),sensitivityQUEST(:,2,1),yneg(:,2,1),ypos(:,2,1),
 errorbar(sensitivityMOCS(:,2,2),sensitivityQUEST(:,2,2),yneg(:,2,2),ypos(:,2,2),xneg(:,2,2),xpos(:,2,2),'r^','MarkerFaceColor','r','MarkerSize',markerSize);
 
 plot([limMin limMax],[limMin limMax],'k:','LineWidth',2);
-xlabel('MOCS Sensitivity (dB)', 'FontWeight','bold', 'FontSize', 12, 'FontName', 'Times New Roman');
-ylabel('QUEST Sensitivity (dB)','FontWeight','bold', 'FontSize', 12, 'FontName', 'Times New Roman');
+xlabel('MOCS Sensitivity (dB)', 'FontWeight','bold', 'FontSize', 10, 'FontName', 'Times New Roman');
+ylabel('QUEST Sensitivity (dB)','FontWeight','bold', 'FontSize', 10, 'FontName', 'Times New Roman');
 set(gca, 'FontName', 'Arial')
 legend( ...
     {sprintf('Session %d, %.2f arcmin^2',theSessions(1),theDiameters(1)) ; ...
@@ -117,8 +117,8 @@ ax.YAxis.FontWeight = 'bold'; % Make y-axis tick labels bold
 % set(gca, 'FontName', 'Arial','FontWeight','bold')
 ax.XAxis.LineWidth = 2;
 ax.YAxis.LineWidth = 2;
-ax.XAxis.FontSize = 12;
-ax.YAxis.FontSize = 12;
+ax.XAxis.FontSize = 10;
+ax.YAxis.FontSize = 10;
 axis([limMin limMax limMin limMax]);
 ticks = 16:2:32; 
 xticks(ticks);
@@ -190,85 +190,97 @@ std_diff_Session2_43pixels = std(diff_Session2_43pixels);
 
 % (3b) Session1 8 Pixels 
 LoA_Session1_8pixels = [mean_diff_Session1_8pixels - 1.96 * std_diff_Session1_8pixels, mean_diff_Session1_8pixels + 1.96 * std_diff_Session1_8pixels];
-plotSize = [100 100 200 400];
-figure('Position', plotSize);
+h = figure; 
+set(h, 'Units', 'inches');
+set(h, 'Position', [2, 2, 1.8, 3]);
 scatter(mean_Session1_8pixels, diff_Session1_8pixels, 25, 'blue', 'filled', 'o', 'MarkerFaceAlpha', 0.6, 'DisplayName', 'SS8S1');% Plot Bland-Altman data for each comparison
 line([18, 23], [mean_diff_Session1_8pixels, mean_diff_Session1_8pixels], 'Color', 'blue', 'LineWidth', 4, 'LineStyle', '-', 'DisplayName', 'Mean Difference (SS8, S1)');% Plot mean differences and limits of agreement
 line([18, 23], [LoA_Session1_8pixels(2), LoA_Session1_8pixels(2)], 'Color', 'blue', 'LineWidth', 2, 'LineStyle', '-', 'DisplayName', 'Upper Limit (SS8, S1)');
 line([18, 23], [LoA_Session1_8pixels(1), LoA_Session1_8pixels(1)], 'Color', 'blue', 'LineWidth', 2, 'LineStyle', '-',  'DisplayName', 'Lower Limit (SS8, S1)');
 ax = gca;
-set(gca, 'FontName', 'Arial','FontWeight','bold','FontSize', 12)
+set(gca, 'FontName', 'Arial','FontWeight','bold','FontSize', 10)
+
 ax.XLim = [16, 24];
 ax.YLim = [-2.5, 2.5];
 ax.XAxis.LineWidth = 2;
 ax.YAxis.LineWidth = 2;
-ax.XAxis.FontSize = 12;
-ax.YAxis.FontSize = 12;
-xlabel({'Mean Sensitivity(dB)'}'');
+ax.XAxis.FontSize = 10;
+ax.YAxis.FontSize = 10;
+daspect([4 1 1]);
+xlabel({'Mean Sensitivity (dB)'}'');
 ylabel('MOCS - QUEST Sensitivitity (dB)');
 set(gcf, 'PaperPositionMode', 'auto');
 print(gcf,fullfile(analysisDir,outputVariant,'figure3b.png'),'-dpng','-r600');
 
 % (3c) Session 2 8 pixels
 LoA_Session2_8pixels = [mean_diff_Session2_8pixels - 1.96 * std_diff_Session2_8pixels,mean_diff_Session2_8pixels + 1.96 * std_diff_Session2_8pixels];
-figure('Position', plotSize);
+h = figure; 
+set(h, 'Units', 'inches');
+set(h, 'Position', [2, 2, 1.8, 3]);
 scatter(mean_Session2_8pixels, diff_Session2_8pixels, 25, 'blue', 'filled', '^', 'MarkerFaceAlpha', 0.6, 'DisplayName', 'SS8S2');
 line([18, 23], [mean_diff_Session2_8pixels, mean_diff_Session2_8pixels], 'Color', 'blue', 'LineWidth', 4, 'LineStyle', '--', 'DisplayName', 'Mean Difference (SS8, S2)');
 line([18, 23], [LoA_Session2_8pixels(2), LoA_Session2_8pixels(2)], 'Color', 'blue', 'LineWidth', 2, 'LineStyle', '--',  'DisplayName', 'Upper Limit (SS8, S2)');
 line([18, 23], [LoA_Session2_8pixels(1), LoA_Session2_8pixels(1)], 'Color', 'blue', 'LineWidth', 2, 'LineStyle', '--',  'DisplayName', 'Lower Limit (SS8, S2)');
 ax = gca;
-set(gca, 'FontName', 'Arial','FontWeight','bold','FontSize', 12)
+set(gca, 'FontName', 'Arial','FontWeight','bold','FontSize', 10)
 ax.XLim = [16, 24];
 ax.YLim = [-2.5, 2.5];
 ax.XAxis.LineWidth = 2;
 ax.YAxis.LineWidth = 2;
-ax.XAxis.FontSize = 12;
-ax.YAxis.FontSize = 12;
-xlabel({'Mean Sensitivity(dB)'}'');
+ax.XAxis.FontSize = 10;
+ax.YAxis.FontSize = 10;
+daspect([4 1 1]);
+xlabel({'Mean Sensitivity (dB)'}'');
 ylabel('MOCS - QUEST Sensitivitity (dB)');
 set(gcf, 'PaperPositionMode', 'auto');
 print(gcf,fullfile(analysisDir,outputVariant,'figure3c.png'),'-dpng','-r600');
 
 % (3d) Session 1 43 pixels
 LoA_Session1_43pixels = [mean_diff_Session1_43pixels - 1.96 * std_diff_Session1_43pixels,mean_diff_Session1_43pixels + 1.96 * std_diff_Session1_43pixels];
-figure('Position', plotSize);
+h = figure; 
+set(h, 'Units', 'inches');
+set(h, 'Position', [2, 2, 1.8, 3]);
 scatter(mean_Session1_43pixels, diff_Session1_43pixels, 25, 'red', 'filled', 'o', 'MarkerFaceAlpha', 0.6, 'DisplayName', 'SS43S1');
 line([26, 30], [mean_diff_Session1_43pixels, mean_diff_Session1_43pixels], 'Color', 'red', 'LineWidth', 4, 'LineStyle', '-', 'DisplayName', 'Mean Difference (SS43, S1)');
 line([26, 30], [LoA_Session1_43pixels(2), LoA_Session1_43pixels(2)], 'Color', 'red', 'LineWidth', 2, 'LineStyle', '-',  'DisplayName', 'Lower Limit (SS43, S1)');
 line([26, 30], [LoA_Session1_43pixels(1), LoA_Session1_43pixels(1)], 'Color', 'red', 'LineWidth', 2, 'LineStyle', '-',  'DisplayName', 'Upper Limit (SS43, S1)');
 ax = gca;
-set(gca, 'FontName', 'Arial','FontWeight','bold','FontSize', 12)
+set(gca, 'FontName', 'Arial','FontWeight','bold','FontSize', 10)
 ax.XLim = [24, 32];
 ax.YLim = [-2.5, 2.5];
 ax.XAxis.LineWidth = 2;
 ax.YAxis.LineWidth = 2;
-ax.XAxis.FontSize = 12;
-ax.YAxis.FontSize = 12;
+ax.XAxis.FontSize = 10;
+ax.YAxis.FontSize = 10;
+daspect([4 1 1]);
 ticks = 24:2:32; 
 xticks(ticks);
-xlabel({'Mean Sensitivity(dB)'}'');
+xlabel({'Mean Sensitivity (dB)'}'');
 ylabel('MOCS - QUEST Sensitivitity (dB)');
 set(gcf, 'PaperPositionMode', 'auto');
 print(gcf,fullfile(analysisDir,outputVariant,'figure3d.png'), '-dpng', '-r600');
 
 % (3e) Session 2 43 pixels
 LoA_Session2_43pixels = [mean_diff_Session2_43pixels - 1.96 * std_diff_Session2_43pixels,mean_diff_Session2_43pixels + 1.96 * std_diff_Session2_43pixels];
-figure('Position', plotSize);
+h = figure; 
+set(h, 'Units', 'inches');
+set(h, 'Position', [2, 2, 1.8, 3]);
 scatter(mean_Session2_43pixels, diff_Session2_43pixels, 25, 'red', 'filled', '^', 'MarkerFaceAlpha', 0.6, 'DisplayName', 'SS43S2');
 line([26, 30], [mean_diff_Session2_43pixels, mean_diff_Session2_43pixels], 'Color', 'red', 'LineWidth', 4, 'LineStyle', '--', 'DisplayName', 'Mean Difference (SS43, S2)');
 line([26, 30], [LoA_Session2_43pixels(2), LoA_Session2_43pixels(2)], 'Color', 'red', 'LineWidth', 2, 'LineStyle', '--',  'DisplayName', 'Upper Limit (SS43, S2)');
 line([26, 30], [LoA_Session2_43pixels(1), LoA_Session2_43pixels(1)], 'Color', 'red', 'LineWidth', 2, 'LineStyle', '--',  'DisplayName', 'Lower Limit (SS43, S2)');
 ax = gca;
-set(gca, 'FontName', 'Arial','FontWeight','bold','FontSize', 12)
+set(gca, 'FontName', 'Arial','FontWeight','bold','FontSize', 10)
 ax.XLim = [24, 32];
 ax.YLim = [-2.5, 2.5];
 ax.XAxis.LineWidth = 2;
 ax.YAxis.LineWidth = 2;
-ax.XAxis.FontSize = 12;
-ax.YAxis.FontSize = 12;
+ax.XAxis.FontSize = 10;
+ax.YAxis.FontSize = 10;
+daspect([4 1 1]);
 ticks = 24:2:32; 
 xticks(ticks);
-xlabel({'Mean Sensitivity(dB)'}'');
+xlabel({'Mean Sensitivity (dB)'}'');
 ylabel('MOCS - QUEST Sensitivitity (dB)');
 set(gcf,'PaperPositionMode', 'auto');
 print(gcf,fullfile(analysisDir,outputVariant,'figure3e.png'),'-dpng','-r600');
