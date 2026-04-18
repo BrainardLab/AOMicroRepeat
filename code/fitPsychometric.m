@@ -3,12 +3,12 @@
 % Wrapper into Palamedes that fits the logistic with parameters reasonable
 % for our data.
 function [fit_log_intensity,fit_psychometric,corrected_fit_psychometric, ...
-    log_threshold,corrected_log_threshold,psiParamsValues] = fitPsychometric(log_intensity,num_pos,out_of_num,threshold_criterion,convert_to_db, ...
+    log_threshold,corrected_log_threshold,psiParamsValues,correctForGuessing_log_threshold] = fitPsychometric(log_intensity,num_pos,out_of_num,threshold_criterion,convert_to_db, ...
     guessUpper,lapseUpper,slopeLower,slopeUpper)
 %
 % Usage:
 %   [fit_log_intensity,fit_psychometric,corrected_fit_psychonmetric, ...
-%        log_threshold,corrected_log_threshold,psiParamsValues] = fitPsychometric(log_intensity,num_pos,out_of_num,threshold_criterion)
+%        log_threshold,corrected_log_threshold,psiParamsValues,correctForGuessing_log_threshold] = fitPsychometric(log_intensity,num_pos,out_of_num,threshold_criterion)
 %
 % Inputs:
 %   log_intensity : (vector) log10 stimulus levels tested
@@ -19,6 +19,7 @@ function [fit_log_intensity,fit_psychometric,corrected_fit_psychometric, ...
 % History:
 %   07/05/21  amn  Wrote it.
 %   06/28/25  dhb  Adopted for this project
+%   04/18/26  dhb  Added standard high threshold correct for guessing.
 
 % Calculate x-axis values to plot
 %
@@ -92,5 +93,22 @@ psiParamsValuesCorrect(3) = 0;
 psiParamsValuesCorrect(4) = 0;
 corrected_fit_psychometric = PF(psiParamsValuesCorrect,fit_log_intensity);
 corrected_log_threshold = PF(psiParamsValuesCorrect,threshold_criterion,'inverse');
+
+% Correct using high threshold approach
+%
+% Take the desired corrected criterion percent correct and uncorrect it
+% with the guess and lapse rates.  This is then the criterion percent
+% correct on the raw fit values that when corrected for guessing yields
+% the target corrected percent correct crititerion.
+pGuess = psiParamsValues(3);
+pLapse = psiParamsValues(4);
+uncorrectForGuessing_criterion = UncorrectForGuessing(threshold_criterion,pGuess,pLapse);
+correctForGuessing_log_threshold = PF(psiParamsValues,uncorrectForGuessing_criterion,'inverse');
+
+if (abs(corrected_log_threshold-correctForGuessing_log_threshold) > 1e-6)
+    corrected_log_threshold
+    correctForGuessing_log_threshold
+end
+
 
 end
