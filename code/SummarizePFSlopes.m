@@ -277,7 +277,7 @@ rateTablefile = fopen(fullfile(analysisDir,outputVariant,'tableS2.txt'),"w");
 tempMOCS = round(guessFromDataMOCS.*guessNTrialsFromDataMOCS);
 tempQUEST = round(guessFromDataQUEST.*guessNTrialsFromDataQUEST);
 for ss = 1:size(tempMOCS,2)
-    fprintf(rateTablefile,'\nGuess Rates, Session %d\n',ss);
+    fprintf(rateTablefile,'\nFalse Positive Rates, Session %d\n',ss);
     for pp = 1:length(theSubjects)
         fprintf(rateTablefile,'%s\t%d/%d\t%d/%d\t%d/%d\t%d/%d\t%d/%d (%0.1f%%)\n', ...
             theSubjects{pp}, ...
